@@ -1,9 +1,11 @@
 #ifndef __Hypergraph_H__
 #define __Hypergraph_H__
 
+#include <utility>
 #include <vector>
 
 using namespace std;
+
 
 /**
  *  Represents a hypergraph (or family of sets) as bipartite graph using an adjacency list.
@@ -15,6 +17,11 @@ public:
     // Default constructor.
     // Creates an empty hypergraph.
     Hypergraph();
+
+    // Constructor.
+    // Creates a hypergraph based on an edge list.
+    // Edges go from a hyperede to a vertex.
+    Hypergraph(vector<pair<int, int>>& eList);
 
     // Destructor.
 	~Hypergraph();

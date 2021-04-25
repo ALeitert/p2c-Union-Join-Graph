@@ -10,6 +10,39 @@ Hypergraph::Hypergraph() : Hypergraph(0, 0)
 }
 
 // Constructor.
+// Creates a hypergraph based on an edge list.
+// Edges go from a hyperede to a vertex.
+Hypergraph::Hypergraph(vector<pair<int, int>>& eList)
+{
+    vector<vector<int>> eSet;
+    vector<vector<int>> vSet;
+
+    for (int i = 0; i < eList.size(); i++)
+    {
+        int eId = eList[i].first;
+        int vId = eList[i].second;
+
+        while (eSet.size() <= eId) eSet.push_back(vector<int>());
+        while (vSet.size() <= vId) vSet.push_back(vector<int>());
+
+        eSet[eId].push_back(vId);
+        vSet[vId].push_back(eId);
+    }
+
+    initialize(vSet.size(), eSet.size(), eList.size());
+
+    for (int j = 0; j < eSize; j++)
+    {
+        hyperedges[j] = std::move(eSet[j]);
+    }
+
+    for (int i = 0; i < vSize; i++)
+    {
+        vertices[i] = std::move(vSet[i]);
+    }
+}
+
+// Constructor.
 // Initialises a new hypergraph with n vertices and m hyperedges.
 // Does not create any edges in the bipartite representation.
 Hypergraph::Hypergraph(const int n, const int m)
