@@ -23,6 +23,9 @@ public:
     // Edges go from a hyperede to a vertex.
     Hypergraph(vector<pair<int, int>>& eList);
 
+    // Move constructor.
+    Hypergraph(Hypergraph&&);
+
     // Destructor.
 	~Hypergraph();
 
@@ -35,6 +38,11 @@ public:
 
     // The combined size of all hyperedges.
     int getTotalSize() const;
+
+
+    // Move assignment.
+    Hypergraph& operator= (Hypergraph&&);
+
 
     // Returns the hyperedge with index i.
     const vector<int>& operator[](const int i) const;
@@ -55,6 +63,10 @@ private:
     // and sets the total size to N.
     // Does not create any edges in the bipartite representation.
     void initialize(const int n, const int m, const int N);
+
+    // Helper function for destructor and similar operations.
+    // Frees occupied memory.
+    void destruct();
 
 
     // The number n of vertices.

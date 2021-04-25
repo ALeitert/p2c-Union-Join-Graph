@@ -50,11 +50,23 @@ Hypergraph::Hypergraph(const int n, const int m)
     initialize(n, m, 0);
 }
 
+// Move constructor.
+Hypergraph::Hypergraph(Hypergraph&& other)
+{
+    vSize = other.vSize;
+    eSize = other.eSize;
+    tSize = other.tSize;
+
+    vertices = other.vertices;
+    hyperedges = other.hyperedges;
+
+    other.initialize(0, 0, 0);
+}
+
 // Destructor.
 Hypergraph::~Hypergraph()
 {
-    delete[] vertices;
-    delete[] hyperedges;
+    destruct();
 }
 
 
@@ -70,6 +82,14 @@ void Hypergraph::initialize(const int n, const int m, const int N)
 
     vertices = new vector<int>[vSize];
     hyperedges = new vector<int>[eSize];
+}
+
+// Helper function for destructor and similar operations.
+// Frees occupied memory.
+void Hypergraph::destruct()
+{
+    delete[] vertices;
+    delete[] hyperedges;
 }
 
 
@@ -90,6 +110,25 @@ int Hypergraph::getTotalSize() const
 {
     return tSize;
 }
+
+
+// Move assignment.
+Hypergraph& Hypergraph::operator= (Hypergraph&& other)
+{
+    destruct();
+
+    vSize = other.vSize;
+    eSize = other.eSize;
+    tSize = other.tSize;
+
+    vertices = other.vertices;
+    hyperedges = other.hyperedges;
+
+    other.initialize(0, 0, 0);
+
+    return *this;
+}
+
 
 // Returns the hyperedge with index i.
 const vector<int>& Hypergraph::operator[](const int i) const
