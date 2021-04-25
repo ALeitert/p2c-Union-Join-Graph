@@ -35,13 +35,20 @@ public:
     // Returns the hyperedges containing the vertex with index j.
     const vector<int>& operator()(const int j) const;
 
+
+private:
+
     // Constructor.
     // Initialises a new hypergraph with n vertices and m hyperedges.
     // Does not create any edges in the bipartite representation.
     Hypergraph(const int n, const int m);
 
+    // Helper function for constructors.
+    // Initialises a new hypergraph with n vertices and m hyperedges,
+    // and sets the total size to N.
+    // Does not create any edges in the bipartite representation.
+    void initialize(const int n, const int m, const int N);
 
-private:
 
     // The number n of vertices.
     int vSize = -1;

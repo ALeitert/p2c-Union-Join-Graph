@@ -14,12 +14,7 @@ Hypergraph::Hypergraph() : Hypergraph(0, 0)
 // Does not create any edges in the bipartite representation.
 Hypergraph::Hypergraph(const int n, const int m)
 {
-    vSize = n;
-    eSize = m;
-    tSize = 0;
-
-    vertices = new vector<int>[vSize];
-    hyperedges = new vector<int>[eSize];
+    initialize(n, m, 0);
 }
 
 // Destructor.
@@ -28,6 +23,22 @@ Hypergraph::~Hypergraph()
     delete[] vertices;
     delete[] hyperedges;
 }
+
+
+// Helper function for constructors.
+// Initialises a new hypergraph with n vertices and m hyperedges,
+// and sets the total size to N.
+// Does not create any edges in the bipartite representation.
+void Hypergraph::initialize(const int n, const int m, const int N)
+{
+    vSize = n;
+    eSize = m;
+    tSize = N;
+
+    vertices = new vector<int>[vSize];
+    hyperedges = new vector<int>[eSize];
+}
+
 
 // The number n of vertices.
 int Hypergraph::getVSize() const
