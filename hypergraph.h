@@ -45,7 +45,7 @@ public:
     // Constructor.
     // Creates a hypergraph based on an edge list.
     // Edges go from a hyperede to a vertex.
-    Hypergraph(vector<evPair>& eList);
+    Hypergraph(const vector<evPair>& eList);
 
     // Move constructor.
     Hypergraph(Hypergraph&&);

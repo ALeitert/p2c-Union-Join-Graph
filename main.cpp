@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unordered_set>
 
+#include "helper.h"
 #include "hypergraph.h"
 
 using namespace std;
@@ -18,12 +19,13 @@ Hypergraph randomHG(int n, int m, int N)
         int vId = rand() % n;
 
         evPair p(eId, vId);
-        if (pSet.count(p) == 0) continue;
+        if (pSet.count(p) > 0) continue;
 
         pSet.insert(p);
         list.push_back(p);
     }
 
+    sortPairsRadix(list);
     return Hypergraph(list);
 }
 

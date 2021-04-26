@@ -12,7 +12,7 @@ Hypergraph::Hypergraph() : Hypergraph(0, 0)
 // Constructor.
 // Creates a hypergraph based on an edge list.
 // Edges go from a hyperede to a vertex.
-Hypergraph::Hypergraph(vector<evPair>& eList)
+Hypergraph::Hypergraph(const vector<evPair>& eList)
 {
     vector<vector<int>> eSet;
     vector<vector<int>> vSet;
