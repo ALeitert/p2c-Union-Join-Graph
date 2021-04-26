@@ -1,9 +1,20 @@
 #include "helper.h"
 
 
+size_t intPairHash::operator() (intPair const &pair) const
+{
+    size_t h1 = hash<int>()(pair.first);
+    size_t h2 = hash<int>()(pair.second);
+
+    h1 = ((h1 << shift) & high) | ((h1 >> shift) & low);
+
+    return h1 ^ h2;
+}
+
+
 // Sorts a set of integer pairs using radix sort.
 // Requires O(n + k) additional memory.
-void sortPairsRadix(vector<pair<int, int>>& pairs)
+void sortPairsRadix(vector<intPair>& pairs)
 {
     // --- Counting sort on second dimension. ---
 

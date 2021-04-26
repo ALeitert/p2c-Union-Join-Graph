@@ -4,31 +4,9 @@
 #include <utility>
 #include <vector>
 
+#include "helper.h"
+
 using namespace std;
-
-
-typedef pair<int, int> evPair;
-
-// Based on https://www.techiedelight.com/use-pair-key-std-unordered_set-cpp/
-// Allows to use evPair with unordered_set class.
-class evPairHash
-{
-    static const size_t shift = sizeof(size_t) / 2;
-    static const size_t low = (1 << shift) - 1;
-    static const size_t high = low << shift;
-
-public:
-    size_t operator() (evPair const &pair) const
-    {
-        size_t h1 = hash<int>()(pair.first);
-        size_t h2 = hash<int>()(pair.second);
-
-        h1 = ((h1 << shift) & high) | ((h1 >> shift) & low);
-
-        return h1 ^ h2;
-    }
-};
-
 
 
 /**
@@ -45,7 +23,7 @@ public:
     // Constructor.
     // Creates a hypergraph based on an edge list.
     // Edges go from a hyperede to a vertex.
-    Hypergraph(const vector<evPair>& eList);
+    Hypergraph(const vector<intPair>& eList);
 
     // Move constructor.
     Hypergraph(Hypergraph&&);

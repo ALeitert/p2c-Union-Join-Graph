@@ -10,15 +10,15 @@ using namespace std;
 
 Hypergraph randomHG(int n, int m, int N)
 {
-    unordered_set<evPair, evPairHash> pSet;
-    vector<evPair> list;
+    unordered_set<intPair, intPairHash> pSet;
+    vector<intPair> list;
 
     for (int i = 0; i < N; i++)
     {
         int eId = rand() % m;
         int vId = rand() % n;
 
-        evPair p(eId, vId);
+        intPair p(eId, vId);
         if (pSet.count(p) > 0) continue;
 
         pSet.insert(p);
