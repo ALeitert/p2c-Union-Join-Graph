@@ -1,5 +1,6 @@
 #include "helper.h"
 
+#include <iostream>
 
 // Sorts a set of integer pairs using radix sort.
 // Requires O(n + k) additional memory.
