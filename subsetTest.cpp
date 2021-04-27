@@ -7,12 +7,12 @@
 
 
 // Generates a random DAG of the given size.
-// Returns an sorted edge list of the generated graph.
+// Returns an edge list of the generated graph in topological order.
 vector<intPair> randomDAG(int size, int avgDeg)
 {
     // --- Create topological order. ---
 
-    // topOrder[vId] == i states that vertex v is at index i in a topological order.
+    // topOrder[i] == vId states that vertex v is at index i in a topological order.
     int topOrder[size];
     for (int i = 0; i < size; i++)
     {
@@ -32,19 +32,19 @@ vector<intPair> randomDAG(int size, int avgDeg)
 
     for (int i = 0; i < edges; i++)
     {
-        int frId = rand() % size;
+        int fIdx = rand() % size;
 
-        // Ensures vId != uId
-        int toId = rand() % (size - 1);
-        if (toId >= frId) toId++;
+        // Ensures frId != tIdx
+        int tIdx = rand() % (size - 1);
+        if (tIdx >= fIdx) tIdx++;
 
-        if (topOrder[frId] > topOrder[toId])
+        if (fIdx > tIdx)
         {
-            swap(frId, toId);
+            swap(fIdx, tIdx);
         }
 
         // Avoid duplicates.
-        intPair p(frId, toId);
+        intPair p(fIdx, tIdx);
         if (pSet.count(p) > 0) continue;
 
         pSet.insert(p);
@@ -52,5 +52,15 @@ vector<intPair> randomDAG(int size, int avgDeg)
     }
 
     sortPairsRadix(list);
+
+    // Replace indices (in topological order) with vertex-IDs.
+    for (int i = 0; i < size; i++)
+    {
+        intPair& p = list[i];
+
+        p.first = topOrder[p.first];
+        p.second = topOrder[p.second];
+    }
+
     return list;
 }
