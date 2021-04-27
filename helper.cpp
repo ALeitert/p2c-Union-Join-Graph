@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "helper.h"
 
 
@@ -79,3 +81,13 @@ void sortPairsRadix(vector<intPair>& pairs)
     }
 }
 
+void makePermutation(int* arr, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        arr[i] = i;
+    }
+
+    // No idea why std::begin()/end() do not work.
+    random_shuffle(arr, arr + size);
+}

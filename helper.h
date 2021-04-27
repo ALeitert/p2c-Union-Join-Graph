@@ -28,4 +28,6 @@ public:
 // Requires O(n + k) additional memory.
 void sortPairsRadix(vector<intPair>& pairs);
 
+void makePermutation(int* arr, int size);
+
 #endif

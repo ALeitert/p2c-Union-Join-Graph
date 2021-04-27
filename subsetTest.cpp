@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <unordered_set>
 #include <vector>
 
@@ -8,21 +7,9 @@
 
 // Generates a random DAG of the given size.
 // Returns an edge list of the generated graph in topological order.
+// Each vertex also contains an edge to itself (allows to identify isolated vertices).
 vector<intPair> randomDAG(int size, int avgDeg)
 {
-    // --- Create topological order. ---
-
-    // topOrder[i] == vId states that vertex v is at index i in a topological order.
-    int topOrder[size];
-    for (int i = 0; i < size; i++)
-    {
-        topOrder[i] = i;
-    }
-
-    // No idea why std::begin()/end() do not work.
-    random_shuffle(topOrder, topOrder + size);
-
-
     // --- Create edges. ---
 
     unordered_set<intPair, intPairHash> pSet;
@@ -32,6 +19,9 @@ vector<intPair> randomDAG(int size, int avgDeg)
 
     for (int i = 0; i < edges; i++)
     {
+        // fIdx and tIdx are indices in topological order.
+        // IDs are assigned later.
+
         int fIdx = rand() % size;
 
         // Ensures frId != tIdx
@@ -51,9 +41,21 @@ vector<intPair> randomDAG(int size, int avgDeg)
         list.push_back(p);
     }
 
+    // Add self edges.
+    for (int i = 0; i < size; i++)
+    {
+        list.push_back(intPair(i, i));
+    }
+
     sortPairsRadix(list);
 
-    // Replace indices (in topological order) with vertex-IDs.
+
+    // --- Replace indices (in topological order) with vertex-IDs. ---
+
+    // topOrder[i] == vId states that vertex v is at index i in a topological order.
+    int topOrder[size];
+    makePermutation(topOrder, size);
+
     for (int i = 0; i < size; i++)
     {
         intPair& p = list[i];
