@@ -118,3 +118,29 @@ vector<intPair> transitiveClosure(const vector<intPair>& dag)
     sortPairsRadix(pairs);
     return pairs;
 }
+
+// Computes a sorted list of set-vertex pairs based on a given transitive closure.
+// Assumes that the closure is sorted.
+vector<intPair> buildSets(const vector<intPair>& traClos)
+{
+    // Since closure is sorted, last entry is largest ID.
+    int size = traClos.back().first + 1 /* +1 since IDs start at 0 */;
+
+    // Make copy.
+    vector<intPair> sets(traClos);
+
+
+    // --- Shuffle vertex IDs. ---
+
+    int idShuffle[size];
+    makePermutation(idShuffle, size);
+
+    for (int i = 0; i < sets.size(); i++)
+    {
+        int vIdx = sets[i].second;
+        sets[i].second = idShuffle[vIdx];
+    }
+
+    sortPairsRadix(sets);
+    return sets;
+}
