@@ -66,3 +66,55 @@ vector<intPair> randomDAG(int size, int avgDeg)
 
     return list;
 }
+
+// Computes the transitive closure of a given DAG.
+// Assumes that the DAG is given as edge list in topological order and that each vertex has a loop.
+// Returns a sorted list of edges.
+vector<intPair> transitiveClosure(const vector<intPair>& dag)
+{
+    vector<unordered_set<int>> allSets;
+
+    for (int i = 0; i < dag.size(); i++)
+    {
+        const intPair& p = dag[i];
+
+        int frId = p.first;
+        int toId = p.second;
+
+        while (allSets.size() <= frId)
+        {
+            // Adding allSets.size() ensures that set contains itself.
+            // (int) prevents warning (due to coversion from size_t).
+            allSets.push_back(unordered_set<int>({ (int)allSets.size() }));
+        }
+
+        if (frId == toId) continue;
+
+        unordered_set<int>& set = allSets[frId];
+        unordered_set<int>& subSet = allSets[toId];
+
+        // Add all vertices from subset into current set.
+        for (auto it = subSet.begin(); it != subSet.end(); it++)
+        {
+            int vId = *it;
+            if (set.count(vId) == 0) set.insert(vId);
+        }
+    }
+
+
+    // --- Convert to edge list (of set-to-set edges). ---
+
+    vector<intPair> pairs;
+    for (int i = 0; i < allSets.size(); i++)
+    {
+        unordered_set<int>& set = allSets[i];
+
+        for (auto it = set.begin(); it != set.end(); it++)
+        {
+            pairs.push_back(intPair(i, *it));
+        }
+    }
+
+    sortPairsRadix(pairs);
+    return pairs;
+}
