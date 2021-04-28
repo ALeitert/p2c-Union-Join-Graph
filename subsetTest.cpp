@@ -1,3 +1,4 @@
+#include <cassert>
 #include <unordered_set>
 #include <vector>
 
@@ -6,7 +7,7 @@
 
 
 // Generates a random DAG of the given size.
-// Returns an edge list of the generated graph in topological order.
+// Returns an edge list of the generated graph in reversed topological order.
 // Each vertex also contains an edge to itself (allows to identify isolated vertices).
 vector<intPair> randomDAG(int size, int avgDeg)
 {
@@ -19,7 +20,7 @@ vector<intPair> randomDAG(int size, int avgDeg)
 
     for (int i = 0; i < edges; i++)
     {
-        // fIdx and tIdx are indices in topological order.
+        // fIdx and tIdx are indices in reversed topological order.
         // IDs are assigned later.
 
         int fIdx = rand() % size;
@@ -28,7 +29,8 @@ vector<intPair> randomDAG(int size, int avgDeg)
         int tIdx = rand() % (size - 1);
         if (tIdx >= fIdx) tIdx++;
 
-        if (fIdx > tIdx)
+        // Ensure it is reversed topological order.
+        if (fIdx < tIdx)
         {
             swap(fIdx, tIdx);
         }
@@ -52,11 +54,11 @@ vector<intPair> randomDAG(int size, int avgDeg)
 
     // --- Replace indices (in topological order) with vertex-IDs. ---
 
-    // topOrder[i] == vId states that vertex v is at index i in a topological order.
+    // topOrder[i] == vId states that vertex v is at index i in a reversed topological order.
     int topOrder[size];
     makePermutation(topOrder, size);
 
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < list.size(); i++)
     {
         intPair& p = list[i];
 
@@ -90,13 +92,14 @@ vector<intPair> transitiveClosure(const vector<intPair>& dag)
 
         if (frId == toId) continue;
 
+        assert(frId < allSets.size());
+        assert(toId < allSets.size());
         unordered_set<int>& set = allSets[frId];
         unordered_set<int>& subSet = allSets[toId];
 
         // Add all vertices from subset into current set.
-        for (auto it = subSet.begin(); it != subSet.end(); it++)
+        for (const int& vId : subSet)
         {
-            int vId = *it;
             if (set.count(vId) == 0) set.insert(vId);
         }
     }
