@@ -91,3 +91,31 @@ void makePermutation(int* arr, int size)
     // No idea why std::begin()/end() do not work.
     random_shuffle(arr, arr + size);
 }
+
+
+bool isSorted(const vector<intPair>& vec)
+{
+    for (int i = 1; i < vec.size(); i++)
+    {
+        if (vec[i - 1] > vec[i]) return false;
+    }
+
+    return true;
+}
+
+// Checks if the given vector is sorted; if not it creates a sorted copy.
+vector<intPair>* ensureSorting(const vector<intPair>& vec)
+{
+    if (isSorted(vec)) return nullptr;
+
+    vector<intPair>* newVec = new vector<intPair>(vec);
+    sortPairsRadix(*newVec);
+
+    return newVec;
+}
+
+// Checks if the given vector is sorted and sorts it if not.
+void ensureSorting(vector<intPair>& vec)
+{
+    if (isSorted(vec)) sortPairsRadix(vec);
+}
