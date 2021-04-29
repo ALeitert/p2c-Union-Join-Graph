@@ -148,3 +148,18 @@ vector<intPair> buildSets(const vector<intPair>& traClos)
     sortPairsRadix(sets);
     return sets;
 }
+
+void removeLoops(vector<intPair>& list)
+{
+    int count = 0;
+    for (int i = 0; i < list.size(); i++)
+    {
+        const intPair& p = list[i];
+        if (p.first == p.second) continue;
+
+        list[count] = list[i];
+        count++;
+    }
+
+    list.resize(count);
+}
