@@ -9,14 +9,15 @@
 // Generates a random DAG of the given size.
 // Returns an edge list of the generated graph in reversed topological order.
 // Each vertex also contains an edge to itself (allows to identify isolated vertices).
-vector<intPair> randomDAG(int size, int avgDeg)
+vector<intPair> randomDAG(int size, int maxAvgDeg)
 {
     // --- Create edges. ---
 
     unordered_set<intPair, intPairHash> pSet;
     vector<intPair> list;
 
-    int edges = (avgDeg * size) / 2;
+    int maxEdges = (maxAvgDeg * size) / 2;
+    int edges = rand() % (maxEdges + 1); // +1 because modolu is exclusive.
 
     for (int i = 0; i < edges; i++)
     {
