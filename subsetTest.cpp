@@ -124,14 +124,14 @@ vector<intPair> transitiveClosure(const vector<intPair>& dag)
 }
 
 // Computes a sorted list of set-vertex pairs based on a given transitive closure.
-// Assumes that the closure is sorted.
 vector<intPair> buildSets(const vector<intPair>& traClos)
 {
     // Since closure is sorted, last entry is largest ID.
     int size = traClos.back().first + 1 /* +1 since IDs start at 0 */;
 
-    // Make copy.
+    // Make copy and sort it if needed.
     vector<intPair> sets(traClos);
+    ensureSorting(traClos);
 
 
     // --- Shuffle vertex IDs. ---
