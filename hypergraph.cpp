@@ -14,13 +14,17 @@ Hypergraph::Hypergraph() : Hypergraph(0, 0)
 // Edges go from a hyperede to a vertex.
 Hypergraph::Hypergraph(const vector<intPair>& eList)
 {
+    // Ensure input is sorted.
+    vector<intPair>* ptr = ensureSorting(eList);
+    const vector<intPair>& list = (ptr == nullptr ? eList : *ptr);
+
     vector<vector<int>> eSet;
     vector<vector<int>> vSet;
 
-    for (int i = 0; i < eList.size(); i++)
+    for (int i = 0; i < list.size(); i++)
     {
-        int eId = eList[i].first;
-        int vId = eList[i].second;
+        int eId = list[i].first;
+        int vId = list[i].second;
 
         while (eSet.size() <= eId) eSet.push_back(vector<int>());
         while (vSet.size() <= vId) vSet.push_back(vector<int>());
@@ -29,7 +33,7 @@ Hypergraph::Hypergraph(const vector<intPair>& eList)
         vSet[vId].push_back(eId);
     }
 
-    initialize(vSet.size(), eSet.size(), eList.size());
+    initialize(vSet.size(), eSet.size(), list.size());
 
     for (int j = 0; j < eSize; j++)
     {
@@ -40,6 +44,8 @@ Hypergraph::Hypergraph(const vector<intPair>& eList)
     {
         vertices[i] = std::move(vSet[i]);
     }
+
+    if (ptr != nullptr) delete ptr;
 }
 
 // Constructor.

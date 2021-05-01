@@ -24,8 +24,20 @@ public:
 };
 
 
+// Prints a list of integer pairs to the terminal.
+void print(const vector<intPair>& pairs);
+
+
 // Sorts a set of integer pairs using radix sort.
 // Requires O(n + k) additional memory.
 void sortPairsRadix(vector<intPair>& pairs);
+
+void makePermutation(int* arr, int size);
+
+// Checks if the given vector is sorted; if not it creates a sorted copy.
+vector<intPair>* ensureSorting(const vector<intPair>& vec);
+
+// Checks if the given vector is sorted and sorts it if not.
+void ensureSorting(vector<intPair>& vec);
 
 #endif
