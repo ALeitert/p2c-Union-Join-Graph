@@ -1,9 +1,12 @@
 #include <cassert>
+#include <iostream>
 #include <unordered_set>
 #include <vector>
 
 #include "helper.h"
 #include "subsetTest.h"
+
+using namespace std;
 
 
 // Generates a random DAG of the given size.
@@ -162,4 +165,70 @@ void removeLoops(vector<intPair>& list)
     }
 
     list.resize(count);
+}
+
+
+// **** SubsetTest Class ****
+
+// Generates a random hypergraph of the given size and its subsetgraph.
+const Hypergraph& SubsetTest::build(int size)
+{
+    int logSize = -1;
+    for (int s = size; s > 0; s /= 2) logSize++;
+    int avgDeg = rand() % max(logSize - 2, 1) + 2 /* at least 2, at most log n */;
+
+    vector<intPair> dag = randomDAG(size, avgDeg);
+    /* this. */ solution = transitiveClosure(dag);
+    vector<intPair> evPairs = buildSets(solution);
+    removeLoops(solution);
+    /* this. */ h = Hypergraph(evPairs);
+
+    return h;
+}
+
+// Verifies that the given edges represent the subset graph.
+bool SubsetTest::verify(const vector<intPair>& ans) const
+{
+    // Ensure input is sorted.
+    vector<intPair>* ptr = ensureSorting(ans);
+    const vector<intPair>& answer = (ptr == nullptr ? ans : *ptr);
+
+    // Ensure solution is sorted.
+    ensureSorting(solution);
+
+
+    // --- Compare answer and solution. ---
+
+    for (int i = 0; i < answer.size(); i++)
+    {
+        const intPair& ansP = answer[i];
+        const intPair& solP = solution[i];
+
+        if (ansP < solP)
+        {
+            cout << "Edge ("
+                 << ansP.first << ", " << ansP.second
+                 << ") incorrect." << endl;
+            return false;
+        }
+
+        if (ansP > solP)
+        {
+            cout << "Edge ("
+                 << solP.first << ", " << solP.second
+                 << ") missing." << endl;
+            return false;
+        }
+
+        // Both equal, continue with next.
+    }
+
+    if (ptr != nullptr) delete ptr;
+
+    return true;
+}
+
+const vector<intPair>& SubsetTest::getSolution()
+{
+    return solution;
 }
