@@ -13,6 +13,9 @@ namespace SubsetGraph
 {
     // Implements a naive approach to find all subset relations (compairs all pairs of hyperedges).
     vector<intPair> naive(const Hypergraph& hg);
+
+    // Implements Pritchard's "simple" algorithm as published in Algorithmica 1999.
+    vector<intPair> pritchardSimple(const Hypergraph& hg);
 }
 
 #endif

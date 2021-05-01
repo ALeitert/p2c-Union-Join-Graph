@@ -54,3 +54,10 @@ vector<intPair> SubsetGraph::naive(const Hypergraph& hg)
     sortPairsRadix(answer);
     return answer;
 }
+
+
+// Implements Pritchard's "simple" algorithm as published in Algorithmica 1999.
+vector<intPair> pritchardSimple(const Hypergraph& hg)
+{
+    throw "Not implemented.";
+}
