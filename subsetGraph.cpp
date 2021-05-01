@@ -61,12 +61,13 @@ vector<intPair> SubsetGraph::naive(const Hypergraph& hg)
 // Implements Pritchard's "simple" algorithm as published in Algorithmica 1999.
 vector<intPair> SubsetGraph::pritchardSimple(const Hypergraph& hg)
 {
-    throw std::runtime_error("Not implemented.");
-
     // Pritchard assumes for their algorithm that there are no two equal sets.
     // For now, we do not address that problem. If needed, we simplify the hypergraph later.
 
-    // We assune that the internal adjacency lists of the given hypergraph are sorted.
+    // We assune the following about the given hypergraph:
+    //   - The internal adjacency lists are sorted.
+    //   - Each hyperedge contains at least one vertex.
+    //   - Lists do not contain duplicates.
 
 
     // --- Preliminaries ---
@@ -86,4 +87,59 @@ vector<intPair> SubsetGraph::pritchardSimple(const Hypergraph& hg)
     // 3) For each hyperedge y, record edge (x, y) for each x in F.y - y.
 
     // Steps 1) and 2) are already done in the given hypergraph.
+
+
+    // --- Step 3) ---
+
+    vector<intPair> result;
+
+    for (int yId = 0; yId < hg.getESize(); yId++)
+    {
+        const vector<int>& vertices = hg[yId];
+        if (vertices.size() <= 0) throw std::invalid_argument("Invalid hypergraph.");
+
+        // Compute F.y using the following relation:
+        // F.y = \bigcup_{d \in y} F.{d}
+
+
+        // Initialise intersection with hyperedges of "first" vertex.
+        vector<int> intersection(hg(vertices[0]));
+
+        // Intersect with hyperedges of all other vertices.
+        for (int vIdx = 1 /* 0 done above */; vIdx < vertices.size(); vIdx++)
+        {
+            int vId = vertices[vIdx];
+            const vector<int>& vEdges = hg(vId);
+
+            int newSize = 0;
+            for (int i = 0, j = 0; i < intersection.size() && j < vEdges.size();)
+            {
+                int iEdge = intersection[i];
+                int jEdge = vEdges[j];
+
+                if (iEdge == jEdge)
+                {
+                    intersection[newSize] = intersection[i];
+                    newSize++;
+                }
+
+                if (iEdge <= jEdge) i++;
+                if (iEdge >= jEdge) j++;
+            }
+
+            intersection.resize(newSize);
+        }
+
+        // Intersection calculated. Add edges to result.
+        for (int i = 0; i < intersection.size(); i++)
+        {
+            int xId = intersection[i];
+            if (xId == yId) continue;
+
+            result.push_back(intPair(xId, yId));
+        }
+    }
+
+    sortPairsRadix(result);
+    return result;
 }
