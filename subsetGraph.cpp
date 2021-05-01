@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "subsetGraph.h"
 
 
@@ -57,9 +59,9 @@ vector<intPair> SubsetGraph::naive(const Hypergraph& hg)
 
 
 // Implements Pritchard's "simple" algorithm as published in Algorithmica 1999.
-vector<intPair> pritchardSimple(const Hypergraph& hg)
+vector<intPair> SubsetGraph::pritchardSimple(const Hypergraph& hg)
 {
-    throw "Not implemented.";
+    throw std::runtime_error("Not implemented.");
 
     // Pritchard assumes for their algorithm that there are no two equal sets.
     // For now, we do not address that problem. If needed, we simplify the hypergraph later.
