@@ -24,6 +24,10 @@ public:
 };
 
 
+// Prints a list of integer pairs to the terminal.
+void print(const vector<intPair>& pairs);
+
+
 // Sorts a set of integer pairs using radix sort.
 // Requires O(n + k) additional memory.
 void sortPairsRadix(vector<intPair>& pairs);

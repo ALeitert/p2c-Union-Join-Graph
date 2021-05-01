@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iostream>
 
 #include "helper.h"
 
@@ -11,6 +12,18 @@ size_t intPairHash::operator() (intPair const &pair) const
     h1 = ((h1 << shift) & high) | ((h1 >> shift) & low);
 
     return h1 ^ h2;
+}
+
+
+// Prints a list of integer pairs to the terminal.
+void print(const vector<intPair>& pairs)
+{
+    for (int i = 0; i < pairs.size(); i++)
+    {
+        if (i > 0) cout << " | ";
+        cout << pairs[i].first << " " << pairs[i].second;
+    }
+    cout << endl;
 }
 
 
