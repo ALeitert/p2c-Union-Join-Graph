@@ -60,4 +60,28 @@ vector<intPair> SubsetGraph::naive(const Hypergraph& hg)
 vector<intPair> pritchardSimple(const Hypergraph& hg)
 {
     throw "Not implemented.";
+
+    // Pritchard assumes for their algorithm that there are no two equal sets.
+    // For now, we do not address that problem. If needed, we simplify the hypergraph later.
+
+    // We assune that the internal adjacency lists of the given hypergraph are sorted.
+
+
+    // --- Preliminaries ---
+
+    //     F  The given hypergraph.
+
+    //   F.y  The family of hyperedges x of F such that the hyperedge y is a subset of x.
+    //        That is, F.y = { x | x \subseteq y }.
+
+    // F.{d}  The set of all hyperedges x of F such that x contains the vertex d.
+
+
+    // --- Outline ---
+
+    // 1) Order F, i.e., assign each hyperedge in F a unique index.
+    // 2) For each vertex d, compute F.{d}.
+    // 3) For each hyperedge y, record edge (x, y) for each x in F.y - y.
+
+    // Steps 1) and 2) are already done in the given hypergraph.
 }
