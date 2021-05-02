@@ -39,6 +39,34 @@ void print(const vector<int>& vec)
     cout << endl;
 }
 
+bool compareSets(const vector<int>& set, const vector<int>& list)
+{
+    // --- Compare both sets. ---
+
+    for (int i = 0; i < max(set.size(), list.size()); i++)
+    {
+        if (i >= set.size())
+        {
+            cout << list[i] << " in list but not original set.";
+            return false;
+        }
+
+        if (i >= list.size())
+        {
+            cout << set[i] << " in original set but not in list.";
+            return false;
+        }
+
+        if (set[i] != list[i])
+        {
+            cout << "Incorrect number at position " << i << endl;
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main(int argc, char* argv[])
 {
     cout << "*** Union Join and Subset Graph of Acyclic Hypergraphs ***" << endl;
