@@ -3,7 +3,9 @@
 #ifndef __ReducedSet_H__
 #define __ReducedSet_H__
 
+#include <cstdint>
 #include <utility>
+#include <vector>
 
 using namespace std;
 
@@ -13,8 +15,8 @@ class ReducedSet
     // Consider a bit-array A which represents a subset of some set F.
     // A ReducedSet-object represents A in a more memory efficient version.
 
-    // We assume unsigned integers as words (should be 32 bit in most cases).
-    typedef unsigned int word;
+    // We assume 32-bit words.
+    typedef uint32_t word;
 
     // Allows to manage non-zero words and their indices.
     typedef std::pair<int, word> wordIndex;
@@ -24,6 +26,11 @@ public:
     // Default constructor.
     // Creates an empty set.
     ReducedSet();
+
+    // Constructor.
+    // Creates a set from a list of elements.
+    // Assumes that the given list is sorted.
+    ReducedSet(const vector<int>& list);
 
     // Destructor.
     ~ReducedSet();
