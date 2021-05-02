@@ -83,7 +83,6 @@ private:
 class ReducedSet::Iterator : iterator<input_iterator_tag, int>
 {
     // ToDo: Implement required constructors and operators.
-    //   - equality (==) and inequality (!=) comparisons
     //   - dereference as righ-hand side value: *it and it-> (-> returns int*)
 
     // See for more infos:
@@ -113,6 +112,13 @@ public:
 
     // Postfix increment operator.
     Iterator operator++(int);
+
+
+    // Equality comparison.
+    bool operator==(const Iterator& rhs) const;
+
+    // Inequality comparison.
+    bool operator!=(const Iterator& rhs) const;
 
 
     // Creates an iterator that points to the beginning of a given set.

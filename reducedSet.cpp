@@ -204,6 +204,24 @@ ReducedSet::Iterator ReducedSet::Iterator::operator++(int)
 }
 
 
+// Equality comparison.
+bool ReducedSet::Iterator::operator==(const Iterator& rhs) const
+{
+    const Iterator& lhs = *this;
+
+    return
+        lhs.ptr == rhs.ptr &&
+        lhs.length == rhs.length &&
+        lhs.bitIdx == rhs.bitIdx;
+}
+
+// Inequality comparison.
+bool ReducedSet::Iterator::operator!=(const Iterator& rhs) const
+{
+    return !operator==(rhs);
+}
+
+
 // Creates an iterator that points to the beginning of a given set.
 // Is equal to end if set is empty or invalid.
 ReducedSet::Iterator ReducedSet::Iterator::begin(const ReducedSet& set)
