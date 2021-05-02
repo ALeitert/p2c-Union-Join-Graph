@@ -35,7 +35,20 @@ public:
     // Destructor.
     ~ReducedSet();
 
+
+    // Computes the intersection of two sets and returns the result as a new set.
+    ReducedSet operator&(const ReducedSet& rhs) const;
+
+    // Changes the current set to be the intersection of the current and given set.
+    void operator&=(const ReducedSet& rhs);
+
+
 private:
+
+    // Constructor.
+    // Creates a set of the given size that uses the given array.
+    ReducedSet(int size, wordIndex* arr);
+
 
     // The number of nonzero words in the original array A.
     int n = -1;
