@@ -70,6 +70,10 @@ public:
     void print(ostream& out) const;
 
 
+    // Converts the set into a list representation.
+    vector<int> toList();
+
+
     // Allows to iterate over all elements stored in the set.
     class Iterator;
 

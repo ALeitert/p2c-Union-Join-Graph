@@ -160,6 +160,20 @@ void ReducedSet::print(ostream& out) const
 }
 
 
+// Converts the set into a list representation.
+vector<int> ReducedSet::toList()
+{
+    vector<int> list;
+
+    for (auto it = begin(); it != end(); ++it)
+    {
+        list.push_back(*it);
+    }
+
+    return list;
+}
+
+
 // Creates an iterator pointing to the first element of the set.
 ReducedSet::Iterator ReducedSet::begin() const
 {
