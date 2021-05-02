@@ -19,6 +19,18 @@ class ReducedSet
     // We assume 32-bit words.
     typedef uint32_t word;
 
+    // The values below allow to transform between bit representation and represented numbers with bit operations instead of multiplication, division, and modulo.
+
+    // See https://stackoverflow.com/a/11376759
+    #define LOG2(X) ((unsigned) ((sizeof(unsigned long long) << 3) - __builtin_clzll((X)) - 1))
+
+    static const unsigned int WordSize = sizeof(word) << 3 /* times 8 to get bits */;
+    static const unsigned int WordDiv = LOG2(WordSize);
+    static const unsigned int WordMod = WordSize - 1;
+
+    #undef LOG2
+
+
     // Allows to manage non-zero words and their indices.
     typedef pair<int, word> wordIndex;
 
