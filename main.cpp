@@ -95,13 +95,23 @@ int main(int argc, char* argv[])
     srand(123456);
     int testCases = 10000;
 
-    for (int testNo = 1, perc = -1; testNo < testCases; testNo++)
+    vector<int> sets[2];
+    ReducedSet rSets[2];
+
+    for (int testNo = 1, perc = -1; testNo <= testCases; testNo++)
     {
+        int curIdx = testNo & 1;
+        int preIdx = 1 - testNo & 1;
+
+
         // --- Create random set. ---
 
         int maxSize = min(testNo, 1024);
         int size = rand() % maxSize + 1;
-        vector<int> set;
+
+        vector<int>& set = sets[curIdx];
+        set.clear();
+
 
         // First number.
         set.push_back(rand() % maxSize);
@@ -115,38 +125,61 @@ int main(int argc, char* argv[])
 
 
         // --- Create reduced set. ---
-        ReducedSet rSet(set);
 
-        // Copy stored numbers into a new list.
-        vector<int> itList;
-        for (auto it = rSet.begin(); it != rSet.end(); ++it)
+        rSets[curIdx] = ReducedSet(set);
+        ReducedSet& rSet = rSets[curIdx];
+
+        // Convert to list.
+        vector<int> itList = rSet.toList();
+
+
+        // --- Compare sets. ---
+        if (!compareSets(set, itList))
         {
-            itList.push_back(*it);
+            rSet.print(cout);
+            cout << " set: "; print(set);
+            cout << "list: "; print(itList);
+
+            return 1;
         }
 
 
-        // --- Compare both sets. ---
+        // --- Test intersection. ---
 
-        for (int i = 0; i < max(set.size(), itList.size()); i++)
+        if (testNo > 1)
         {
-            if (i >= set.size())
+            vector<int>& preSet = sets[preIdx];
+            ReducedSet& preRSet = rSets[preIdx];
+
+            vecIntersect(preSet, set);
+            ReducedSet rsInter = (preRSet & rSet);
+            preRSet &= rSet;
+
+            vector<int> rIntList1 = rsInter.toList();
+            vector<int> rIntList2 = preRSet.toList();
+
+
+            // Compare sets.
+            if (!compareSets(preSet, rIntList1))
             {
-                cout << itList[i] << " in list but not original set.";
+                cout << "*** & operator ***" << endl;
+
+                rsInter.print(cout);
+                cout << " set: "; print(preSet);
+                cout << "list: "; print(rIntList1);
+
                 return 1;
             }
 
-            if (i >= itList.size())
-            {
-                cout << set[i] << " in original set but not in list.";
-                return 1;
-            }
 
-            if (set[i] != itList[i])
+            // Compare sets.
+            if (!compareSets(preSet, rIntList2))
             {
-                cout << "Incorrect number at position " << i << endl;
+                cout << "*** &= operator ***" << endl;
 
-                cout << " set: "; print(set);
-                cout << "list: "; print(itList);
+                preRSet.print(cout);
+                cout << " set: "; print(preSet);
+                cout << "list: "; print(rIntList2);
 
                 return 1;
             }
@@ -160,7 +193,7 @@ int main(int argc, char* argv[])
         if (progress > perc)
         {
             perc = progress;
-            cout << perc << " %\r" << flush;
+            cout << " %\r" << perc << flush;
         }
 
         if (perc == 100) cout << endl;
