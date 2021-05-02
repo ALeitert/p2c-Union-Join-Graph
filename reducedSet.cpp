@@ -92,7 +92,11 @@ ReducedSet ReducedSet::operator&(const ReducedSet& rhs) const
             word lWrd = lhs.R[l].second;
             word rWrd = rhs.R[r].second;
 
-            rBuilder.push_back(wordIndex(lIdx, lWrd & rWrd));
+            word inter = lWrd & rWrd;
+            if (inter > 0)
+            {
+                rBuilder.push_back(wordIndex(lIdx, inter));
+            }
         }
 
         if (lIdx <= rIdx) l++;
@@ -127,8 +131,12 @@ void ReducedSet::operator&=(const ReducedSet& rhs)
             word lWrd = lhs.R[l].second;
             word rWrd = rhs.R[r].second;
 
-            lhs.R[newN] = wordIndex(lIdx, lWrd & rWrd);
-            newN++;
+            word inter = lWrd & rWrd;
+            if (inter > 0)
+            {
+                lhs.R[newN] = wordIndex(lIdx, inter);
+                newN++;
+            }
         }
 
         if (lIdx <= rIdx) l++;
