@@ -1,5 +1,6 @@
 #include <stdexcept>
 
+#include "reducedSet.h"
 #include "subsetGraph.h"
 
 
@@ -134,6 +135,86 @@ vector<intPair> SubsetGraph::pritchardSimple(const Hypergraph& hg)
         for (int i = 0; i < intersection.size(); i++)
         {
             int xId = intersection[i];
+            if (xId == yId) continue;
+
+            result.push_back(intPair(xId, yId));
+        }
+    }
+
+    sortPairsRadix(result);
+    return result;
+}
+
+// Implements Pritchard's algorithm with reduced sets.
+vector<intPair> SubsetGraph::pritchardReduced(const Hypergraph& hg)
+{
+    // Pritchard assumes for their algorithm that there are no two equal sets.
+    // For now, we do not address that problem. If needed, we simplify the hypergraph later.
+
+    // We assune the following about the given hypergraph:
+    //   - The internal adjacency lists are sorted.
+    //   - Each hyperedge contains at least one vertex.
+    //   - Lists do not contain duplicates.
+
+
+    // --- Preliminaries ---
+
+    //     F  The given hypergraph.
+
+    //   F.y  The family of hyperedges x of F such that the hyperedge y is a subset of x.
+    //        That is, F.y = { x | x \subseteq y }.
+
+    // F.{d}  The set of all hyperedges x of F such that x contains the vertex d.
+
+
+    // --- Outline ---
+
+    // 1) Order F, i.e., assign each hyperedge in F a unique index.
+    // 2) For each vertex d, compute F.{d}.
+    // 3) For each hyperedge y, record edge (x, y) for each x in F.y - y.
+
+    // Steps 1) is already done in the given hypergraph.
+
+
+    // --- Step 2)  Create reduced sets for each vertex. ---
+
+    const int n = hg.getVSize();
+    const int m = hg.getESize();
+
+    ReducedSet vSets[n];
+    for (int vId = 0; vId < n; vId++)
+    {
+        vSets[vId] = ReducedSet(hg(vId));
+    }
+
+
+    // --- Step 3) ---
+
+    vector<intPair> result;
+
+    for (int yId = 0; yId < m; yId++)
+    {
+        const vector<int>& vertices = hg[yId];
+        if (vertices.size() <= 0) throw std::invalid_argument("Invalid hypergraph.");
+
+        // Compute F.y using the following relation:
+        // F.y = \bigcup_{d \in y} F.{d}
+
+
+        // Initialise intersection with hyperedges of "first" vertex.
+        ReducedSet intersection(vSets[vertices[0]]);
+
+        // Intersect with hyperedges of all other vertices.
+        for (int vIdx = 1 /* 0 done above */; vIdx < vertices.size(); vIdx++)
+        {
+            int vId = vertices[vIdx];
+            intersection &= vSets[vId];
+        }
+
+        // Intersection calculated. Add edges to result.
+        for (auto it = intersection.begin(); it != intersection.end(); it++)
+        {
+            int xId = *it;
             if (xId == yId) continue;
 
             result.push_back(intPair(xId, yId));

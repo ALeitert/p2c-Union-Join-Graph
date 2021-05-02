@@ -16,6 +16,9 @@ namespace SubsetGraph
 
     // Implements Pritchard's "simple" algorithm as published in Algorithmica 1999.
     vector<intPair> pritchardSimple(const Hypergraph& hg);
+
+    // Implements Pritchard's algorithm with reduced sets.
+    vector<intPair> pritchardReduced(const Hypergraph& hg);
 }
 
 #endif
