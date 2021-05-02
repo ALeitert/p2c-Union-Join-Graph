@@ -1,6 +1,14 @@
 #include "reducedSet.h"
 
 
+// Copy constructor.
+ReducedSet::ReducedSet(const ReducedSet& set) :
+    n(set.n),
+    R(new wordIndex[set.n])
+{
+    copy(set.R, set.R + set.n, R);
+}
+
 // Constructor.
 // Creates a set from a list of elements.
 // Assumes that the given list is sorted.

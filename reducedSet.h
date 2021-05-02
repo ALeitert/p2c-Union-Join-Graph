@@ -27,6 +27,9 @@ public:
     // Creates an invalid set.
     ReducedSet() { }
 
+    // Copy constructor.
+    ReducedSet(const ReducedSet& set);
+
     // Constructor.
     // Creates a set from a list of elements.
     // Assumes that the given list is sorted.
