@@ -30,6 +30,9 @@ public:
     // Copy constructor.
     ReducedSet(const ReducedSet& set);
 
+    // Move constructor.
+    ReducedSet(ReducedSet&& set);
+
     // Constructor.
     // Creates a set from a list of elements.
     // Assumes that the given list is sorted.
@@ -37,6 +40,10 @@ public:
 
     // Destructor.
     ~ReducedSet();
+
+
+    // Move assignment.
+    ReducedSet& operator=(ReducedSet&& set);
 
 
     // Computes the intersection of two sets and returns the result as a new set.

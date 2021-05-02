@@ -9,6 +9,15 @@ ReducedSet::ReducedSet(const ReducedSet& set) :
     copy(set.R, set.R + set.n, R);
 }
 
+// Move constructor.
+ReducedSet::ReducedSet(ReducedSet&& set) :
+    n(set.n),
+    R(set.R)
+{
+    set.n = -1;
+    set.R = nullptr;
+}
+
 // Constructor.
 // Creates a set from a list of elements.
 // Assumes that the given list is sorted.
@@ -59,6 +68,22 @@ ReducedSet::~ReducedSet()
 {
     if (R != nullptr) delete[] R;
 }
+
+
+// Move assignment.
+ReducedSet& ReducedSet::operator=(ReducedSet&& set)
+{
+    if (R != nullptr) delete[] R;
+
+    n = set.n;
+    R = set.R;
+
+    set.n = -1;
+    set.R = nullptr;
+
+    return *this;
+}
+
 
 // Computes the intersection of two sets and returns the result as a new set.
 ReducedSet ReducedSet::operator&(const ReducedSet& rhs) const
