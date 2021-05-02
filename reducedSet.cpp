@@ -188,6 +188,22 @@ ReducedSet::Iterator& ReducedSet::Iterator::operator=(const Iterator& rhs)
 }
 
 
+// Prefix increment operator.
+ReducedSet::Iterator& ReducedSet::Iterator::operator++()
+{
+    findNext();
+    return *this;
+}
+
+// Postfix increment operator.
+ReducedSet::Iterator ReducedSet::Iterator::operator++(int)
+{
+    Iterator copy(*this);
+    findNext();
+    return copy;
+}
+
+
 // Creates an iterator that points to the beginning of a given set.
 // Is equal to end if set is empty or invalid.
 ReducedSet::Iterator ReducedSet::Iterator::begin(const ReducedSet& set)
@@ -225,4 +241,51 @@ const ReducedSet::Iterator ReducedSet::Iterator::end(const ReducedSet& set)
     it.length = 0;
 
     return it;
+}
+
+
+// Helper function that finds the next entry in the set.
+void ReducedSet::Iterator::findNext()
+{
+    if (ptr == nullptr || length <= 0)
+    {
+        throw logic_error("Iterator already at end of ReducedSet.");
+    }
+
+    // Move at least one bit.
+    bitIdx++;
+    word w = ptr[0].second >> bitIdx;
+
+    if (w > 0)
+    {
+        // Still bits in the current word.
+        // Shift to it, then done.
+
+        // Number of trailing 0s (i.e., starting from LSB).
+        bitIdx += __builtin_ctzl(w);
+        return;
+    }
+
+
+    // No more bits in current word.
+    // Go to next word.
+
+    ptr++;
+    length--;
+    bitIdx = 0;
+
+    // Reached end of sedt. Done.
+    if (length <= 0) return;
+
+
+    // Find first non-zero bit.
+    w = ptr[0].second;
+
+    if (w == 0)
+    {
+        throw logic_error("Invalid ReducedSet: contains an all-zero entry.");
+    }
+
+    // Determines number of trailing 0s (i.e., starting from LSB).
+    bitIdx = __builtin_ctzl(w);
 }

@@ -83,7 +83,6 @@ private:
 class ReducedSet::Iterator : iterator<input_iterator_tag, int>
 {
     // ToDo: Implement required constructors and operators.
-    //   - increment operator, prefix (++it) and postfix (it++)
     //   - equality (==) and inequality (!=) comparisons
     //   - dereference as righ-hand side value: *it and it-> (-> returns int*)
 
@@ -109,6 +108,13 @@ public:
     Iterator& operator=(const Iterator& rhs);
 
 
+    // Prefix increment operator.
+    Iterator& operator++();
+
+    // Postfix increment operator.
+    Iterator operator++(int);
+
+
     // Creates an iterator that points to the beginning of a given set.
     // Is equal to end if set is empty or invalid.
     static Iterator begin(const ReducedSet& set);
@@ -118,6 +124,10 @@ public:
 
 
 private:
+
+    // Helper function that finds the next entry in the set.
+    void findNext();
+
 
     // Points to the array with data.
     wordIndex* ptr = nullptr;
