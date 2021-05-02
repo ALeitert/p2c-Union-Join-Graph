@@ -152,10 +152,16 @@ void ReducedSet::operator&=(const ReducedSet& rhs)
     lhs.n = newN;
 }
 
-// Creates an iterator points to the first element of the set.
+// Creates an iterator pointing to the first element of the set.
 ReducedSet::Iterator ReducedSet::begin() const
 {
     return Iterator::begin(*this);
+}
+
+// Creates an iterator pointing to the end of the set.
+const ReducedSet::Iterator ReducedSet::end() const
+{
+    return Iterator::end(*this);
 }
 
 
@@ -187,6 +193,18 @@ ReducedSet::Iterator ReducedSet::Iterator::begin(const ReducedSet& set)
         // Number of trailing 0s (i.e., starting from LSB).
         it.bitIdx = __builtin_ctzl(w);
     }
+
+    return it;
+}
+
+// Creates an iterator that points to the end of a given set.
+const ReducedSet::Iterator ReducedSet::Iterator::end(const ReducedSet& set)
+{
+    Iterator it;
+    if (set.R == nullptr) return it;
+
+    it.ptr = set.R + set.n;
+    it.length = 0;
 
     return it;
 }
