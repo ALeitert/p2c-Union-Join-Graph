@@ -19,13 +19,13 @@ class ReducedSet
     typedef uint32_t word;
 
     // Allows to manage non-zero words and their indices.
-    typedef std::pair<int, word> wordIndex;
+    typedef pair<int, word> wordIndex;
 
 public:
 
     // Default constructor.
-    // Creates an empty set.
-    ReducedSet();
+    // Creates an invalid set.
+    ReducedSet() { }
 
     // Constructor.
     // Creates a set from a list of elements.
@@ -47,7 +47,7 @@ private:
 
     // Constructor.
     // Creates a set of the given size that uses the given array.
-    ReducedSet(int size, wordIndex* arr);
+    ReducedSet(int size, wordIndex* arr) : n(size), R(arr) { }
 
 
     // The number of nonzero words in the original array A.

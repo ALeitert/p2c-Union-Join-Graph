@@ -1,24 +1,5 @@
 #include "reducedSet.h"
 
-// Default constructor.
-// Creates an empty set.
-ReducedSet::ReducedSet() :
-    n(0),
-    R(new wordIndex[0])
-{
-    // Do nothing.
-}
-
-
-// Constructor.
-// Creates a set of the given size that uses the given array.
-ReducedSet::ReducedSet(int size, wordIndex* arr) :
-    n(size),
-    R(arr)
-{
-    // Do nothing.
-}
-
 
 // Constructor.
 // Creates a set from a list of elements.
@@ -68,9 +49,8 @@ ReducedSet::ReducedSet(const vector<int>& list)
 // Destructor.
 ReducedSet::~ReducedSet()
 {
-    if (R != nullptr) delete R;
+    if (R != nullptr) delete[] R;
 }
-
 
 // Computes the intersection of two sets and returns the result as a new set.
 ReducedSet ReducedSet::operator&(const ReducedSet& rhs) const
