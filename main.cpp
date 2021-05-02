@@ -29,6 +29,16 @@ Hypergraph randomHG(int n, int m, int N)
     return Hypergraph(list);
 }
 
+// Prints an int-vector to the terminal.
+void print(const vector<int>& vec)
+{
+    for (int i = 0; i < vec.size(); i++)
+    {
+        cout << " " << vec[i];
+    }
+    cout << endl;
+}
+
 int main(int argc, char* argv[])
 {
     cout << "*** Union Join and Subset Graph of Acyclic Hypergraphs ***" << endl;
@@ -85,6 +95,10 @@ int main(int argc, char* argv[])
             if (set[i] != itList[i])
             {
                 cout << "Incorrect number at position " << i << endl;
+
+                cout << " set: "; print(set);
+                cout << "list: "; print(itList);
+
                 return 1;
             }
         }
