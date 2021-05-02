@@ -170,6 +170,24 @@ const ReducedSet::Iterator ReducedSet::end() const
 // --- --- --- Iterator --- --- ---
 
 
+// Copy constructor.
+ReducedSet::Iterator::Iterator(const Iterator& it) :
+    ptr(it.ptr),
+    length(it.length),
+    bitIdx(it.bitIdx)
+{
+    // Nothing to do.
+}
+
+// Copy assignment.
+ReducedSet::Iterator& ReducedSet::Iterator::operator=(const Iterator& rhs)
+{
+    ptr = rhs.ptr;
+    length = rhs.length;
+    bitIdx = rhs.bitIdx;
+}
+
+
 // Creates an iterator that points to the beginning of a given set.
 // Is equal to end if set is empty or invalid.
 ReducedSet::Iterator ReducedSet::Iterator::begin(const ReducedSet& set)

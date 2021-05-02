@@ -83,7 +83,6 @@ private:
 class ReducedSet::Iterator : iterator<input_iterator_tag, int>
 {
     // ToDo: Implement required constructors and operators.
-    //   - copy constructor and assignment
     //   - destructor
     //   - increment operator, prefix (++it) and postfix (it++)
     //   - equality (==) and inequality (!=) comparisons
@@ -98,6 +97,13 @@ public:
     // Default constructor.
     // Creates an invalid iterator.
     Iterator() { }
+
+
+    // Copy constructor.
+    Iterator(const Iterator& it);
+
+    // Copy assignment.
+    Iterator& operator=(const Iterator& rhs);
 
 
     // Creates an iterator that points to the beginning of a given set.
