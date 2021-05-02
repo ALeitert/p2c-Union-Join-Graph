@@ -66,6 +66,10 @@ public:
     void operator&=(const ReducedSet& rhs);
 
 
+    // Prints the stored set into the given stream.
+    void print(ostream& out) const;
+
+
     // Allows to iterate over all elements stored in the set.
     class Iterator;
 

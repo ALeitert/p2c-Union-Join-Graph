@@ -1,3 +1,5 @@
+#include <bitset>
+#include <ostream>
 #include <stdexcept>
 
 #include "reducedSet.h"
@@ -138,6 +140,25 @@ void ReducedSet::operator&=(const ReducedSet& rhs)
     // Update size.
     lhs.n = newN;
 }
+
+void ReducedSet::print(ostream& out) const
+{
+    out << "ReducedSet  --  size: " << n << endl;
+    out << "WordSize: " << WordSize
+        << "  WordDiv: " << WordDiv
+        << "  WordMod: " << WordMod
+        << endl;
+
+
+    for (int i = 0; i < n; i++)
+    {
+        int idx = R[i].first;
+        word w = R[i].second;
+
+        out << idx << ": " << bitset<WordSize>(w) << endl;
+    }
+}
+
 
 // Creates an iterator pointing to the first element of the set.
 ReducedSet::Iterator ReducedSet::begin() const
