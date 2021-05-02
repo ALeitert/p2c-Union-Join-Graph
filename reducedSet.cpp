@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "reducedSet.h"
 
 
@@ -148,4 +150,43 @@ void ReducedSet::operator&=(const ReducedSet& rhs)
 
     // Update size.
     lhs.n = newN;
+}
+
+// Creates an iterator points to the first element of the set.
+ReducedSet::Iterator ReducedSet::begin() const
+{
+    return Iterator::begin(*this);
+}
+
+
+
+// --------------------------------
+// --- --- --- Iterator --- --- ---
+
+
+// Creates an iterator that points to the beginning of a given set.
+// Is equal to end if set is empty or invalid.
+ReducedSet::Iterator ReducedSet::Iterator::begin(const ReducedSet& set)
+{
+    Iterator it;
+    if (set.R == nullptr) return it;
+
+    it.ptr = set.R;
+    it.length = set.n;
+
+    if (it.length >= 0)
+    {
+        word w = it.ptr[0].second;
+
+        if (w == 0)
+        {
+            throw logic_error("Invalid ReducedSet: contains all-zero entries.");
+        }
+
+        // Find first non-zero bit.
+        // Number of trailing 0s (i.e., starting from LSB).
+        it.bitIdx = __builtin_ctzl(w);
+    }
+
+    return it;
 }

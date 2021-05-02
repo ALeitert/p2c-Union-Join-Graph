@@ -57,6 +57,9 @@ public:
     // Allows to iterate over all elements stored in the set.
     class Iterator;
 
+    // Creates an iterator points to the first element of the set.
+    Iterator begin() const;
+
 
 private:
 
@@ -92,6 +95,11 @@ public:
     // Default constructor.
     // Creates an invalid iterator.
     Iterator() { }
+
+
+    // Creates an iterator that points to the beginning of a given set.
+    // Is equal to end if set is empty or invalid.
+    static Iterator begin(const ReducedSet& set);
 
 
 private:
