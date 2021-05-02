@@ -4,6 +4,7 @@
 #define __ReducedSet_H__
 
 #include <cstdint>
+#include <iterator>
 #include <utility>
 #include <vector>
 
@@ -53,6 +54,10 @@ public:
     void operator&=(const ReducedSet& rhs);
 
 
+    // Allows to iterate over all elements stored in the set.
+    class Iterator;
+
+
 private:
 
     // Constructor.
@@ -65,6 +70,22 @@ private:
 
     // The non-zero words in array A and their respective indices in A.
     wordIndex* R = nullptr;
+};
+
+
+// Allows to iterate over all elements stored in the set.
+class ReducedSet::Iterator : iterator<input_iterator_tag, int>
+{
+    // ToDo: Implement required constructors and operators.
+    //   - copy constructor and assignment
+    //   - destructor
+    //   - increment operator, prefix (++it) and postfix (it++)
+    //   - equality (==) and inequality (!=) comparisons
+    //   - dereference as righ-hand side value: *it and it-> (-> returns int*)
+
+    // See for more infos:
+    //   https://stackoverflow.com/a/8054856
+    //   http://www.cplusplus.com/reference/iterator/
 };
 
 #endif
