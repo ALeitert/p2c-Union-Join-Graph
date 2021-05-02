@@ -86,6 +86,25 @@ class ReducedSet::Iterator : iterator<input_iterator_tag, int>
     // See for more infos:
     //   https://stackoverflow.com/a/8054856
     //   http://www.cplusplus.com/reference/iterator/
+
+public:
+
+    // Default constructor.
+    // Creates an invalid iterator.
+    Iterator() { }
+
+
+private:
+
+    // Points to the array with data.
+    wordIndex* ptr = nullptr;
+
+    // Remaining amount of data.
+    // Allows to determine when end is reached.
+    int length = -1;
+
+    // The index of the current bit in the word.
+    int bitIdx = 0;
 };
 
 #endif
