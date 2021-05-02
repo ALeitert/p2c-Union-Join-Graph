@@ -222,9 +222,7 @@ bool ReducedSet::Iterator::operator!=(const Iterator& rhs) const
 int ReducedSet::Iterator::operator*() const
 {
     int wIdx = ptr[0].first;
-    int mod = 1 << bitIdx;
-
-    return (wIdx * WordDiv) | mod;
+    return (wIdx * WordSize) | bitIdx;
 }
 
 
@@ -238,7 +236,7 @@ ReducedSet::Iterator ReducedSet::Iterator::begin(const ReducedSet& set)
     it.ptr = set.R;
     it.length = set.n;
 
-    if (it.length >= 0)
+    if (it.length > 0)
     {
         word w = it.ptr[0].second;
 
@@ -280,7 +278,8 @@ void ReducedSet::Iterator::findNext()
     bitIdx++;
     word w = ptr[0].second >> bitIdx;
 
-    if (w > 0)
+    // Check if still bits in word.
+    if (bitIdx < WordSize && w > 0)
     {
         // Still bits in the current word.
         // Shift to it, then done.
