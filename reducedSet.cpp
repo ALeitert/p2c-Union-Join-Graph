@@ -209,6 +209,16 @@ bool ReducedSet::Iterator::operator!=(const Iterator& rhs) const
 }
 
 
+// Dereference operator.
+int ReducedSet::Iterator::operator*() const
+{
+    int wIdx = ptr[0].first;
+    int mod = 1 << bitIdx;
+
+    return (wIdx * WordDiv) | mod;
+}
+
+
 // Creates an iterator that points to the beginning of a given set.
 // Is equal to end if set is empty or invalid.
 ReducedSet::Iterator ReducedSet::Iterator::begin(const ReducedSet& set)

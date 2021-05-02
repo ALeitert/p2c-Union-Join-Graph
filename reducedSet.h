@@ -94,9 +94,6 @@ private:
 // Allows to iterate over all elements stored in the set.
 class ReducedSet::Iterator : iterator<input_iterator_tag, int>
 {
-    // ToDo: Implement required constructors and operators.
-    //   - dereference as righ-hand side value: *it and it-> (-> returns int*)
-
     // See for more infos:
     //   https://stackoverflow.com/a/8054856
     //   http://www.cplusplus.com/reference/iterator/
@@ -124,6 +121,10 @@ public:
 
     // Postfix increment operator.
     Iterator operator++(int);
+
+
+    // Dereference operator.
+    int operator*() const;
 
 
     // Equality comparison.
