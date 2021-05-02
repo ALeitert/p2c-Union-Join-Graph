@@ -67,6 +67,27 @@ bool compareSets(const vector<int>& set, const vector<int>& list)
     return true;
 }
 
+void vecIntersect(vector<int>& v1, const vector<int>& v2)
+{
+    int newSize = 0;
+    for (int i = 0, j = 0; i < v1.size() && j < v2.size();)
+    {
+        int iNum = v1[i];
+        int jNum = v2[j];
+
+        if (iNum == jNum)
+        {
+            v1[newSize] = v1[i];
+            newSize++;
+        }
+
+        if (iNum <= jNum) i++;
+        if (iNum >= jNum) j++;
+    }
+
+    v1.resize(newSize);
+}
+
 int main(int argc, char* argv[])
 {
     cout << "*** Union Join and Subset Graph of Acyclic Hypergraphs ***" << endl;
