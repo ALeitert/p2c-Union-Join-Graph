@@ -83,7 +83,6 @@ private:
 class ReducedSet::Iterator : iterator<input_iterator_tag, int>
 {
     // ToDo: Implement required constructors and operators.
-    //   - destructor
     //   - increment operator, prefix (++it) and postfix (it++)
     //   - equality (==) and inequality (!=) comparisons
     //   - dereference as righ-hand side value: *it and it-> (-> returns int*)
@@ -97,6 +96,10 @@ public:
     // Default constructor.
     // Creates an invalid iterator.
     Iterator() { }
+
+    // Destructor.
+    // Nothing to do.
+    ~Iterator() { }
 
 
     // Copy constructor.
