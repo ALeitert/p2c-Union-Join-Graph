@@ -172,6 +172,7 @@ ReducedSet::Iterator& ReducedSet::Iterator::operator=(const Iterator& rhs)
     ptr = rhs.ptr;
     length = rhs.length;
     bitIdx = rhs.bitIdx;
+    return *this;
 }
 
 
