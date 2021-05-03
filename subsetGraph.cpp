@@ -316,8 +316,8 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     // For now, we use option 2.
 
 
-    vector<vector<int>> hyperedges;
-    hyperedges.resize(m);
+    vector<vector<int>> hgHypEdges;
+    hgHypEdges.resize(m);
 
     // Sort into hyperedges.
     for (int voIdx = 0; voIdx < n; voIdx++)
@@ -327,16 +327,42 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 
         for (int eId : vHypEdges)
         {
-            hyperedges[eId].push_back(voIdx); // Option 2.
+            hgHypEdges[eId].push_back(voIdx); // Option 2.
         }
     }
 
 
     // --- Step 1.4: Sort the hyperedges lexicographically. ---
 
-    size_t* eLexOrder = lexSort(hyperedges);
+    size_t* eLexOrder = lexSort(hgHypEdges);
 
 
+    // --- Step 2)  For each vertex d, compute F.{d}. ---
+
+    // We first recreate, for each vertex v, the set of hyperedges that contain v.
+    // We ensure that these are sorted according to eLexOrder[].
+
+
+    // -- Step 2.1: Sort hyperedges within vertex sets according to lex. order.
+
+    vector<vector<int>> hgVertices;
+    hgVertices.resize(n);
+
+    // Sort hyperedge indices into vertices.
+    for (int eoIdx = 0; eoIdx < n; eoIdx++)
+    {
+        int eId = eLexOrder[eoIdx];
+        const vector<int>& eVerts = hg[eId];
+
+        for (int vId : eVerts)
+        {
+            hgVertices[vId].push_back(eoIdx);
+        }
+    }
+
+
+    // The vectors 'hgHypEdges' and 'hgVertices' now represent the sorted hypergraph.
+    // They are still ordered by the original ID, but they store the indices in the respective orders.
 }
 
 // Lexicographically sorts the given list of vectors.
