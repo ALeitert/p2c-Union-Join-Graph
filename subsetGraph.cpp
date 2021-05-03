@@ -454,9 +454,61 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize, int base)
     {
         int key = arr[sIdx].size();
         lenCount[key]--;
-        int idx = lenCount[key];
-        orgOrder[idx] = sIdx;
+        int oIdx = lenCount[key];
+        orgOrder[oIdx] = sIdx;
     }
 
     // orgOrder[] now represents the given strings sorted by length.
+
+
+    // Step 2.2: Sort strings.
+
+    // Allows to simply swap both after each iteration, istead of copying numbers back.
+    copy(orgOrder, orgOrder + arrSize, newOrder);
+
+
+    // It is important that cCount[] is not initialised inside the loop below.
+    // Doing so would result in O(b) extra runtime for each digit and, therefore, in
+    // O(n * b) total time. The whole purpose of this approach is to avoid that.
+    int cCount[base];
+
+    for (int pos = maxLength - 1; pos > 0; pos--)
+    {
+        int beg = lenRange[pos - 1];
+        int end = lenRange[pos]; // exclusive
+
+
+        // Shortened counting sort:
+        // We do not need to count nore compute prefix sums.
+        // These values are already stored in NonEmpty;
+
+        // Update counting array.
+        vector<intPair>& lenVec = NonEmpty[pos];
+        for (const intPair& pair : lenVec)
+        {
+            const int& c = pair.first;
+            cCount[c] = pair.second;
+        }
+
+        // Sort.
+        for (int i = end - 1; i >= beg; i--)
+        {
+            size_t sIdx = orgOrder[i];
+            int chr = arr[sIdx][pos];
+
+            cCount[chr]--;
+            int oIdx = cCount[chr];
+
+            newOrder[oIdx] = sIdx;
+        }
+
+        // Swap pointers to do other directin in next iteration.
+        swap(orgOrder, newOrder);
+    }
+
+
+    // Lexicographical order is now in orgOrder[] (due to swapping).
+
+    delete[] newOrder;
+    return orgOrder;
 }
