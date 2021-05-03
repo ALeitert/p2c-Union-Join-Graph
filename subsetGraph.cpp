@@ -4,8 +4,10 @@
 #include "reducedSet.h"
 #include "subsetGraph.h"
 
-// Lexicographically sorts the given vectors.
-size_t* lexSort(const vector<int>* arr, size_t arrSize);
+
+// Lexicographically sorts the given list of vectors.
+// Returns an array A[] such that A[i] is the ID of the vector which is at position i in a lex. order.
+size_t* lexSort(const vector<vector<int>> lst);
 
 
 // Implements a naive approach to find all subset relations (compairs all pairs of hyperedges).
@@ -277,7 +279,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     // --- Step 1.2: Sort vertices by weight. ---
 
 
-    int verSorted[n];
+    int vWeiOrder[n];
 
     // We use counting sort.
     int count[m];
@@ -302,7 +304,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
         int key = hg(vId).size();
         count[key]--;
         int idx = count[key];
-        verSorted[idx] = vId;
+        vWeiOrder[idx] = vId;
     }
 
 
@@ -314,30 +316,32 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     // For now, we use option 2.
 
 
-    vector<int> hyperedges[m];
+    vector<vector<int>> hyperedges;
+    hyperedges.resize(m);
 
     // Sort into hyperedges.
-    for (int idx = 0; idx < n; idx++)
+    for (int voIdx = 0; voIdx < n; voIdx++)
     {
-        int vId = verSorted[idx];
+        int vId = vWeiOrder[voIdx];
         const vector<int>& vHypEdges = hg(vId);
 
         for (int eId : vHypEdges)
         {
-            hyperedges[eId].push_back(idx); // Option 2.
+            hyperedges[eId].push_back(voIdx); // Option 2.
         }
     }
 
 
     // --- Step 1.4: Sort the hyperedges lexicographically. ---
 
-    size_t* lexOrder = lexSort(hyperedges, m);
+    size_t* eLexOrder = lexSort(hyperedges);
 
 
 }
 
-// Lexicographically sorts the given vectors.
-size_t* lexSort(const vector<int>* arr, size_t arrSize)
+// Lexicographically sorts the given list of vectors.
+// Returns an array A[] such that A[i] is the ID of the vector which is at position i in a lex. order.
+size_t* lexSort(const vector<vector<int>> lst)
 {
     // We implement an algorithm presented in [1]. It allows to lexicographically sort
     // strings with n total characters from an alphabet of size m in O(n + m) time.
@@ -358,22 +362,23 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
 
     // -- Determine total and maximum length. --
 
+    size_t lstSize = lst.size();
     size_t totalLength = 0;
     size_t maxLength = 0;
 
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i < lstSize; i++)
     {
-        totalLength += arr[i].size();
-        maxLength = max(maxLength, arr[i].size());
+        totalLength += lst[i].size();
+        maxLength = max(maxLength, lst[i].size());
     }
 
 
     // -- Build pairs and sort them. --
 
     vector<intPair> pcPairs;
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i < lstSize; i++)
     {
-        const vector<int>& str = arr[i];
+        const vector<int>& str = lst[i];
 
         for (int p = 0; p < str.size(); p++)
         {
@@ -431,8 +436,8 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
 
     // Arrays to store orders.
     // No need to initialise, since we never read before writing them completely.
-    size_t* orgOrder = new size_t[arrSize];
-    size_t* newOrder = new size_t[arrSize];
+    size_t* orgOrder = new size_t[lstSize];
+    size_t* newOrder = new size_t[lstSize];
 
 
     // We use counting sort.
@@ -440,9 +445,9 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
     for (int i = 0; i <= maxLength; i++) lenCount[i] = 0;
 
     // Count.
-    for (size_t sIdx = 0; sIdx < arrSize; sIdx++)
+    for (size_t sIdx = 0; sIdx < lstSize; sIdx++)
     {
-        int key = arr[sIdx].size();
+        int key = lst[sIdx].size();
         lenCount[key]++;
     }
 
@@ -458,9 +463,9 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
     copy(lenCount, lenCount + maxLength + 1, lenRange);
 
     // Sort.
-    for (size_t sIdx = arrSize - 1; sIdx < numeric_limits<size_t>::max(); sIdx--)
+    for (size_t sIdx = lstSize - 1; sIdx < numeric_limits<size_t>::max(); sIdx--)
     {
-        int key = arr[sIdx].size();
+        int key = lst[sIdx].size();
         lenCount[key]--;
         int oIdx = lenCount[key];
         orgOrder[oIdx] = sIdx;
@@ -472,7 +477,7 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
     // Step 2.2: Sort strings.
 
     // Allows to simply swap both after each iteration, istead of copying numbers back.
-    copy(orgOrder, orgOrder + arrSize, newOrder);
+    copy(orgOrder, orgOrder + lstSize, newOrder);
 
 
     // It is important that cCount is not cleared inside the loop below.
@@ -483,7 +488,7 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
     for (int pos = maxLength - 1; pos >= 0; pos--)
     {
         int beg = lenRange[pos];
-        int end = arrSize; // exclusive
+        int end = lstSize; // exclusive
 
 
         // Shortened counting sort:
@@ -504,7 +509,7 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
         for (int i = end - 1; i >= beg; i--)
         {
             size_t sIdx = orgOrder[i];
-            int chr = arr[sIdx][pos];
+            int chr = lst[sIdx][pos];
 
             cCount[chr]--;
             int oIdx = cCount[chr] + beg;
