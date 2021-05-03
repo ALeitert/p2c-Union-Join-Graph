@@ -327,6 +327,13 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
             hyperedges[eId].push_back(idx); // Option 2.
         }
     }
+
+
+    // --- Step 1.4: Sort the hyperedges lexicographically. ---
+
+    size_t* lexOrder = lexSort(hyperedges, m);
+
+
 }
 
 // Lexicographically sorts the given vectors.
