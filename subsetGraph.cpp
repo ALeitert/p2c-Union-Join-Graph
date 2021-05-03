@@ -1,5 +1,6 @@
 #include <stdexcept>
 
+#include "helper.h"
 #include "reducedSet.h"
 #include "subsetGraph.h"
 
@@ -336,4 +337,60 @@ void lexSort(vector<int>* arr, int arrSize, int base)
     // [1] Aho, Hopcroft, Ullman:
     //     The Design and Analysis of Computer Algorithms.
     //     Addison-Wesley, 1974.
+
+
+
+    // Phase 1: Determine which characters appear at which position.
+
+    // Step 1.1: Collect all characters and sort them by their value and their position.
+    // That is, for each position p (with 1 <= p <= L) and each characters c at position p,
+    // create a pair (p, c) and sort all these pairs using radix sort. Note that the
+    // base is changing.
+
+
+    // -- Determine total and maximum length. --
+
+    size_t totalLength = 0;
+    size_t maxLength = 0;
+
+    for (int i = 0; i < arrSize; i++)
+    {
+        totalLength += arr[i].size();
+        maxLength = max(maxLength, arr[i].size());
+    }
+
+
+    // -- Build pairs and sort them. --
+
+    vector<intPair> pcPairs;
+    for (int i = 0; i < arrSize; i++)
+    {
+        vector<int>& str = arr[i];
+
+        for (int p = 0; p < str.size(); p++)
+        {
+            pcPairs.push_back(intPair(p, str[p]));
+        }
+    }
+
+    sortPairsRadix(pcPairs);
+
+
+    // -- Determine range of various positions (will make partition later easier). --
+    vector<int> pRange;
+
+    for (int i = 0, lastP = -1; i < arrSize; i++)
+    {
+        int p = pcPairs[i].first;
+
+        if (p > lastP)
+        {
+            int lastPSum = (p > 0 ? pRange[p - 1] : 0);
+            pRange.push_back(lastPSum); // We know each p exists, so adding one is sufficient.
+
+            lastP = p;
+        }
+
+        pRange[p]++;
+    }
 }
