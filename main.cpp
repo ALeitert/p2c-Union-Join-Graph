@@ -4,6 +4,7 @@
 
 #include "helper.h"
 #include "hypergraph.h"
+#include "subsetGraph.h"
 
 using namespace std;
 
@@ -29,6 +30,26 @@ Hypergraph randomHG(int n, int m, int N)
     return Hypergraph(list);
 }
 
+vector<vector<int>> buildTestCase(int size, int maxLen, int maxC)
+{
+    vector<vector<int>> strings;
+    strings.resize(size);
+
+    for (int i = 0; i < size; i++)
+    {
+        vector<int>& str = strings[i];
+
+        int len = rand() % maxLen + 1;
+        str.resize(len);
+
+        for (int j = 0; j < len; j++)
+        {
+            str[j] = rand() % maxC;
+        }
+    }
+
+    return strings;
+}
 
 int main(int argc, char* argv[])
 {
