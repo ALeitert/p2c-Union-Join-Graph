@@ -388,7 +388,7 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
 
 
         // Iterate over all characters with same position.
-        for (int lastC = -1; pcPairs[i].first == p; i++)
+        for (int lastC = -1; i < totalLength && pcPairs[i].first == p; i++)
         {
             int c = pcPairs[i].second;
 
@@ -427,7 +427,7 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
 
     // We use counting sort.
     int lenCount[maxLength + 1]; // +1 since indices start at and lengths at 1.
-    for (int i = 0; i < maxLength; i++) lenCount[i] = 0;
+    for (int i = 0; i <= maxLength; i++) lenCount[i] = 0;
 
     // Count.
     for (size_t sIdx = 0; sIdx < arrSize; sIdx++)
@@ -437,7 +437,7 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
     }
 
     // Prefix sums.
-    for (int i = 1; i < maxLength; i++)
+    for (int i = 1; i <= maxLength; i++)
     {
         lenCount[i] += lenCount[i - 1];
     }
@@ -448,7 +448,7 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
     copy(lenCount, lenCount + maxLength + 1, lenRange);
 
     // Sort.
-    for (size_t sIdx = arrSize - 1; sIdx >= 0; sIdx++)
+    for (size_t sIdx = arrSize - 1; sIdx < numeric_limits<size_t>::max(); sIdx--)
     {
         int key = arr[sIdx].size();
         lenCount[key]--;
@@ -470,10 +470,10 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
     // O(n * b) total time. The whole purpose of this approach is to avoid that.
     vector<int> cCount;
 
-    for (int pos = maxLength - 1; pos > 0; pos--)
+    for (int pos = maxLength - 1; pos >= 0; pos--)
     {
-        int beg = lenRange[pos - 1];
-        int end = lenRange[pos]; // exclusive
+        int beg = lenRange[pos];
+        int end = arrSize; // exclusive
 
 
         // Shortened counting sort:
@@ -497,7 +497,7 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
             int chr = arr[sIdx][pos];
 
             cCount[chr]--;
-            int oIdx = cCount[chr];
+            int oIdx = cCount[chr] + beg;
 
             newOrder[oIdx] = sIdx;
         }
@@ -505,7 +505,6 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize)
         // Swap pointers to do other directin in next iteration.
         swap(orgOrder, newOrder);
     }
-
 
     // Lexicographical order is now in orgOrder[] (due to swapping).
 
