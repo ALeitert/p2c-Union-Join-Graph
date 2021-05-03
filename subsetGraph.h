@@ -22,6 +22,9 @@ namespace SubsetGraph
 
     // Implements Pritchard's algorithm with presorted hyperedges.
     vector<intPair> pritchardRefinement(const Hypergraph& hg);
+
+
+    static size_t* lexSort(const vector<int>* arr, size_t arrSize);
 }
 
 #endif

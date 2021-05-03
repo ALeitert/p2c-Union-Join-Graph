@@ -327,7 +327,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 }
 
 // Lexicographically sorts the given vectors.
-size_t* lexSort(const vector<int>* arr, size_t arrSize)
+size_t* SubsetGraph::lexSort(const vector<int>* arr, size_t arrSize)
 {
     // We implement an algorithm presented in [1]. It allows to lexicographically sort
     // strings with n total characters from an alphabet of size m in O(n + m) time.
