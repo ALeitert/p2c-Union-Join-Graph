@@ -327,10 +327,8 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 }
 
 // Lexicographically sorts the given vectors.
-size_t* lexSort(const vector<int>* arr, size_t arrSize, int base)
+size_t* lexSort(const vector<int>* arr, size_t arrSize)
 {
-    throw runtime_error("Not implemented");
-
     // We implement an algorithm presented in [1]. It allows to lexicographically sort
     // strings with n total characters from an alphabet of size m in O(n + m) time.
 
@@ -467,10 +465,10 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize, int base)
     copy(orgOrder, orgOrder + arrSize, newOrder);
 
 
-    // It is important that cCount[] is not initialised inside the loop below.
+    // It is important that cCount is not cleared inside the loop below.
     // Doing so would result in O(b) extra runtime for each digit and, therefore, in
     // O(n * b) total time. The whole purpose of this approach is to avoid that.
-    int cCount[base];
+    vector<int> cCount;
 
     for (int pos = maxLength - 1; pos > 0; pos--)
     {
@@ -487,6 +485,8 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize, int base)
         for (const intPair& pair : lenVec)
         {
             const int& c = pair.first;
+
+            if (cCount.size() <= c) cCount.resize(c + 1);
             cCount[c] = pair.second;
         }
 
