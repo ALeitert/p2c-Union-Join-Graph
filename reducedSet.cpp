@@ -41,7 +41,7 @@ ReducedSet::ReducedSet(const vector<int>& list)
         }
 
         word& lastWord = rBuilder.back().second;
-        lastWord |= 1 << wordBit;
+        lastWord |= (word)1 << wordBit;
     }
 
 
@@ -222,7 +222,7 @@ bool ReducedSet::Iterator::operator!=(const Iterator& rhs) const
 int ReducedSet::Iterator::operator*() const
 {
     int wIdx = ptr[0].first;
-    return (wIdx * WordSize) | bitIdx;
+    return (wIdx << WordDiv) | bitIdx;
 }
 
 

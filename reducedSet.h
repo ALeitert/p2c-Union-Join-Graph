@@ -3,7 +3,6 @@
 #ifndef __ReducedSet_H__
 #define __ReducedSet_H__
 
-#include <cstdint>
 #include <iterator>
 #include <utility>
 #include <vector>
@@ -16,15 +15,18 @@ class ReducedSet
     // Consider a bit-array A which represents a subset of some set F.
     // A ReducedSet-object represents A in a more memory efficient version.
 
-    // We assume 32-bit words.
-    typedef uint32_t word;
+    // Word size of local machine.
+    // See https://stackoverflow.com/q/35843365.
+    typedef size_t word;
 
     // The values below allow to transform between bit representation and represented numbers with bit operations instead of multiplication, division, and modulo.
 
-    // See https://stackoverflow.com/a/11376759
+    // See https://stackoverflow.com/a/11376759.
     #define LOG2(X) ((unsigned) ((sizeof(unsigned long long) << 3) - __builtin_clzll((X)) - 1))
 
-    static const unsigned int WordSize = sizeof(word) << 3 /* times 8 to get bits */;
+    // Size of a word of the local machine reduced to the next power of 2.
+    // The +3 effectivly multiplies with 8 to get bits instead of bytes.
+    static const unsigned int WordSize = 1 << (LOG2(sizeof(word)) + 3);
     static const unsigned int WordDiv = LOG2(WordSize);
     static const unsigned int WordMod = WordSize - 1;
 
@@ -33,6 +35,7 @@ class ReducedSet
 
     // Allows to manage non-zero words and their indices.
     typedef pair<int, word> wordIndex;
+
 
 public:
 
