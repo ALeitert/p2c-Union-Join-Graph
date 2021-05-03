@@ -19,6 +19,9 @@ namespace SubsetGraph
 
     // Implements Pritchard's algorithm with reduced sets.
     vector<intPair> pritchardReduced(const Hypergraph& hg);
+
+    // Implements Pritchard's algorithm with presorted hyperedges.
+    vector<intPair> pritchardRefinement(const Hypergraph& hg);
 }
 
 #endif

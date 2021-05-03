@@ -212,7 +212,7 @@ vector<intPair> SubsetGraph::pritchardReduced(const Hypergraph& hg)
         }
 
         // Intersection calculated. Add edges to result.
-        for (auto it = intersection.begin(); it != intersection.end(); it++)
+        for (auto it = intersection.begin(); it != intersection.end(); ++it)
         {
             int xId = *it;
             if (xId == yId) continue;
@@ -223,4 +223,45 @@ vector<intPair> SubsetGraph::pritchardReduced(const Hypergraph& hg)
 
     sortPairsRadix(result);
     return result;
+}
+
+// Implements Pritchard's algorithm with presorted hyperedges.
+vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
+{
+    throw runtime_error("Not implemented");
+
+    // Pritchard assumes for their algorithm that there are no two equal sets.
+    // For now, we do not address that problem. If needed, we simplify the hypergraph later.
+
+    // We assune the following about the given hypergraph:
+    //   - The internal adjacency lists are sorted.
+    //   - Each hyperedge contains at least one vertex.
+    //   - Lists do not contain duplicates.
+
+
+    // --- Preliminaries ---
+
+    //     F  The given hypergraph.
+
+    //   F.y  The family of hyperedges x of F such that the hyperedge y is a subset of x.
+    //        That is, F.y = { x | x \subseteq y }.
+
+    // F.{d}  The set of all hyperedges x of F such that x contains the vertex d.
+
+    //  w(d)  The weight of a vertex d, defined as the number of hyperedges that contain d.
+
+
+
+    // --- Outline ---
+
+    // 1) Order F:
+    //    1.1 Compute the weight of each domain element.
+    //    1.2 Totally order the domain elements by non-increasing weight;
+    //        break ties arbitrarily.
+    //    1.3 Order the vertices of each hyperedge with respect to their weight.
+    //    1.4 Sort the hyperedges lexicographically, using the ordered vertices as the ordered alphabet.
+
+
+    // 2) For each vertex d, compute F.{d}.
+    // 3) For each hyperedge y, record edge (x, y) for each x in F.y - y.
 }
