@@ -375,6 +375,42 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
         vSets[vId] = ReducedSet(hgVertices[vId]);
     }
 
+
+    // --- Step 3) ---
+
+    vector<intPair> result;
+
+    for (int yId = 0; yId < m; yId++)
+    {
+        const vector<int>& vertices = hg[yId];
+        if (vertices.size() <= 0) throw std::invalid_argument("Invalid hypergraph.");
+
+        // Compute F.y using the following relation:
+        // F.y = \bigcup_{d \in y} F.{d}
+
+
+        // Initialise intersection with hyperedges of "first" vertex.
+        ReducedSet intersection(vSets[vertices[0]]);
+
+        // Intersect with hyperedges of all other vertices.
+        for (int vIdx = 1 /* 0 done above */; vIdx < vertices.size(); vIdx++)
+        {
+            int vId = vertices[vIdx];
+            intersection &= vSets[vId];
+        }
+
+        // Intersection calculated. Add edges to result.
+        for (auto it = intersection.begin(); it != intersection.end(); ++it)
+        {
+            int xId = *it;
+            if (xId == yId) continue;
+
+            result.push_back(intPair(xId, yId));
+        }
+    }
+
+    sortPairsRadix(result);
+    return result;
 }
 
 // Lexicographically sorts the given list of vectors.
