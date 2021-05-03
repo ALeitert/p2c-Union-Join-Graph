@@ -409,6 +409,9 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
         }
     }
 
+
+    delete[] eLexOrder;
+
     sortPairsRadix(result);
     return result;
 }
