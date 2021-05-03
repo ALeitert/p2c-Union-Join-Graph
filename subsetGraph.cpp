@@ -363,6 +363,18 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 
     // The vectors 'hgHypEdges' and 'hgVertices' now represent the sorted hypergraph.
     // They are still ordered by the original ID, but they store the indices in the respective orders.
+
+
+    // -- Step 2.2: Create reduced sets for all vertices. --
+
+    // Reduced sets store indices of hyperedges in the lex. order.
+
+    ReducedSet vSets[n];
+    for (int vId = 0; vId < n; vId++)
+    {
+        vSets[vId] = ReducedSet(hgVertices[vId]);
+    }
+
 }
 
 // Lexicographically sorts the given list of vectors.
