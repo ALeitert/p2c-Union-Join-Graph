@@ -264,4 +264,40 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 
     // 2) For each vertex d, compute F.{d}.
     // 3) For each hyperedge y, record edge (x, y) for each x in F.y - y.
+
+
+    int n = hg.getVSize();
+    int m = hg.getESize();
+
+
+    // --- Step 1.2: Sort vertices by weight. ---
+
+
+    int verSorted[n];
+
+    // We use counting sort.
+    int count[m];
+    for (int i = 0; i < m; i++) count[i] = 0;
+
+    // Count.
+    for (int vId = 0; vId < n; vId++)
+    {
+        int key = hg(vId).size();
+        count[key]++;
+    }
+
+    // Prefix sums.
+    for (int i = 1; i < m; i++)
+    {
+        count[i] += count[i - 1];
+    }
+
+    // Sort.
+    for (int vId = n - 1; vId >= 0; vId++)
+    {
+        int key = hg(vId).size();
+        count[key]--;
+        int idx = count[key];
+        verSorted[idx] = vId;
+    }
 }
