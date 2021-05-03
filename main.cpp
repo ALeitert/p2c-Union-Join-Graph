@@ -69,6 +69,63 @@ bool smallerEqual(const vector<int>& lhs, const vector<int>& rhs)
     return lhs.size() <= rhs.size();
 }
 
+bool verify(const vector<vector<int>>& testCase, size_t* answer)
+{
+    int size = testCase.size();
+
+
+    // --- Check if all indices exist exactly once. ---
+
+    int idxCount[size];
+    for (int i = 0; i < size; i++)
+    {
+        size_t idx = answer[i];
+
+        if (idx >= size)
+        {
+            cout << "Answer contains invalid index." << endl;
+            return false;
+        }
+
+        idxCount[idx]++;
+    }
+
+    for (size_t idx = 0; idx < size; idx++)
+    {
+        if (idxCount[idx] < 1)
+        {
+            cout << "Answer does not contain index " << idx << "." << endl;
+            return false;
+        }
+
+        if (idxCount[idx] > 1)
+        {
+            cout << "Answer contains index " << idx << " too often." << endl;
+            return false;
+        }
+    }
+
+
+    // --- Check if sorted. ---
+
+    for (int i = 1; i < size; i++)
+    {
+        size_t smlIdx = answer[i - 1];
+        size_t lrgIdx = answer[i];
+
+        const vector<int>& smlVec = testCase[smlIdx];
+        const vector<int>& lrgVec = testCase[lrgIdx];
+
+        if (!smallerEqual(smlVec, lrgVec))
+        {
+            cout << "Answer not sorted correctly." << endl;
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main(int argc, char* argv[])
 {
     cout << "*** Union Join and Subset Graph of Acyclic Hypergraphs ***" << endl;
