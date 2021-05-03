@@ -380,8 +380,9 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 
     vector<intPair> result;
 
-    for (int yId = 0; yId < m; yId++)
+    for (int eoIdx = 0; eoIdx < n; eoIdx++)
     {
+        int yId = eLexOrder[eoIdx];
         const vector<int>& vertices = hg[yId];
         if (vertices.size() <= 0) throw std::invalid_argument("Invalid hypergraph.");
 
