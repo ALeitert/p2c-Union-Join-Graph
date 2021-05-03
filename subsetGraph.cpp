@@ -327,7 +327,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 }
 
 // Lexicographically sorts the given vectors.
-void lexSort(vector<int>* arr, int arrSize, int base)
+size_t* lexSort(const vector<int>* arr, size_t arrSize, int base)
 {
     throw runtime_error("Not implemented");
 
@@ -365,7 +365,7 @@ void lexSort(vector<int>* arr, int arrSize, int base)
     vector<intPair> pcPairs;
     for (int i = 0; i < arrSize; i++)
     {
-        vector<int>& str = arr[i];
+        const vector<int>& str = arr[i];
 
         for (int p = 0; p < str.size(); p++)
         {
