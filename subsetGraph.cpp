@@ -376,21 +376,37 @@ void lexSort(vector<int>* arr, int arrSize, int base)
     sortPairsRadix(pcPairs);
 
 
-    // -- Determine range of various positions (will make partition later easier). --
-    vector<int> pRange;
+    // Step 1.2: Remove dublicates and partition by length.
 
-    for (int i = 0, lastP = -1; i < arrSize; i++)
+    // In [1], NonEmpty only contais the set of characters that are used for that position.
+    // We additionally count how often each appears and then calculte the prefix-sums.
+
+    vector<vector<intPair>> NonEmpty;
+
+    for (int p = 0, i = 0 /* index in list */; p < maxLength; p++) // Note that each p exists.
     {
-        int p = pcPairs[i].first;
+        NonEmpty.push_back(vector<intPair>());
+        vector<intPair>& neVec = NonEmpty[p];
 
-        if (p > lastP)
+
+        // Iterate over all characters with same position.
+        for (int lastC = -1; pcPairs[i].first == p; i++)
         {
-            int lastPSum = (p > 0 ? pRange[p - 1] : 0);
-            pRange.push_back(lastPSum); // We know each p exists, so adding one is sufficient.
+            int c = pcPairs[i].second;
 
-            lastP = p;
+            if (c != lastC)
+            {
+                neVec.push_back(intPair(c, 0));
+                lastC = c;
+            }
+
+            neVec.back().second++;
         }
 
-        pRange[p]++;
+        // Compute prefix sums.
+        for (int j = 1; j < neVec.size(); j++)
+        {
+            neVec[j].second += neVec[j - 1].second;
+        }
     }
 }
