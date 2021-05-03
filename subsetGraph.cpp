@@ -4,6 +4,9 @@
 #include "reducedSet.h"
 #include "subsetGraph.h"
 
+// Lexicographically sorts the given vectors.
+size_t* lexSort(const vector<int>* arr, size_t arrSize);
+
 
 // Implements a naive approach to find all subset relations (compairs all pairs of hyperedges).
 vector<intPair> SubsetGraph::naive(const Hypergraph& hg)
