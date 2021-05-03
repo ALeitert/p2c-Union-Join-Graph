@@ -77,6 +77,8 @@ bool verify(const vector<vector<int>>& testCase, size_t* answer)
     // --- Check if all indices exist exactly once. ---
 
     int idxCount[size];
+    for (int i = 0; i < size; i++) idxCount[i] = 0;
+
     for (int i = 0; i < size; i++)
     {
         size_t idx = answer[i];
@@ -129,4 +131,82 @@ bool verify(const vector<vector<int>>& testCase, size_t* answer)
 int main(int argc, char* argv[])
 {
     cout << "*** Union Join and Subset Graph of Acyclic Hypergraphs ***" << endl;
+
+
+    srand(19082017);
+
+    int totalTestNo = 10000;
+    int maxSize = 256;
+    int maxLen = 256;
+    int maxC = 30;
+
+    for (int testNo = 1, perc = -1; testNo <= totalTestNo; testNo++)
+    {
+        int size = rand() % min(testNo, maxSize) + 5;
+
+        vector<vector<int>> testCase = buildTestCase
+        (
+            size,
+            rand() % min(testNo, maxLen) + 5,
+            rand() % min(testNo, maxC) + 5
+        );
+
+        size_t* answer = SubsetGraph::lexSort(testCase.data(), size);
+        bool correct = verify(testCase, answer);
+
+        if (!correct)
+        {
+            cout << "-- Test " << testNo << " --" << endl;
+
+            cout << "Test Case:" << endl;
+            for (int sId = 0; sId < size; sId++)
+            {
+                cout << sId << ":";
+
+                const vector<int>& vec = testCase[sId];
+                for (int i = 0; i < vec.size(); i++)
+                {
+                    cout << " " << vec[i];
+                }
+
+                cout << endl;
+            }
+            cout << endl;
+
+
+            cout << "Answer:" << endl;
+            for (int oIdx = 0; oIdx < size; oIdx++)
+            {
+                size_t sIdx = answer[oIdx];
+                cout << oIdx << "  " << sIdx << ":";
+
+                const vector<int>& vec = testCase[sIdx];
+                for (int i = 0; i < vec.size(); i++)
+                {
+                    cout << " " << vec[i];
+                }
+
+                cout << endl;
+            }
+        }
+
+        delete[] answer;
+        if (!correct) break;
+
+
+        // --- Print progress. ---
+
+        int progress = (testNo * 100) / totalTestNo;
+
+        if (progress > perc)
+        {
+            perc = progress;
+
+            // Based on https://stackoverflow.com/a/21870633.
+            cout << "\r" << perc << " %" << flush;
+        }
+
+        if (perc == 100) cout << endl;
+
+    }
 }
