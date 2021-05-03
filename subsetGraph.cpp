@@ -428,7 +428,7 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize, int base)
 
 
     // We use counting sort.
-    int lenCount[maxLength];
+    int lenCount[maxLength + 1]; // +1 since indices start at and lengths at 1.
     for (int i = 0; i < maxLength; i++) lenCount[i] = 0;
 
     // Count.
@@ -443,6 +443,11 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize, int base)
     {
         lenCount[i] += lenCount[i - 1];
     }
+
+    // We need that for later.
+    // Makes it easy to determine start and end of each group of lengths.
+    int lenRange[maxLength + 1];
+    copy(lenCount, lenCount + maxLength + 1, lenRange);
 
     // Sort.
     for (size_t sIdx = arrSize - 1; sIdx >= 0; sIdx++)
