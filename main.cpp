@@ -51,6 +51,24 @@ vector<vector<int>> buildTestCase(int size, int maxLen, int maxC)
     return strings;
 }
 
+// Determines if the "left" vector is lexicographically smaller than the "right".
+bool smallerEqual(const vector<int>& lhs, const vector<int>& rhs)
+{
+    int minSize = min(lhs.size(), rhs.size());
+
+    for (int i = 0; i < minSize; i++)
+    {
+        int l = lhs[i];
+        int r = rhs[i];
+
+        if (l < r) return true;
+        if (l > r) return false;
+    }
+
+    // Both equal so far.
+    return lhs.size() <= rhs.size();
+}
+
 int main(int argc, char* argv[])
 {
     cout << "*** Union Join and Subset Graph of Acyclic Hypergraphs ***" << endl;
