@@ -409,4 +409,49 @@ size_t* lexSort(const vector<int>* arr, size_t arrSize, int base)
             neVec[j].second += neVec[j - 1].second;
         }
     }
+
+
+    // Phase 2: Raddix sort.
+
+    // Since we sort strings, we start sorting at the last position.
+    // Shorter strings are added later and always at the beginning.
+
+    // Note that only sort indices and do not rearange the given array.
+
+
+    // Step 2.1: Sort by length.
+
+    // Arrays to store orders.
+    // No need to initialise, since we never read before writing them completely.
+    size_t* orgOrder = new size_t[arrSize];
+    size_t* newOrder = new size_t[arrSize];
+
+
+    // We use counting sort.
+    int lenCount[maxLength];
+    for (int i = 0; i < maxLength; i++) lenCount[i] = 0;
+
+    // Count.
+    for (size_t sIdx = 0; sIdx < arrSize; sIdx++)
+    {
+        int key = arr[sIdx].size();
+        lenCount[key]++;
+    }
+
+    // Prefix sums.
+    for (int i = 1; i < maxLength; i++)
+    {
+        lenCount[i] += lenCount[i - 1];
+    }
+
+    // Sort.
+    for (size_t sIdx = arrSize - 1; sIdx >= 0; sIdx++)
+    {
+        int key = arr[sIdx].size();
+        lenCount[key]--;
+        int idx = lenCount[key];
+        orgOrder[idx] = sIdx;
+    }
+
+    // orgOrder[] now represents the given strings sorted by length.
 }
