@@ -300,4 +300,27 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
         int idx = count[key];
         verSorted[idx] = vId;
     }
+
+
+    // --- Step 1.3: Sort verticies within hyperedges by their weight. ---
+
+    // Two Options
+    //   1) Sort with original vertex IDs.
+    //   2) Fill hyperedges with index in sorted order instead.
+    // For now, we use option 2.
+
+
+    vector<int> hyperedges[m];
+
+    // Sort into hyperedges.
+    for (int idx = 0; idx < n; idx++)
+    {
+        int vId = verSorted[idx];
+        const vector<int>& vHypEdges = hg(vId);
+
+        for (int eId : vHypEdges)
+        {
+            hyperedges[eId].push_back(idx); // Option 2.
+        }
+    }
 }
