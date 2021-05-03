@@ -324,3 +324,16 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
         }
     }
 }
+
+// Lexicographically sorts the given vectors.
+void lexSort(vector<int>* arr, int arrSize, int base)
+{
+    throw runtime_error("Not implemented");
+
+    // We implement an algorithm presented in [1]. It allows to lexicographically sort
+    // strings with n total characters from an alphabet of size m in O(n + m) time.
+
+    // [1] Aho, Hopcroft, Ullman:
+    //     The Design and Analysis of Computer Algorithms.
+    //     Addison-Wesley, 1974.
+}
