@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include "algorithms/sorting.h"
 #include "hypergraph.h"
 
 // Default constructor.
@@ -15,7 +16,7 @@ Hypergraph::Hypergraph() : Hypergraph(0, 0)
 Hypergraph::Hypergraph(const vector<intPair>& eList)
 {
     // Ensure input is sorted.
-    vector<intPair>* ptr = ensureSorting(eList);
+    vector<intPair>* ptr = Sorting::ensureSorting(eList);
     const vector<intPair>& list = (ptr == nullptr ? eList : *ptr);
 
     vector<vector<int>> eSet;

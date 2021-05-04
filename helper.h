@@ -36,10 +36,5 @@ void printTime(int64_t time, ostream& out);
 
 void makePermutation(int* arr, int size);
 
-// Checks if the given vector is sorted; if not it creates a sorted copy.
-vector<intPair>* ensureSorting(const vector<intPair>& vec);
-
-// Checks if the given vector is sorted and sorts it if not.
-void ensureSorting(vector<intPair>& vec);
 
 #endif

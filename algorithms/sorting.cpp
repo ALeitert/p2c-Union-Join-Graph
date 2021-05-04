@@ -1,6 +1,37 @@
 #include "sorting.h"
 
 
+// Determines if the given vector is sorted.
+// Requires that the smaller than operator (<) is mplemented.
+template<typename T>
+bool Sorting::isSorted(const vector<T>& vec)
+{
+    for (int i = 1; i < vec.size(); i++)
+    {
+        if (vec[i] < vec[i - 1]) return false;
+    }
+
+    return true;
+}
+
+// Checks if the given vector is sorted; if not it creates a sorted copy.
+vector<intPair>* Sorting::ensureSorting(const vector<intPair>& vec)
+{
+    if (isSorted(vec)) return nullptr;
+
+    vector<intPair>* newVec = new vector<intPair>(vec);
+    Sorting::radixSort(*newVec);
+
+    return newVec;
+}
+
+// Checks if the given vector is sorted and sorts it if not.
+void Sorting::ensureSorting(vector<intPair>& vec)
+{
+    if (isSorted(vec)) Sorting::radixSort(vec);
+}
+
+
 // Sorts a set of integer pairs using radix sort.
 void Sorting::radixSort(vector<intPair>& pairs)
 {

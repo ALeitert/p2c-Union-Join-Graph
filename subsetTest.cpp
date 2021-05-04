@@ -135,7 +135,7 @@ vector<intPair> buildSets(const vector<intPair>& traClos)
 
     // Make copy and sort it if needed.
     vector<intPair> sets(traClos);
-    ensureSorting(traClos);
+    Sorting::ensureSorting(traClos);
 
 
     // --- Shuffle vertex IDs. ---
@@ -191,11 +191,11 @@ const Hypergraph& SubsetTest::build(int size)
 bool SubsetTest::verify(const vector<intPair>& ans) const
 {
     // Ensure input is sorted.
-    vector<intPair>* ptr = ensureSorting(ans);
+    vector<intPair>* ptr = Sorting::ensureSorting(ans);
     const vector<intPair>& answer = (ptr == nullptr ? ans : *ptr);
 
     // Ensure solution is sorted.
-    ensureSorting(solution);
+    Sorting::ensureSorting(solution);
 
 
     // --- Compare answer and solution. ---

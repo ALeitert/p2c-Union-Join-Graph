@@ -9,6 +9,18 @@
 
 namespace Sorting
 {
+    // Determines if the given vector is sorted.
+    // Requires that the smaller than operator (<) is mplemented.
+    template<typename T>
+    bool isSorted(const vector<T>& vec);
+
+    // Checks if the given vector is sorted; if not it creates a sorted copy.
+    vector<intPair>* ensureSorting(const vector<intPair>& vec);
+
+    // Checks if the given vector is sorted and sorts it if not.
+    void ensureSorting(vector<intPair>& vec);
+
+
     // Sorts a set of integer pairs using radix sort.
     void radixSort(vector<intPair>& pairs);
 }
