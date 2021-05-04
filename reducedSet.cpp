@@ -59,6 +59,19 @@ ReducedSet::~ReducedSet()
 }
 
 
+// Copy assignment.
+ReducedSet& ReducedSet::operator=(const ReducedSet& set)
+{
+    if (R != nullptr) delete[] R;
+
+    n = set.n;
+    R = new wordIndex[n];
+
+    copy(set.R, set.R + n, R);
+
+    return *this;
+}
+
 // Move assignment.
 ReducedSet& ReducedSet::operator=(ReducedSet&& set)
 {

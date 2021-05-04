@@ -58,6 +58,9 @@ public:
     ~ReducedSet();
 
 
+    // Copy assignment.
+    ReducedSet& operator=(const ReducedSet& set);
+
     // Move assignment.
     ReducedSet& operator=(ReducedSet&& set);
 
