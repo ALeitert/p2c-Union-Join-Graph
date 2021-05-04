@@ -306,8 +306,6 @@ void testGeneralSSG(ssgFun ssg, int seed, int tests, int maxSize)
             // Based on https://stackoverflow.com/a/21870633.
             cout << perc << " %\r" << flush;
         }
-
-        if (perc == 100) cout << endl;
     }
 
     if (allPassed)
