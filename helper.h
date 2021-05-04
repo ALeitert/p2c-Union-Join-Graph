@@ -3,6 +3,7 @@
 #ifndef __Helper_H__
 #define __Helper_H__
 
+#include <limits>
 #include <utility>
 #include <vector>
 
@@ -10,6 +11,7 @@ using namespace std;
 
 
 typedef pair<int, int> intPair;
+static constexpr intPair MaxIntPair = intPair(numeric_limits<int>::max(), numeric_limits<int>::max());
 
 // Based on https://www.techiedelight.com/use-pair-key-std-unordered_set-cpp/
 // Allows to use evPair with unordered_set class.

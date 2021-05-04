@@ -201,8 +201,10 @@ bool SubsetTest::verify(const vector<intPair>& ans) const
 
     for (int i = 0; i < answer.size(); i++)
     {
+        const intPair dummy = MaxIntPair;
+
         const intPair& ansP = answer[i];
-        const intPair& solP = solution[i];
+        const intPair& solP = (i < solution.size() ? solution[i] : dummy);
 
         if (ansP < solP)
         {
@@ -249,10 +251,27 @@ void testGeneralSSG(ssgFun ssg, int seed, int tests, int maxSize)
         // --- Run test. ---
 
         SubsetTest sst;
+        vector<intPair> answer;
+
         int size = min(i, rand() % maxSize) + 5;
         const Hypergraph& hg = sst.build(size);
-        vector<intPair> answer = ssg(hg);
+
+        try
+        {
+            // Run algorithm.
+            answer = ssg(hg);
+        }
+        catch (const exception& e)
+        {
+            cout << "Test " << i << " failed with exception." << endl;
+            cerr << e.what() << endl;
+
+            allPassed = false;
+            break;
+        }
+
         bool correct = sst.verify(answer);
+
 
         // Cancel if test case fails.
         if (!correct)
