@@ -383,7 +383,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     vector<ReducedSet> history;
     history.push_back(ReducedSet());
 
-    for (int eoIdx = 0; eoIdx < n; eoIdx++)
+    for (int eoIdx = 0, sucShared = 0; eoIdx < n; eoIdx++)
     {
         int yId = eLexOrder[eoIdx];
 
@@ -407,33 +407,34 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
         // y'[j] == y[j] for all j in [0, i].
         // In that case, we can use the already stored intersection and do not have to recompute it again.
 
-        int shared = 0;
+        // Instead of counting how many we share with the preceding set, we do that for the succeding.
+        // That way, we make the history only as large as needed.
 
-        if (eoIdx > 0)
+        int shared = sucShared;
+
+        if (eoIdx + 1 < n)
         {
-            int preId = eLexOrder[eoIdx - 1];
-            const vector<int>& preVertIdxs = hgHypEdges[preId];
-            size_t minSize = min(ySize, preVertIdxs.size());
+            sucShared = 0;
+            int postId = eLexOrder[eoIdx + 1];
+            const vector<int>& postVertIdxs = hgHypEdges[postId];
+            size_t minSize = min(ySize, postVertIdxs.size());
 
             while
             (
-                shared < minSize &&
-                yVertIdxs[shared] == preVertIdxs[shared]
+                sucShared < minSize &&
+                yVertIdxs[sucShared] == postVertIdxs[sucShared]
             )
             {
-                shared++;
+                sucShared++;
             }
         }
-
-        // Change from amount to index.
-        shared--;
 
 
         // --- Initialise intersection with hyperedges of "first" vertex. ---
 
         ReducedSet intersection;
 
-        if (shared >= 0)
+        if (shared > 0)
         {
             intersection = history[shared - 1];
         }
@@ -446,13 +447,16 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 
 
         // Intersect with hyperedges of all other vertices.
-        for (int i = shared + 1 /* previous done above */; i < ySize; i++)
+        for (int i = max(shared, 1) /* previous done above */; i < ySize; i++)
         {
             int vIdx = yVertIdxs[i];
             intersection &= vSets[vIdx];
 
-            if (i >= history.size()) history.push_back(intersection);
-            else history[i] = intersection;
+            if (i < sucShared)
+            {
+                if (i >= history.size()) history.push_back(intersection);
+                else history[i] = intersection;
+            }
         }
 
         // Intersection calculated. Add edges to result.
