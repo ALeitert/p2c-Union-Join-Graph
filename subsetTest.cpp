@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "helper.h"
+#include "subsetGraph.h"
 #include "subsetTest.h"
 
 using namespace std;
@@ -258,8 +259,15 @@ void testGeneralSSG(ssgFun ssg, int seed, int tests, int maxSize)
 
         try
         {
-            // Run algorithm.
-            answer = ssg(hg);
+            if (ssg == SubsetGraph::doNothing)
+            {
+                answer = sst.getSolution();
+            }
+            else
+            {
+                // Run algorithm.
+                answer = ssg(hg);
+            }
         }
         catch (const exception& e)
         {

@@ -10,6 +10,10 @@
 size_t* lexSort(const vector<vector<int>> lst);
 
 
+// Does nothing, just returns a new empty vector.
+// The purpose of this function is to estimate the runtime needed for creating and verifying test cases.
+vector<intPair> SubsetGraph::doNothing(const Hypergraph&) { return vector<intPair>(); }
+
 // Implements a naive approach to find all subset relations (compairs all pairs of hyperedges).
 vector<intPair> SubsetGraph::naive(const Hypergraph& hg)
 {
