@@ -380,6 +380,8 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     // --- Step 3) ---
 
     vector<intPair> result;
+    vector<ReducedSet> history;
+    history.push_back(ReducedSet());
 
     for (int eoIdx = 0; eoIdx < n; eoIdx++)
     {
@@ -388,22 +390,69 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
         const vector<int>& yVertIdxs = hgHypEdges[yId];
         if (yVertIdxs.size() <= 0) throw std::invalid_argument("Invalid hypergraph.");
 
-        int ySize = yVertIdxs.size();
+        size_t ySize = yVertIdxs.size();
 
 
         // Compute F.y using the following relation:
         // F.y = \bigcup_{d \in y} F.{d}
 
 
-        // Initialise intersection with hyperedges of "first" vertex.
-        int v0_woIdx = yVertIdxs[0]; // Index after sorting by weight.
-        ReducedSet intersection(vSets[v0_woIdx]);
+        // --- Shared history with previous set? ---
+
+        // Let y' = { v_a, ..., v_p } the previous hyperedge (sorted by weight).
+        // Let  y = { v_b, ..., v_q } the current hyperedge (sorted by weight).
+
+        // Note that, since edges are sorted lex., a <= b.
+        // We know want to determine the largest index i such that
+        // y'[j] == y[j] for all j in [0, i].
+        // In that case, we can use the already stored intersection and do not have to recompute it again.
+
+        int shared = 0;
+
+        if (eoIdx > 0)
+        {
+            int preId = eLexOrder[eoIdx - 1];
+            const vector<int>& preVertIdxs = hgHypEdges[preId];
+            size_t minSize = min(ySize, preVertIdxs.size());
+
+            while
+            (
+                shared < minSize &&
+                yVertIdxs[shared] == preVertIdxs[shared]
+            )
+            {
+                shared++;
+            }
+        }
+
+        // Change from amount to index.
+        shared--;
+
+
+        // --- Initialise intersection with hyperedges of "first" vertex. ---
+
+        ReducedSet intersection;
+
+        if (shared >= 0)
+        {
+            intersection = history[shared - 1];
+        }
+        else
+        {
+            int v0_woIdx = yVertIdxs[0]; // Index after sorting by weight.
+            intersection = ReducedSet(vSets[v0_woIdx]);
+            history[0] = intersection;
+        }
+
 
         // Intersect with hyperedges of all other vertices.
-        for (int i = 1 /* 0 done above */; i < ySize; i++)
+        for (int i = shared + 1 /* previous done above */; i < ySize; i++)
         {
             int vIdx = yVertIdxs[i];
             intersection &= vSets[vIdx];
+
+            if (i >= history.size()) history.push_back(intersection);
+            else history[i] = intersection;
         }
 
         // Intersection calculated. Add edges to result.
