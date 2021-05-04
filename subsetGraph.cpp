@@ -370,9 +370,10 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     // Reduced sets store indices of hyperedges in the lex. order.
 
     ReducedSet vSets[n];
-    for (int vId = 0; vId < n; vId++)
+    for (int woIdx = 0; woIdx < n; woIdx++)
     {
-        vSets[vId] = ReducedSet(hgVertices[vId]);
+        int vId = vWeiOrder[woIdx];
+        vSets[woIdx] = ReducedSet(hgVertices[vId]);
     }
 
 
@@ -383,27 +384,33 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     for (int eoIdx = 0; eoIdx < n; eoIdx++)
     {
         int yId = eLexOrder[eoIdx];
-        const vector<int>& vertices = hg[yId];
-        if (vertices.size() <= 0) throw std::invalid_argument("Invalid hypergraph.");
+
+        const vector<int>& yVertIdxs = hgHypEdges[yId];
+        if (yVertIdxs.size() <= 0) throw std::invalid_argument("Invalid hypergraph.");
+
+        int ySize = yVertIdxs.size();
+
 
         // Compute F.y using the following relation:
         // F.y = \bigcup_{d \in y} F.{d}
 
 
         // Initialise intersection with hyperedges of "first" vertex.
-        ReducedSet intersection(vSets[vertices[0]]);
+        int v0_woIdx = yVertIdxs[0]; // Index after sorting by weight.
+        ReducedSet intersection(vSets[v0_woIdx]);
 
         // Intersect with hyperedges of all other vertices.
-        for (int vIdx = 1 /* 0 done above */; vIdx < vertices.size(); vIdx++)
+        for (int i = 1 /* 0 done above */; i < ySize; i++)
         {
-            int vId = vertices[vIdx];
-            intersection &= vSets[vId];
+            int vIdx = yVertIdxs[i];
+            intersection &= vSets[vIdx];
         }
 
         // Intersection calculated. Add edges to result.
         for (auto it = intersection.begin(); it != intersection.end(); ++it)
         {
-            int xId = *it;
+            int x_eoIdx = *it;
+            int xId = eLexOrder[x_eoIdx];
             if (xId == yId) continue;
 
             result.push_back(intPair(xId, yId));
