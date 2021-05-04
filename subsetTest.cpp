@@ -61,7 +61,7 @@ vector<intPair> randomDAG(int size, int maxAvgDeg)
 
     // topOrder[i] == vId states that vertex v is at index i in a reversed topological order.
     int topOrder[size];
-    makePermutation(topOrder, size);
+    Sorting::makePermutation(topOrder, size);
 
     for (int i = 0; i < list.size(); i++)
     {
@@ -141,7 +141,7 @@ vector<intPair> buildSets(const vector<intPair>& traClos)
     // --- Shuffle vertex IDs. ---
 
     int idShuffle[size];
-    makePermutation(idShuffle, size);
+    Sorting::makePermutation(idShuffle, size);
 
     for (int i = 0; i < sets.size(); i++)
     {

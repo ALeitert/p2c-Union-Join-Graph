@@ -23,6 +23,10 @@ namespace Sorting
 
     // Sorts a set of integer pairs using radix sort.
     void radixSort(vector<intPair>& pairs);
+
+
+    // Creates a random permutation of integers in range [0, size) in the given array.
+    void makePermutation(int* arr, size_t size);
 }
 
 #endif

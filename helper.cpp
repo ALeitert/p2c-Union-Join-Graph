@@ -1,4 +1,4 @@
-#include <algorithm>
+
 #include <iomanip>
 #include <iostream>
 
@@ -75,16 +75,4 @@ void printTime(int64_t time, ostream& out)
         out << days << " d " << setw(2) << hour << " h";
     }
     out << flush;
-}
-
-
-void makePermutation(int* arr, int size)
-{
-    for (int i = 0; i < size; i++)
-    {
-        arr[i] = i;
-    }
-
-    // No idea why std::begin()/end() do not work.
-    random_shuffle(arr, arr + size);
 }

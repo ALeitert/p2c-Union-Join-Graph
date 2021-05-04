@@ -33,8 +33,4 @@ void print(const vector<intPair>& pairs);
 // Prints the given time (in milliseconds) into the given stream using appropriate unit.
 void printTime(int64_t time, ostream& out);
 
-
-void makePermutation(int* arr, int size);
-
-
 #endif

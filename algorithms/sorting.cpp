@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "sorting.h"
 
 
@@ -92,4 +94,16 @@ void Sorting::radixSort(vector<intPair>& pairs)
 
         pairs[idx] = buffer[i];
     }
+}
+
+
+// Creates a random permutation of integers in range [0, size) in the given array.
+void Sorting::makePermutation(int* arr, size_t size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        arr[i] = i;
+    }
+
+    random_shuffle(arr, arr + size);
 }
