@@ -288,7 +288,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     // Count.
     for (int vId = 0; vId < n; vId++)
     {
-        int key = hg(vId).size();
+        int key = m - hg(vId).size();
         count[key]++;
     }
 
@@ -301,7 +301,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     // Sort.
     for (int vId = n - 1; vId >= 0; vId--)
     {
-        int key = hg(vId).size();
+        int key = m - hg(vId).size();
         count[key]--;
         int idx = count[key];
         vWeiOrder[idx] = vId;
