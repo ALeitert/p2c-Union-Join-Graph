@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unordered_set>
 
+#include "algorithms/sorting.h"
 #include "helper.h"
 #include "hypergraph.h"
 
@@ -25,7 +26,7 @@ Hypergraph randomHG(int n, int m, int N)
         list.push_back(p);
     }
 
-    sortPairsRadix(list);
+    Sorting::radixSort(list);
     return Hypergraph(list);
 }
 

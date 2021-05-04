@@ -4,6 +4,7 @@
 #define __Helper_H__
 
 #include <limits>
+#include <ostream>
 #include <utility>
 #include <vector>
 
@@ -32,10 +33,6 @@ void print(const vector<intPair>& pairs);
 // Prints the given time (in milliseconds) into the given stream using appropriate unit.
 void printTime(int64_t time, ostream& out);
 
-
-// Sorts a set of integer pairs using radix sort.
-// Requires O(n + k) additional memory.
-void sortPairsRadix(vector<intPair>& pairs);
 
 void makePermutation(int* arr, int size);
 

@@ -1,5 +1,6 @@
 #include <stdexcept>
 
+#include "algorithms/sorting.h"
 #include "helper.h"
 #include "reducedSet.h"
 #include "subsetGraph.h"
@@ -60,7 +61,7 @@ vector<intPair> SubsetGraph::naive(const Hypergraph& hg)
         }
     }
 
-    sortPairsRadix(answer);
+    Sorting::radixSort(answer);
     return answer;
 }
 
@@ -147,7 +148,7 @@ vector<intPair> SubsetGraph::pritchardSimple(const Hypergraph& hg)
         }
     }
 
-    sortPairsRadix(result);
+    Sorting::radixSort(result);
     return result;
 }
 
@@ -227,7 +228,7 @@ vector<intPair> SubsetGraph::pritchardReduced(const Hypergraph& hg)
         }
     }
 
-    sortPairsRadix(result);
+    Sorting::radixSort(result);
     return result;
 }
 
@@ -471,7 +472,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 
     delete[] eLexOrder;
 
-    sortPairsRadix(result);
+    Sorting::radixSort(result);
     return result;
 }
 
@@ -522,7 +523,7 @@ size_t* lexSort(const vector<vector<int>> lst)
         }
     }
 
-    sortPairsRadix(pcPairs);
+    Sorting::radixSort(pcPairs);
 
 
     // Step 1.2: Remove dublicates and partition by length.

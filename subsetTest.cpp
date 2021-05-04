@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "algorithms/sorting.h"
 #include "helper.h"
 #include "subsetTest.h"
 
@@ -53,7 +54,7 @@ vector<intPair> randomDAG(int size, int maxAvgDeg)
         list.push_back(intPair(i, i));
     }
 
-    sortPairsRadix(list);
+    Sorting::radixSort(list);
 
 
     // --- Replace indices (in topological order) with vertex-IDs. ---
@@ -122,7 +123,7 @@ vector<intPair> transitiveClosure(const vector<intPair>& dag)
         }
     }
 
-    sortPairsRadix(pairs);
+    Sorting::radixSort(pairs);
     return pairs;
 }
 
@@ -148,7 +149,7 @@ vector<intPair> buildSets(const vector<intPair>& traClos)
         sets[i].second = idShuffle[vIdx];
     }
 
-    sortPairsRadix(sets);
+    Sorting::radixSort(sets);
     return sets;
 }
 
