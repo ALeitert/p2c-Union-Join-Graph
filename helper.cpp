@@ -38,9 +38,7 @@ void sortPairsRadix(vector<intPair>& pairs)
     for (int i = 0; i < pairs.size(); i++)
     {
         int key = pairs[i].second;
-
-        while (count.size() <= key) count.push_back(0);
-
+        if (count.size() <= key) count.resize(key + 1, 0);
         count[key]++;
     }
 
@@ -70,9 +68,7 @@ void sortPairsRadix(vector<intPair>& pairs)
     for (int i = 0; i < pairs.size(); i++)
     {
         int key = buffer[i].first;
-
-        while (count.size() <= key) count.push_back(0);
-
+        if (count.size() <= key) count.resize(key + 1, 0);
         count[key]++;
     }
 
