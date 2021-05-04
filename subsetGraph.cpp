@@ -234,8 +234,6 @@ vector<intPair> SubsetGraph::pritchardReduced(const Hypergraph& hg)
 // Implements Pritchard's algorithm with presorted hyperedges.
 vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 {
-    throw runtime_error("Not implemented");
-
     // Pritchard assumes for their algorithm that there are no two equal sets.
     // For now, we do not address that problem. If needed, we simplify the hypergraph later.
 
