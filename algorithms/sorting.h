@@ -24,6 +24,10 @@ namespace Sorting
     // Sorts a set of integer pairs using radix sort.
     void radixSort(vector<intPair>& pairs);
 
+    // Lexicographically sorts the given list of vectors.
+    // Returns an array A[] such that A[i] is the ID of the vector which is at position i in a lex. order.
+    size_t* lexSort(const vector<vector<int>>& lst);
+
 
     // Creates a random permutation of integers in range [0, size) in the given array.
     void makePermutation(int* arr, size_t size);
