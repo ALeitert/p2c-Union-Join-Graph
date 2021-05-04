@@ -280,6 +280,8 @@ void testGeneralSSG(ssgFun ssg, int seed, int tests, int maxSize)
             cout << "  answer: "; print(answer);
             cout << "solution: "; print(sst.getSolution());
 
+            hg.print(cout);
+
             allPassed = false;
             break;
         }

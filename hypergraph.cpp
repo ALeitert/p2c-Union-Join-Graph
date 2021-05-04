@@ -149,3 +149,21 @@ const vector<int>& Hypergraph::operator()(const int j) const
     assert(j >= 0 && j < vSize);
     return vertices[j];
 }
+
+
+// Prints the hypergraph as family of sets.
+void Hypergraph::print(ostream& out) const
+{
+    for (int eId = 0; eId < eSize; eId++)
+    {
+        out << eId << ":";
+
+        const vector<int>& vList = hyperedges[eId];
+        for (int i = 0; i < vList.size(); i++)
+        {
+            out << " " << vList[i];
+        }
+
+        out << endl;
+    }
+}

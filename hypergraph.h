@@ -1,6 +1,7 @@
 #ifndef __Hypergraph_H__
 #define __Hypergraph_H__
 
+#include <ostream>
 #include <utility>
 #include <vector>
 
@@ -43,7 +44,7 @@ public:
 
 
     // Move assignment.
-    Hypergraph& operator= (Hypergraph&&);
+    Hypergraph& operator=(Hypergraph&&);
 
 
     // Returns the hyperedge with index i.
@@ -51,6 +52,10 @@ public:
 
     // Returns the hyperedges containing the vertex with index j.
     const vector<int>& operator()(const int j) const;
+
+
+    // Prints the hypergraph as family of sets.
+    void print(ostream& out) const;
 
 
 private:
