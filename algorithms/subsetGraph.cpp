@@ -1,8 +1,8 @@
 #include <stdexcept>
 
-#include "sorting.h"
+#include "../dataStructures/reducedSet.h"
 #include "../helper.h"
-#include "../reducedSet.h"
+#include "sorting.h"
 #include "subsetGraph.h"
 
 
