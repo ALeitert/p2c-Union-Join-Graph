@@ -32,9 +32,6 @@ namespace Testing
         // The edges of the subset graph.
         vector<intPair> solution;
     };
-
-    // Tests a given function that computes the subset graph of a given hypergraph.
-    void testGeneralSSG(SubsetGraph::ssgAlgo ssg, int seed, int tests, int maxSize);
 }
 
 #endif
