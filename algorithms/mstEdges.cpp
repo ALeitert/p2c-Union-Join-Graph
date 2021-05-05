@@ -139,3 +139,19 @@ vector<sizePair> MstEdges::checkAllEdges(const Graph& g)
 
     return result;
 }
+
+// Determines all edges which are part of a MaxST based on Kruskal's algorithm.
+vector<sizePair> MstEdges::kruskal(const Graph& g)
+{
+    throw runtime_error("Not implemented.");
+
+    // Kruskal's algorithm computes a MST by first sorting all edges by weight.
+    // Edges are then processed in that order.
+    // If there are multiple edges to add which exclude each other, ties are broken by the sorting:
+    // an edge that is earlier in the sorting will be picked.
+
+    // One can modify the algorithm to find all edges of a MST as follows.
+    // For the current edge, collect all edges uv with the current weight.
+    // Before adding any edge to the answer, check for each edge if find(u) != find(v).
+    // If that is the case, add uv to the answer. Afterwards, call union(u, v) on all these edges.
+}
