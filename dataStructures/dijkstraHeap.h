@@ -16,6 +16,10 @@ public:
     // Creates an empty heap.
     DijkstraHeap();
 
+    // Constructor.
+    // Ceates a heap with a given size and directly fills it with "infinite" weight for each vertex.
+    DijkstraHeap(size_t capacity);
+
     // Destructor.
     ~DijkstraHeap();
 
