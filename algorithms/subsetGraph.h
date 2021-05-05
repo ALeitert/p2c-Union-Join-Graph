@@ -1,7 +1,7 @@
 // Provides algorithms to compute the subset graph of a given hypergraph.
 
-#ifndef __SubsetGraph_H__
-#define __SubsetGraph_H__
+#ifndef __Algorithms_SubsetGraph_H__
+#define __Algorithms_SubsetGraph_H__
 
 #include <vector>
 

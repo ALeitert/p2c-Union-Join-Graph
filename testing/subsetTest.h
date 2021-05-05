@@ -1,7 +1,7 @@
 // Generates hypergraph to test algorithms that compute subset graphs.
 
-#ifndef __SubsetTest_H__
-#define __SubsetTest_H__
+#ifndef __Testing_SubsetTest_H__
+#define __Testing_SubsetTest_H__
 
 
 #include "../algorithms/subsetGraph.h"
