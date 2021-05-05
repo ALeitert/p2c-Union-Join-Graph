@@ -23,6 +23,13 @@ public:
     ~UnionFind();
 
 
+    // Implements Union-operation.
+    void unionSets(size_t x, size_t y);
+
+    // Implements Find-operation.
+    size_t findSets(size_t x);
+
+
 private:
 
     // Number of elements in data structure.
