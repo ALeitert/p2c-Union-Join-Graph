@@ -31,6 +31,10 @@ public:
     size_t getSize() const;
 
 
+    // Updates the weight of a vertex in the heap.
+    void update(size_t vId, int vWei);
+
+
 private:
 
     // Moves an element down until it has a fitting place.

@@ -1,4 +1,5 @@
 #include <limits>
+#include <stdexcept>
 #include <utility>
 
 #include "dijkstraHeap.h"
@@ -46,6 +47,36 @@ int* const DijkstraHeap::getWeights() const
 size_t DijkstraHeap::getSize() const
 {
     return size;
+}
+
+
+void DijkstraHeap::update(size_t vId, int vWei)
+{
+    if (indices[vId] == std::numeric_limits<size_t>::max())
+    {
+        std::logic_error("Vertex is not in heap.");
+    }
+
+    size_t index = indices[vId];
+    weights[vId] = vWei;
+
+    if (index == 0)
+    {
+        heapify(index);
+        return;
+    }
+
+    size_t parId = verIds[parent(index)];
+    int parWei = weights[parId];
+
+    if (parWei <= vWei)
+    {
+        heapify(index);
+    }
+    else
+    {
+        moveUp(index);
+    }
 }
 
 
