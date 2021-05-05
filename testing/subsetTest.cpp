@@ -173,7 +173,7 @@ void removeLoops(vector<intPair>& list)
 // **** SubsetTest Class ****
 
 // Generates a random hypergraph of the given size and its subsetgraph.
-const Hypergraph& SubsetTest::build(int size)
+const Hypergraph& Testing::SubsetTest::build(int size)
 {
     int logSize = -1;
     for (int s = size; s > 0; s /= 2) logSize++;
@@ -189,7 +189,7 @@ const Hypergraph& SubsetTest::build(int size)
 }
 
 // Verifies that the given edges represent the subset graph.
-bool SubsetTest::verify(const vector<intPair>& ans) const
+bool Testing::SubsetTest::verify(const vector<intPair>& ans) const
 {
     // Ensure input is sorted.
     vector<intPair>* ptr = Sorting::ensureSorting(ans);
@@ -232,14 +232,14 @@ bool SubsetTest::verify(const vector<intPair>& ans) const
     return true;
 }
 
-const vector<intPair>& SubsetTest::getSolution()
+const vector<intPair>& Testing::SubsetTest::getSolution()
 {
     return solution;
 }
 
 
 // Tests a given function that computes the subset graph of a given hypergraph.
-void testGeneralSSG(SubsetGraph::ssgAlgo ssg, int seed, int tests, int maxSize)
+void Testing::testGeneralSSG(SubsetGraph::ssgAlgo ssg, int seed, int tests, int maxSize)
 {
     srand(seed);
 
