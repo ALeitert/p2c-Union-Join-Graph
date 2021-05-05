@@ -50,6 +50,39 @@ size_t DijkstraHeap::getSize() const
 }
 
 
+// Returns the ID of the vertex with smalles weight.
+size_t DijkstraHeap::getMinId()
+{
+    if (size == 0) std::logic_error("Heap is empty.");
+    return verIds[0];
+}
+
+// Returns the smalles weight.
+int DijkstraHeap::getMinWeight()
+{
+    if (size == 0) std::logic_error("Heap is empty.");
+    return weights[verIds[0]];
+}
+
+// Removes the vertex with the smalles weight and returns its ID.
+size_t DijkstraHeap::removeMin()
+{
+    if (size == 0) std::logic_error("Heap is empty.");
+
+    size_t minId = verIds[0];
+
+    size--;
+    verIds[0] = verIds[size];
+
+    indices[minId] = std::numeric_limits<size_t>::max();
+    indices[verIds[0]] = 0;
+
+    heapify(0);
+
+    return minId;
+}
+
+
 void DijkstraHeap::update(size_t vId, int vWei)
 {
     if (indices[vId] == std::numeric_limits<size_t>::max())

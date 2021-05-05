@@ -31,6 +31,16 @@ public:
     size_t getSize() const;
 
 
+    // Returns the ID of the vertex with smalles weight.
+    size_t getMinId();
+
+    // Returns the smalles weight.
+    int getMinWeight();
+
+    // Removes the vertex with the smalles weight and returns its ID.
+    size_t removeMin();
+
+
     // Updates the weight of a vertex in the heap.
     void update(size_t vId, int vWei);
 
