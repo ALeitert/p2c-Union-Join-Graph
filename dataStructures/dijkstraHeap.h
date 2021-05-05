@@ -33,6 +33,15 @@ public:
 
 private:
 
+    // Helper functions to compute indices (assuming 0-based indices).
+    inline size_t left(size_t index) const { return (index << 1) + 1; }
+    inline size_t right(size_t index) const { return (index << 1) + 2; }
+    inline size_t parent(size_t index) const { return (index - 1) >> 1; }
+
+    // Helper function to swap two entries in the heap.
+    void swapKeys(size_t idx1, size_t idx2);
+
+
     // Number of elements stored in heap.
     size_t size = 0;
 

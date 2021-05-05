@@ -1,4 +1,5 @@
 #include <limits>
+#include <utility>
 
 #include "dijkstraHeap.h"
 
@@ -45,4 +46,18 @@ int* const DijkstraHeap::getWeights() const
 size_t DijkstraHeap::getSize() const
 {
     return size;
+}
+
+
+// Helper function to swap two entries in the heap.
+void DijkstraHeap::swapKeys(size_t idx1, size_t idx2)
+{
+    size_t vId1 = verIds[idx1];
+    size_t vId2 = verIds[idx2];
+
+    verIds[idx1] = vId2;
+    verIds[idx2] = vId1;
+
+    indices[vId1] = idx2;
+    indices[vId2] = idx1;
 }
