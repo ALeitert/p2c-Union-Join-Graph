@@ -3,8 +3,9 @@
 #ifndef __SubsetTest_H__
 #define __SubsetTest_H__
 
-#include "hypergraph.h"
-#include "algorithms/subsetGraph.h"
+
+#include "../algorithms/subsetGraph.h"
+#include "../hypergraph.h"
 
 
 class SubsetTest

@@ -3,9 +3,9 @@
 #include <unordered_set>
 #include <vector>
 
-#include "algorithms/sorting.h"
-#include "algorithms/subsetGraph.h"
-#include "helper.h"
+#include "../algorithms/sorting.h"
+#include "../algorithms/subsetGraph.h"
+#include "../helper.h"
 #include "subsetTest.h"
 
 using namespace std;
