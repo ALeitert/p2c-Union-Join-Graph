@@ -24,6 +24,13 @@ public:
     ~DijkstraHeap();
 
 
+    // Returns the array with the weights of all vertices.
+    int* const getWeights() const;
+
+    // Return the current size of the heap.
+    size_t getSize() const;
+
+
 private:
 
     // Number of elements stored in heap.

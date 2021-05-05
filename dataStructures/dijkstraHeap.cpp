@@ -33,3 +33,16 @@ DijkstraHeap::~DijkstraHeap()
     if (weights != nullptr) delete[] weights;
     if (indices != nullptr) delete[] indices;
 }
+
+
+// Returns the array with the weights of all vertices.
+int* const DijkstraHeap::getWeights() const
+{
+    return weights;
+}
+
+// Return the current size of the heap.
+size_t DijkstraHeap::getSize() const
+{
+    return size;
+}
