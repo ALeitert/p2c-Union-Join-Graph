@@ -22,6 +22,17 @@ public:
     Graph();
 
 
+    // Returns the neighbours of the given vertex.
+    const vector<size_t>& operator[](const size_t vId) const;
+
+    // Returns the weights to neighbours of the given vertex.
+    const vector<int>& operator()(const size_t vId) const;
+
+
+    // The number of vertices.
+    size_t size() const;
+
+
 private:
 
     // Adjacency list.
