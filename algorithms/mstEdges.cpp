@@ -75,11 +75,8 @@ vector<int> maxMinWeights(const Graph& g, size_t startId)
 }
 
 // Determines all edges which are part of a MaxST by checking each edge individually.
-vector<sizePair> checkAllEdges(const Graph& g)
+vector<sizePair> MstEdges::checkAllEdges(const Graph& g)
 {
-    throw runtime_error("Not implemented.");
-
-
     // Consider an edge uv with weigth w.
 
     // --- Theorem ---
@@ -117,5 +114,28 @@ vector<sizePair> checkAllEdges(const Graph& g)
     // For each vertex u, let A[] = maxMinWeights(u).
     // For each neighbour v of u, if A[v] <= wei(uv), add uv to result.
 
-    return vector<sizePair>();
+
+    vector<sizePair> result;
+
+    for (size_t uId = 0; uId < g.size(); uId++)
+    {
+        // Compute largest minimum edge weight of all paths to neighbours.
+        vector<int> mmW = maxMinWeights(g, uId);
+
+        // Compare to edge weight of each neighbour.
+        for (size_t j = 0; j < g[uId].size(); j++)
+        {
+            size_t vId = g[uId][j];
+            int uvWei = g(uId)[j];
+
+            // Check if max_P min_xy wei(xy) <= w.
+            // If so, add to output if uId < vId.
+            if (mmW[j] <= uvWei && uId < vId)
+            {
+                result.push_back(sizePair(uId, vId));
+            }
+        }
+    }
+
+    return result;
 }
