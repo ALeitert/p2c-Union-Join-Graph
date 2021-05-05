@@ -1,6 +1,36 @@
 #include "mstEdges.h"
 
 
+// Helper function for checkAllEdges().
+// Computes, for a given vertex u and all vertices v, the largest minimum edge weight of all paths from u to v.
+vector<int> maxMinWeights(size_t startId)
+{
+    // Assume we are given a vertex u.
+    // For all v, we want to compute the largest minimum edge weight of all paths from u to v.
+    // That is: max_P min_xy wei(xy)
+
+    // Note that Dijkstra's algorithm solves a similar problem.
+    // The distance between two vertices is the smallest sum of edges of all paths.
+    // That is: min_P sum_xy wei(xy)
+
+    // We therefore use a very similar algorithm.
+    // We start with Dikstra's algorithm and make the following changes:
+    //  1) We relax an edge xy as follows if d(y) < min(d(x), wei(uv)) then d(y) := min(d(x), wei(uv))
+    //     We use < because min_P, and min() because min_xy.
+    //  2) As next vertex to process, we pick the vertex with largest d().
+
+    // We can show the correctnes of our approach with the same technique one uses to prove Dijkstra's algorithm.
+    // Let v be the next vertex to pick (i.e., with largest d()).
+    // Claim: d() is optimal for v.
+    // Proof: Assume there is a differen path P leading to a better d(v).
+    // Let P = s ~> x -> y ~> v where xy is edge on boundry (i.e., we processed x and can pick y).
+    // Note that d(y) <= d(v).
+    // Hence, there is an edge e in s ~> y with wei(e) <= d(v).
+    // Subsequently, min_P <= wei(e) < d(v).
+
+    return vector<int>();
+}
+
 // Determines all edges which are part of a MaxST by checking each edge individually.
 vector<sizePair> checkAllEdges(const Graph& g)
 {
@@ -38,26 +68,7 @@ vector<sizePair> checkAllEdges(const Graph& g)
     // We simplify the statement as follows: max_P min_xy wei(xy) <= w.
 
     // Our goal now is to compute the largest minimum edge weight of all paths and all pairs uv.
-
-    // Note that Dijkstra's algorithm solves a similar problem.
-    // The distance between two vertices is the smallest sum of edges of all paths.
-    // That is: min_P sum_xy wei(xy)
-
-    // We therefore use a very similar algorithm.
-    // We start with Dikstra's algorithm and make the following changes:
-    //  1) We relax an edge xy as follows if d(y) < min(d(x), wei(uv)) then d(y) := min(d(x), wei(uv))
-    //     We use < because min_P, and min() because min_xy.
-    //  2) As next vertex to process, we pick the vertex with largest d().
-    // Let maxMinWeights(u) be that algorithm.
-
-    // We can show the correctnes of our approach with the same technique one uses to prove Dijkstra's algorithm.
-    // Let v be the next vertex to pick (i.e., with largest d()).
-    // Claim: d() is optimal for v.
-    // Proof: Assume there is a differen path P leading to a better d(v).
-    // Let P = s ~> x -> y ~> v where xy is edge on boundry (i.e., we processed x and can pick y).
-    // Note that d(y) <= d(v).
-    // Hence, there is an edge e in s ~> y with wei(e) <= d(v).
-    // Subsequently, min_P <= wei(e) < d(v).
+    // The function maxMinWeights(u) computes that for a given u and all vertices v.
 
     // We now compute all edges that are part of a MaxST as follows:
     // For each vertex u, let A[] = maxMinWeights(u).
