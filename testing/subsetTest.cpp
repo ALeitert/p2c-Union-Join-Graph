@@ -200,11 +200,12 @@ bool Testing::SubsetTest::verify(const vector<intPair>& ans) const
 
     // --- Compare answer and solution. ---
 
-    for (int i = 0; i < answer.size(); i++)
+    int maxI =  max(answer.size(), solution.size());
+    for (int i = 0; i < maxI; i++)
     {
         const intPair dummy = MaxIntPair;
 
-        const intPair& ansP = answer[i];
+        const intPair& ansP = (i < answer.size() ? answer[i] : dummy);
         const intPair& solP = (i < solution.size() ? solution[i] : dummy);
 
         if (ansP < solP)
