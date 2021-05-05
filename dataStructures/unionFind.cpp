@@ -28,8 +28,8 @@ UnionFind::~UnionFind()
 
 void UnionFind::unionSets(size_t x, size_t y)
 {
-    size_t xRoot = findSets(x);
-    size_t yRoot = findSets(y);
+    size_t xRoot = findSet(x);
+    size_t yRoot = findSet(y);
 
     if (xRoot == yRoot) return;
 
@@ -51,11 +51,11 @@ void UnionFind::unionSets(size_t x, size_t y)
     }
 }
 
-size_t UnionFind::findSets(size_t x)
+size_t UnionFind::findSet(size_t x)
 {
     if (parent[x] != x)
     {
-        parent[x] = findSets(parent[x]);
+        parent[x] = findSet(parent[x]);
     }
 
     return parent[x];

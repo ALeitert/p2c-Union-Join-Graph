@@ -27,7 +27,7 @@ public:
     void unionSets(size_t x, size_t y);
 
     // Implements Find-operation.
-    size_t findSets(size_t x);
+    size_t findSet(size_t x);
 
 
 private:
