@@ -33,6 +33,13 @@ public:
 
 private:
 
+    // Moves an element down until it has a fitting place.
+    void heapify(size_t index);
+
+    // Moves an element up until it has a fitting place.
+    void moveUp(size_t index);
+
+
     // Helper functions to compute indices (assuming 0-based indices).
     inline size_t left(size_t index) const { return (index << 1) + 1; }
     inline size_t right(size_t index) const { return (index << 1) + 2; }

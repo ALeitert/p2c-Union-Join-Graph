@@ -49,6 +49,65 @@ size_t DijkstraHeap::getSize() const
 }
 
 
+// Moves an element down until it has a fitting place.
+void DijkstraHeap::heapify(size_t index)
+{
+    while (true)
+    {
+        size_t l = left(index);
+        size_t r = right(index);
+
+        if (l >= getSize()) return;
+
+        size_t smlIdx = l;
+        size_t smlId = verIds[smlIdx];
+        int smlWei = weights[smlId];
+
+        if (r < getSize())
+        {
+            size_t rId = verIds[r];
+            int rWei = weights[rId];
+
+            if (rWei < smlWei)
+            {
+                smlIdx = r;
+                smlWei = rWei;
+            }
+        }
+
+        int idxWei = weights[verIds[index]];
+
+        if (smlWei >= idxWei)
+        {
+            return;
+        }
+
+        swapKeys(smlIdx, index);
+        heapify(smlIdx);
+    }
+}
+
+// Moves an element up until it has a fitting place.
+void DijkstraHeap::moveUp(size_t index)
+{
+    while (index > 0)
+    {
+        int parIdx = parent(index);
+
+        int parWei = weights[verIds[parIdx]];
+        int idxWei = weights[verIds[index]];
+
+        if (parWei <= idxWei)
+        {
+            return;
+        }
+
+        swapKeys(parIdx, index);
+        index = parIdx;
+    }
+}
+
+
 // Helper function to swap two entries in the heap.
 void DijkstraHeap::swapKeys(size_t idx1, size_t idx2)
 {
