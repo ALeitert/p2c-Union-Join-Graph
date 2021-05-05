@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "algorithms/sorting.h"
+#include "algorithms/subsetGraph.h"
 #include "helper.h"
 #include "subsetTest.h"
 
@@ -238,7 +239,7 @@ const vector<intPair>& SubsetTest::getSolution()
 
 
 // Tests a given function that computes the subset graph of a given hypergraph.
-void testGeneralSSG(ssgFun ssg, int seed, int tests, int maxSize)
+void testGeneralSSG(SubsetGraph::ssgAlgo ssg, int seed, int tests, int maxSize)
 {
     srand(seed);
 

@@ -4,9 +4,7 @@
 #define __SubsetTest_H__
 
 #include "hypergraph.h"
-
-// A reference to a function that computes the subset graph of a given hypergraph.
-typedef vector<intPair> (&ssgFun)(const Hypergraph&);
+#include "algorithms/subsetGraph.h"
 
 
 class SubsetTest
@@ -34,6 +32,6 @@ private:
 };
 
 // Tests a given function that computes the subset graph of a given hypergraph.
-void testGeneralSSG(ssgFun ssg, int seed, int tests, int maxSize);
+void testGeneralSSG(SubsetGraph::ssgAlgo ssg, int seed, int tests, int maxSize);
 
 #endif
