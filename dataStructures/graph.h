@@ -21,6 +21,9 @@ public:
     // Default constructor.
     Graph();
 
+    // Destructor.
+    ~Graph();
+
 
     // Returns the neighbours of the given vertex.
     const vector<size_t>& operator[](const size_t vId) const;

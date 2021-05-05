@@ -6,6 +6,13 @@
 // Default constructor.
 Graph::Graph() { /* Does nothing. */ }
 
+// Destructor.
+Graph::~Graph()
+{
+    if (edges != nullptr) delete[] edges;
+    if (weights != nullptr) delete[] weights;
+}
+
 
 // Returns the neighbours of the given vertex.
 const vector<size_t>& Graph::operator[](const size_t vId) const
