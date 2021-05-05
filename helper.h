@@ -11,6 +11,8 @@
 using namespace std;
 
 
+typedef pair<size_t, size_t> sizePair;
+
 typedef pair<int, int> intPair;
 static constexpr intPair MaxIntPair = intPair(numeric_limits<int>::max(), numeric_limits<int>::max());
 

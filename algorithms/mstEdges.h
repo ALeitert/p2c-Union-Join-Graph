@@ -4,8 +4,16 @@
 #define __Algorithms_MstEdges_H__
 
 
+#include <vector>
+
+#include "../dataStructures/graph.h"
+#include "../helper.h"
+
+
 namespace MstEdges
 {
+    // A reference to a function that computes the subset graph of a given hypergraph.
+    typedef vector<sizePair> (&mstAlgo)(const Graph&);
 
 }
 
