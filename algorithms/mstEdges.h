@@ -15,6 +15,9 @@ namespace MstEdges
     // A reference to a function that computes the subset graph of a given hypergraph.
     typedef vector<sizePair> (&mstAlgo)(const Graph&);
 
+
+    // Determines all edges which are part of a MaxST by checking each edge individually.
+    vector<sizePair> checkAllEdges(const Graph& g);
 }
 
 #endif
