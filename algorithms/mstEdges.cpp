@@ -1,12 +1,13 @@
+#include "../dataStructures/dijkstraHeap.h"
 #include "mstEdges.h"
 
 
 // Helper function for checkAllEdges().
-// Computes, for a given vertex u and all vertices v, the largest minimum edge weight of all paths from u to v.
-vector<int> maxMinWeights(size_t startId)
+// Computes, for a given vertex u and all neighbours v, the largest minimum edge weight of all paths from u to v.
+vector<int> maxMinWeights(const Graph& g, size_t startId)
 {
     // Assume we are given a vertex u.
-    // For all v, we want to compute the largest minimum edge weight of all paths from u to v.
+    // For all neighbours v, we want to compute the largest minimum edge weight of all paths from u to v.
     // That is: max_P min_xy wei(xy)
 
     // Note that Dijkstra's algorithm solves a similar problem.
@@ -16,7 +17,7 @@ vector<int> maxMinWeights(size_t startId)
     // We therefore use a very similar algorithm.
     // We start with Dikstra's algorithm and make the following changes:
     //  1) We relax an edge xy as follows if d(y) < min(d(x), wei(uv)) then d(y) := min(d(x), wei(uv))
-    //     We use < because min_P, and min() because min_xy.
+    //     We use < because max_P, and min() because min_xy.
     //  2) As next vertex to process, we pick the vertex with largest d().
 
     // We can show the correctnes of our approach with the same technique one uses to prove Dijkstra's algorithm.
@@ -28,7 +29,49 @@ vector<int> maxMinWeights(size_t startId)
     // Hence, there is an edge e in s ~> y with wei(e) <= d(v).
     // Subsequently, min_P <= wei(e) < d(v).
 
-    return vector<int>();
+
+    // Create heap.
+    DijkstraHeap heap(g.size());
+    const int* const distances = heap.getWeights();
+
+    heap.update(startId, 0);
+
+    while (heap.getSize() > 0)
+    {
+        size_t uId = heap.removeMin();
+
+        // Unreachable vertex.
+        if (distances[uId] == numeric_limits<int>::max()) break;
+
+        int uDist = -distances[uId]; // times -1 since heap is min-heap.
+
+        // Relax all neighbours.
+        for (int nIdx = 0; nIdx < g[uId].size(); nIdx++)
+        {
+            size_t vId = g[uId][nIdx];
+            int vDist = -distances[vId]; // times -1 since heap is min-heap.
+
+            int uvWei = g(uId)[nIdx];
+            int uvDist = min(uDist, uvWei);
+
+            if (vDist < uvDist)
+            {
+                heap.update(vId, -uvDist); // times -1 since heap is min-heap.
+            }
+        }
+    }
+
+
+    // --- Fill result. ---
+    vector<int> result;
+    for (size_t i = 0; i < g[startId].size(); i++)
+    {
+        size_t vId = g[startId][i];
+        int vDist = -distances[vId]; // times -1 since heap is min-heap.
+        result.push_back(vDist);
+    }
+
+    return result;
 }
 
 // Determines all edges which are part of a MaxST by checking each edge individually.
