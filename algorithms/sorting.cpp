@@ -189,52 +189,18 @@ size_t* Sorting::lexSort(const vector<vector<int>>& lst)
     // Note that only sort indices and do not rearange the given array.
 
 
-    // Step 2.1: Sort by length.
-
     // Arrays to store orders.
-    // No need to initialise, since we never read before writing them completely.
-    size_t* orgOrder = new size_t[lstSize];
+    // No need to initialise, since we never read an entry before writing into it.
+    size_t* oldOrder = new size_t[lstSize];
     size_t* newOrder = new size_t[lstSize];
 
 
-    // We use counting sort.
-    int lenCount[maxLength + 1]; // +1 since indices start at and lengths at 1.
-    for (int i = 0; i <= maxLength; i++) lenCount[i] = 0;
-
-    // Count.
-    for (size_t sIdx = 0; sIdx < lstSize; sIdx++)
+    // "Sort" by length.
+    vector<size_t> lenBins[maxLength + 1];
+    for (size_t idx = 0; idx < lstSize; idx++)
     {
-        int key = lst[sIdx].size();
-        lenCount[key]++;
+        lenBins[lst[idx].size()].push_back(idx);
     }
-
-    // Prefix sums.
-    for (int i = 1; i <= maxLength; i++)
-    {
-        lenCount[i] += lenCount[i - 1];
-    }
-
-    // We need that for later.
-    // Makes it easy to determine start and end of each group of lengths.
-    int lenRange[maxLength + 1];
-    copy(lenCount, lenCount + maxLength + 1, lenRange);
-
-    // Sort.
-    for (size_t sIdx = lstSize - 1; sIdx < numeric_limits<size_t>::max(); sIdx--)
-    {
-        int key = lst[sIdx].size();
-        lenCount[key]--;
-        int oIdx = lenCount[key];
-        orgOrder[oIdx] = sIdx;
-    }
-
-    // orgOrder[] now represents the given strings sorted by length.
-
-
-    // Step 2.2: Sort strings.
-
-    // Allows to simply swap both after each iteration, istead of copying numbers back.
-    copy(orgOrder, orgOrder + lstSize, newOrder);
 
 
     // It is important that cCount is not cleared inside the loop below.
@@ -242,9 +208,17 @@ size_t* Sorting::lexSort(const vector<vector<int>>& lst)
     // O(n * b) total time. The whole purpose of this approach is to avoid that.
     vector<int> cCount;
 
-    for (int pos = maxLength - 1; pos >= 0; pos--)
+    for (int pos = maxLength - 1, beg = lstSize; pos >= 0; pos--)
     {
-        int beg = lenRange[pos];
+        vector<size_t>& curList = lenBins[pos + 1];
+
+        // Add new strings to old order.
+        for (int i = 0; i < curList.size(); i++)
+        {
+            beg--;
+            oldOrder[beg] = curList[i];
+        }
+
         int end = lstSize; // exclusive
 
 
@@ -265,7 +239,7 @@ size_t* Sorting::lexSort(const vector<vector<int>>& lst)
         // Sort.
         for (int i = end - 1; i >= beg; i--)
         {
-            size_t sIdx = orgOrder[i];
+            size_t sIdx = oldOrder[i];
             int chr = lst[sIdx][pos];
 
             cCount[chr]--;
@@ -275,13 +249,13 @@ size_t* Sorting::lexSort(const vector<vector<int>>& lst)
         }
 
         // Swap pointers to do other directin in next iteration.
-        swap(orgOrder, newOrder);
+        swap(oldOrder, newOrder);
     }
 
-    // Lexicographical order is now in orgOrder[] (due to swapping).
+    // Lexicographical order is now in oldOrder[] (due to swapping).
 
     delete[] newOrder;
-    return orgOrder;
+    return oldOrder;
 }
 
 
