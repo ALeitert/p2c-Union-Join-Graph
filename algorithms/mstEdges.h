@@ -18,6 +18,9 @@ namespace MstEdges
 
     // Determines all edges which are part of a MaxST by checking each edge individually.
     vector<sizePair> checkAllEdges(const Graph& g);
+
+    // Determines all edges which are part of a MaxST based on Kruskal's algorithm.
+    vector<sizePair> kruskal(const Graph& g);
 }
 
 #endif

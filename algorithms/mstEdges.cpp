@@ -1,4 +1,7 @@
+#include <algorithm>
+
 #include "../dataStructures/dijkstraHeap.h"
+#include "../dataStructures/unionFind.h"
 #include "mstEdges.h"
 
 
@@ -135,6 +138,83 @@ vector<sizePair> MstEdges::checkAllEdges(const Graph& g)
                 result.push_back(sizePair(uId, vId));
             }
         }
+    }
+
+    return result;
+}
+
+// Determines all edges which are part of a MaxST based on Kruskal's algorithm.
+vector<sizePair> MstEdges::kruskal(const Graph& g)
+{
+    // Kruskal's algorithm computes a MST by first sorting all edges by weight.
+    // Edges are then processed in that order.
+    // If there are multiple edges to add which exclude each other, ties are broken by the sorting:
+    // an edge that is earlier in the sorting will be picked.
+
+    // One can modify the algorithm to find all edges of a MST as follows.
+    // For the current edge, collect all edges uv with the current weight.
+    // Before adding any edge to the answer, check for each edge if find(u) != find(v).
+    // If that is the case, add uv to the answer. Afterwards, call union(u, v) on all these edges.
+
+
+    // --- Create a list of all edges and sort them. ---
+
+    vector<pair<int, sizePair>> edgeList;
+
+    for (size_t uId = 0; uId < g.size(); uId++)
+    {
+        const vector<size_t>& neighs = g[uId];
+        const vector<int>& weights = g(uId);
+
+        for (size_t vIdx = 0; vIdx < neighs.size(); vIdx++)
+        {
+            size_t vId = neighs[vIdx];
+            if (vId >= uId) continue;
+
+            int uvWei = weights[vIdx];
+            edgeList.push_back(pair<int, sizePair>(-uvWei, sizePair(uId, vId))); // times -1 because we want a MaxST.
+        }
+    }
+
+    sort(edgeList.begin(), edgeList.end());
+
+
+    // --- Process edges. ---
+
+    vector<sizePair> result;
+    vector<sizePair> buffer;
+
+    UnionFind uf(g.size());
+
+    for (size_t ePtr = 0; ePtr < edgeList.size();)
+    {
+        int curWei = edgeList[ePtr].first;
+
+        // Add all edges with same weight that connect allow to join two sets.
+        for (; ePtr < edgeList.size() && curWei == edgeList[ePtr].first; ePtr++)
+        {
+            size_t uId = edgeList[ePtr].second.first;
+            size_t vId = edgeList[ePtr].second.second;
+
+            if (uf.findSet(uId) != uf.findSet(vId))
+            {
+                buffer.push_back(sizePair(uId, vId));
+            }
+        }
+
+        // Process buffered edges.
+        for (size_t i = 0; i < buffer.size(); i++)
+        {
+            sizePair& edge = buffer[i];
+
+            size_t uId = edge.first;
+            size_t vId = edge.second;
+
+            uf.unionSets(uId, vId);
+            result.push_back(edge);
+        }
+
+        buffer.clear();
     }
 
     return result;
