@@ -28,6 +28,18 @@ public:
     size_t operator() (intPair const &pair) const;
 };
 
+// Based on https://www.techiedelight.com/use-pair-key-std-unordered_set-cpp/
+// Allows to use evPair with unordered_set class.
+class sizePairHash
+{
+    static const size_t shift = sizeof(size_t) / 2;
+    static const size_t low = (1 << shift) - 1;
+    static const size_t high = low << shift;
+
+public:
+    size_t operator() (sizePair const &pair) const;
+};
+
 
 // Prints a list of integer pairs to the terminal.
 void print(const vector<intPair>& pairs);

@@ -16,6 +16,16 @@ size_t intPairHash::operator() (intPair const &pair) const
     return h1 ^ h2;
 }
 
+size_t sizePairHash::operator() (sizePair const &pair) const
+{
+    size_t h1 = hash<int>()(pair.first);
+    size_t h2 = hash<int>()(pair.second);
+
+    h1 = ((h1 << shift) & high) | ((h1 >> shift) & low);
+
+    return h1 ^ h2;
+}
+
 
 // Prints a list of integer pairs to the terminal.
 void print(const vector<intPair>& pairs)
