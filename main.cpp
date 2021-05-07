@@ -88,6 +88,38 @@ Graph randomGraph(size_t size)
     return Graph(fList, tList, wList);
 }
 
+bool compareResults(const vector<sizePair>& result1, const vector<sizePair>& result2)
+{
+    int maxI = max(result1.size(), result2.size());
+    for (int i = 0; i < maxI; i++)
+    {
+        const size_t maxSize = numeric_limits<size_t>::max();
+        const sizePair dummy = sizePair(maxSize, maxSize);
+
+        const sizePair &ansP = (i < result1.size() ? result1[i] : dummy);
+        const sizePair &solP = (i < result2.size() ? result2[i] : dummy);
+
+        if (ansP < solP)
+        {
+            cout << "Edge ("
+                    << ansP.first << ", " << ansP.second
+                    << ") in (1) but not (2)." << endl;
+            return false;
+        }
+
+        if (ansP > solP)
+        {
+            cout << "Edge ("
+                    << solP.first << ", " << solP.second
+                    << ") in (2) but not (1)." << endl;
+            return false;
+        }
+
+        // Both equal, continue with next.
+    }
+
+    return true;
+}
 
 int main(int argc, char* argv[])
 {
