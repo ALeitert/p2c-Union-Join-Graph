@@ -121,6 +121,25 @@ bool compareResults(const vector<sizePair>& result1, const vector<sizePair>& res
     return true;
 }
 
+void print(const Graph& g)
+{
+    size_t s = g.size();
+
+    for (size_t uId = 0; uId < s; uId++)
+    {
+        cout << uId << ":";
+
+        size_t uDeg = g[uId].size();
+        for (size_t i = 0; i < uDeg; i++)
+        {
+            size_t vId = g[uId][i];
+            int uvW = g(uId)[i];
+            cout << "  |  " << vId << " " << uvW;
+        }
+        cout << endl;
+    }
+}
+
 int main(int argc, char* argv[])
 {
     cout << "*** Union Join and Subset Graph of Acyclic Hypergraphs ***" << endl;
