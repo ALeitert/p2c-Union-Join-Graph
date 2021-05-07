@@ -22,6 +22,7 @@ vector<int> maxMinWeights(const Graph& g, size_t startId)
     //  1) We relax an edge xy as follows if d(y) < min(d(x), wei(uv)) then d(y) := min(d(x), wei(uv))
     //     We use < because max_P, and min() because min_xy.
     //  2) As next vertex to process, we pick the vertex with largest d().
+    //  3) Subsequently from 1) and 2), we set d(u) := +infinite.
 
     // We can show the correctnes of our approach with the same technique one uses to prove Dijkstra's algorithm.
     // Let v be the next vertex to pick (i.e., with largest d()).
@@ -37,7 +38,8 @@ vector<int> maxMinWeights(const Graph& g, size_t startId)
     DijkstraHeap heap(g.size());
     const int* const distances = heap.getWeights();
 
-    heap.update(startId, 0);
+    int startWei = numeric_limits<int>::max();
+    heap.update(startId, -startWei); // times -1 since heap is min-heap.
 
     while (heap.getSize() > 0)
     {
