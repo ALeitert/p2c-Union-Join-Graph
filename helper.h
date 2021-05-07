@@ -3,8 +3,8 @@
 #ifndef __Helper_H__
 #define __Helper_H__
 
+#include <iostream>
 #include <limits>
-#include <ostream>
 #include <utility>
 #include <vector>
 
@@ -42,7 +42,17 @@ public:
 
 
 // Prints a list of integer pairs to the terminal.
-void print(const vector<intPair>& pairs);
+template<class T>
+void print(const vector<pair<T, T>>& pairs)
+{
+    for (int i = 0; i < pairs.size(); i++)
+    {
+        if (i > 0) cout << " | ";
+        cout << pairs[i].first << " " << pairs[i].second;
+    }
+    cout << endl;
+}
+
 
 // Prints the given time (in milliseconds) into the given stream using appropriate unit.
 void printTime(int64_t time, ostream& out);

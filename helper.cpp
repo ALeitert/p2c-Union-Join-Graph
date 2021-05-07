@@ -27,17 +27,6 @@ size_t sizePairHash::operator() (sizePair const &pair) const
 }
 
 
-// Prints a list of integer pairs to the terminal.
-void print(const vector<intPair>& pairs)
-{
-    for (int i = 0; i < pairs.size(); i++)
-    {
-        if (i > 0) cout << " | ";
-        cout << pairs[i].first << " " << pairs[i].second;
-    }
-    cout << endl;
-}
-
 // Prints the given time (in milliseconds) into the given stream using appropriate unit.
 void printTime(int64_t time, ostream& out)
 {
