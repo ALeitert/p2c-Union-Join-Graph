@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "algorithms/mstEdges.h"
 #include "algorithms/sorting.h"
 #include "dataStructures/graph.h"
 #include "helper.h"
@@ -143,4 +144,46 @@ void print(const Graph& g)
 int main(int argc, char* argv[])
 {
     cout << "*** Union Join and Subset Graph of Acyclic Hypergraphs ***" << endl;
+
+    srand(19082017);
+
+    int totalCases = 1000;
+    int maxSize = 500;
+
+    for (int testNo = 1, perc = -1; testNo <= totalCases; testNo++)
+    {
+        size_t size = rand() % min(testNo, maxSize) + 5;
+
+        Graph g = randomGraph(size);
+
+        vector<sizePair> result1 = MstEdges::checkAllEdges(g);
+        vector<sizePair> result2 = MstEdges::kruskal(g);
+
+        sort(result1.begin(), result1.end());
+        sort(result2.begin(), result2.end());
+
+        bool equal = compareResults(result1, result2);
+        if (!equal)
+        {
+            cout << "--- Test " << testNo << " ---" << endl;
+
+            cout << "(1): "; print(result1);
+            cout << "(2): "; print(result2);
+            cout << endl;
+
+            print(g);
+
+            break;
+        }
+
+
+        // --- Print progress. ---
+
+        int progress = (testNo * 100) / totalCases;
+        if (progress > perc)
+        {
+            perc = progress;
+            cout << perc << " %\r" << flush;
+        }
+    }
 }
