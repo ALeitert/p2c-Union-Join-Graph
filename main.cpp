@@ -3,8 +3,8 @@
 #include <unordered_set>
 
 #include "algorithms/sorting.h"
+#include "dataStructures/hypergraph.h"
 #include "helper.h"
-#include "hypergraph.h"
 
 using namespace std;
 

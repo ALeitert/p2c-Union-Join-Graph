@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "../helper.h"
-#include "../hypergraph.h"
+#include "../dataStructures/hypergraph.h"
 
 
 namespace SubsetGraph

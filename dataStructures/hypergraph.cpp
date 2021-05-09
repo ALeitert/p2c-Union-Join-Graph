@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include "algorithms/sorting.h"
+#include "../algorithms/sorting.h"
 #include "hypergraph.h"
 
 // Default constructor.

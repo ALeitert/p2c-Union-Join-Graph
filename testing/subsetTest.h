@@ -5,7 +5,7 @@
 
 
 #include "../algorithms/subsetGraph.h"
-#include "../hypergraph.h"
+#include "../dataStructures/hypergraph.h"
 
 namespace Testing
 {
