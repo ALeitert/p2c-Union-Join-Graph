@@ -207,6 +207,48 @@ vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
     }
 
 
+    // --- Check if acyclic. ---
+
+    // Stores the hyperedges based on their gamm value, i.e., gammaEdges[i] are all hyperedges S with gamma[S] == i.
+    vector<int> gammaEdges[m];
+
+    for (int eId = 0; eId < m; eId++)
+    {
+        if (gamma[eId] < 0) continue;
+        gammaEdges[gamma[eId]].push_back(eId);
+    }
+
+    int index[n];
+    for (int i = 0; i < n; i++)
+    {
+        index[i] = -1;
+    }
+
+    for (int i = 0; i < m; i++)
+    {
+        int eId = R[i];
+
+        if (eId < 0) continue;
+
+        for (const int& vId : hg[eId])
+        {
+            index[vId] = i;
+        }
+
+        for (const int& S : gammaEdges[i])
+        {
+            for (const int& v : hg[S])
+            {
+                if (betaV[v] < i && index[v] < i)
+                {
+                    // Not acyclic.
+                    return vector<int>();
+                }
+            }
+        }
+    }
+
+    // Hypergraph is acyclic.
 
     return vector<int>();
 }
