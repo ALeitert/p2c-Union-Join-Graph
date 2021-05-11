@@ -25,6 +25,11 @@ public:
     // Set IDs are in [0, k). Each set has size 0.
     MaxCardinalitySet(size_t k);
 
+
+    // Increases the size of the set with the given ID by 1.
+    void increaseSize(int setId);
+
+
 private:
 
     // Contains the stored sets in order of their size.
@@ -33,8 +38,8 @@ private:
     // States the index and size of each set.
     vector<sizePair> setInfo;
 
-    // The start indices of each group of equal size.
-    vector<size_t> startIndices;
+    // The end indices (inclusive) of each group of equal size.
+    vector<size_t> endIndices;
 
 };
 
