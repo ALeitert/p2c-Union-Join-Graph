@@ -29,6 +29,9 @@ public:
     // Increases the size of the set with the given ID by 1.
     void increaseSize(int setId);
 
+    // Removes and returns a set with maximum size.
+    int removeMax();
+
 
 private:
 

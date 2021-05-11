@@ -44,9 +44,35 @@ void MaxCardinalitySet::increaseSize(int setId)
     endIndices[size]--;
     size++;
 
-    // Add range for new size if it not exist yet.
+    // Add range for new size if it does not exist yet.
     if (size >= endIndices.size())
     {
         endIndices.push_back(idx);
     }
+}
+
+// Removes and returns a set with maximum size.
+int MaxCardinalitySet::removeMax()
+{
+    // Find and update set.
+    int lastId = setList.back();
+    setInfo[lastId].first = -1;
+
+    // Reduce size of last group.
+    setList.pop_back();
+    endIndices.back()--;
+
+    // Remove empty groups at end.
+    if (setList.size() <= 0)
+    {
+        endIndices.clear();
+    }
+    else
+    {
+        int newLastId = setList.back();
+        size_t newLastSize = setInfo[newLastId].second;
+        endIndices.resize(newLastSize + 1);
+    }
+
+    return lastId;
 }
