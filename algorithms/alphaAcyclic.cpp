@@ -125,3 +125,19 @@ Hypergraph AlphaAcyclic::genrate(size_t m, size_t N)
     Sorting::radixSort(pairList);
     return Hypergraph(pairList);
 }
+
+// Computes a join tree of a given hypergraph.
+// Returns a list that contains the parent-ID for each hyperedge.
+// Returns an empty list if the given hypergraph is not acyclic.
+vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
+{
+    throw runtime_error("Not implemented.");
+
+    // Algorithm based on
+    // R.E. Tarjan, M. Yannakakis:
+    // Simple Linear-Time Algorithms to Test Chordality of Graphs, Test Acyclicity of Hypergraphs, and Selectively Reduce Acyclic Hypergraphs
+    // SIAM J. Comput. 13 (3), 566–579, 1984.
+    // https://epubs.siam.org/doi/abs/10.1137/0213035
+
+    return vector<int>();
+}
