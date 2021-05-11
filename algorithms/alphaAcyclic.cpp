@@ -41,4 +41,22 @@ Hypergraph AlphaAcyclic::genrate(size_t m, size_t N)
 
         parIds[eId] = pId;
     }
+
+
+    // --- Determine size of each hyperedge. ---
+
+    size_t eSize[m];
+
+    // At least one vertex in each hyperedge.
+    for (size_t i = 0; i < m; i++)
+    {
+        eSize[i] = 1;
+    }
+
+    // Randoly assign remaining vertices.
+    for (size_t i = m; i < N; i++)
+    {
+        size_t eId = rand() % m;
+        eSize[eId]++;
+    }
 }
