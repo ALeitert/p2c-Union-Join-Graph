@@ -1,3 +1,4 @@
+#include "../dataStructures/maxCardinalitySet.h"
 #include "alphaAcyclic.h"
 #include "sorting.h"
 
@@ -138,6 +139,74 @@ vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
     // Simple Linear-Time Algorithms to Test Chordality of Graphs, Test Acyclicity of Hypergraphs, and Selectively Reduce Acyclic Hypergraphs
     // SIAM J. Comput. 13 (3), 566–579, 1984.
     // https://epubs.siam.org/doi/abs/10.1137/0213035
+
+
+    size_t n = hg.getVSize();
+    size_t m = hg.getESize();
+
+
+    // --- Maximum Cardinality Search ---
+
+    size_t vCtr = n;
+
+    // Paper has a 1 based index.
+    // Therefore, initial value is set to -1 instead of 0.
+    int k = -1;
+
+    int alpha[n];
+    int betaV[n];
+
+    for (int vId = 0; vId < n; vId++)
+    {
+        alpha[vId] = -1;
+    }
+
+    MaxCardinalitySet sets(m);
+
+    int R[m];
+    size_t eSize[m];
+    int betaE[m];
+    int gamma[m];
+
+    for (int eId = 0; eId < m; eId++)
+    {
+        gamma[eId] = -1;
+    }
+
+    while (!sets.isEmpty())
+    {
+        int S = sets.removeMax();
+
+        // Skip hyperedges with all vertices marked.
+        if (eSize[S] == hg[S].size()) continue;
+
+        k++;
+        betaE[S] = k;
+        R[k] = S;
+        eSize[S] = -1;
+
+        for (const int& vId : hg[S])
+        {
+            if (alpha[vId] >= 0) continue;
+
+            alpha[vId] = vCtr;
+            vCtr--;
+
+            betaV[vId] = k;
+
+            for (const int& eId : hg(vId))
+            {
+                if (eSize[S] == hg[S].size()) continue;
+
+                gamma[eId] = k;
+
+                sets.increaseSize(eId);
+                eSize[eId]++;
+            } // foreach eId
+        } // foreach vId
+    }
+
+
 
     return vector<int>();
 }
