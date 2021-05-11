@@ -32,6 +32,9 @@ public:
     // Removes and returns a set with maximum size.
     int removeMax();
 
+    // Steates if the set is empty or not.
+    bool isEmpty();
+
 
 private:
 

@@ -76,3 +76,9 @@ int MaxCardinalitySet::removeMax()
 
     return lastId;
 }
+
+// Steates if the set is empty or not.
+bool MaxCardinalitySet::isEmpty()
+{
+    return setList.size() <= 0;
+}
