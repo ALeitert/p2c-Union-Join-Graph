@@ -5,22 +5,6 @@
 // Genrates an alpha-acyclic hypergraph with m edges and total size N.
 Hypergraph AlphaAcyclic::genrate(size_t m, size_t N)
 {
-    throw runtime_error("Not implemented.");
-
-
-    // --- Outline ---
-
-    // - Generate tree of size m.
-    // - Determine size of each hyperedge.
-    //   * Each gets at least ove vertex.
-    //   * Then, sizes are increased randomly until total size is N.
-    // - Determine shared vertices between adjacent hyperedges.
-    //   * Determine number s >= 1 randomly.
-    //   * Pick s random vertices from parent.
-    //   * Add these to child and then fill it with new vertices.
-    // - Shuffle IDs and create hypergraph.
-
-
     // --- Generate a random tree. ---
 
     // Random permutation.
@@ -103,4 +87,41 @@ Hypergraph AlphaAcyclic::genrate(size_t m, size_t N)
             eList.push_back(n);
         }
     }
+
+
+    // --- Shuffle vertex IDs. ---
+
+    int vIds[n];
+    Sorting::makePermutation(vIds, n);
+
+    for (size_t i = 0; i < m; i++)
+    {
+        vector<int>& lst = vLists[i];
+
+        for (size_t j = 0; j < lst.size(); j++)
+        {
+            size_t idx = lst[j];
+            lst[j] = vIds[idx];
+        }
+    }
+
+
+    // --- Create hypergraph. ---
+
+    // Build pair lists.
+    vector<intPair> pairList;
+
+    for (int eId = 0; eId < m; eId++)
+    {
+        vector<int>& lst = vLists[eId];
+
+        for (size_t j = 0; j < lst.size(); j++)
+        {
+            int vId = lst[j];
+            pairList.push_back(intPair(eId, vId));
+        }
+    }
+
+    Sorting::radixSort(pairList);
+    return Hypergraph(pairList);
 }
