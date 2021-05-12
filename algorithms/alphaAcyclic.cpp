@@ -377,6 +377,8 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
     vector<intPair> ssgEdges = A(sepHg);
 
 
+    // -- Preprocessing for line 5. ---
+
     // We later want to get the larger sets of a given set.
     // We therefore build a structure that allows to do that easily.
 
@@ -412,7 +414,9 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
 
     for (int sId = 0; sId < sepHg.getESize(); sId++)
     {
+        // --- Line 5: Determine all S′ with S ⊆ S′ (including S). ---
 
+        const vector<int>& spList = superSets[sId];
     }
 
     return Graph();
