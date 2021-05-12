@@ -147,99 +147,130 @@ vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
 
     // --- Maximum Cardinality Search ---
 
-    size_t vCtr = n;
+    size_t eCtr = -1;  // k in paper.
 
-    // Paper has a 1 based index.
-    // Therefore, initial value is set to -1 instead of 0.
-    int k = -1;
+    // States for each vertex if it has been processed before.
+    // Corresponds to alpha in the paper.
+    vector<bool> vProcessed;
+    vProcessed.resize(n, false);
 
-    int alpha[n];
-    int betaV[n];
+    // Order in which hyperedges are processed.
+    // Does not always contain all hyperedges.
+    // R in paper.
+    int eOrder[m];
+    for (size_t i = 0; i < m; i++) eOrder[i] = -1;
 
-    for (int vId = 0; vId < n; vId++)
-    {
-        alpha[vId] = -1;
-    }
+    // States for each vertex the index of the hyperedge in which it was first discovered.
+    // Corresponds to index of hyperedge that is root of subtree of hyperedges containing that vertex.
+    // beta (for vertices) in paper.
+    size_t vRootIdx[n];
+    for (int vId = 0; vId < n; vId++) vRootIdx[vId] = -1;
 
-    MaxCardinalitySet sets(m);
+    // States for each hyperedge E the root-index of the vertex in E that was processed last.
+    // Corresponds with the parent of E in the join tree.
+    // gamma in paper.
+    int parIdx[m];
+    for (int eId = 0; eId < m; eId++) parIdx[eId] = -1;
 
-    int R[m];
+    // Counts how many vertices in each hyperedge are already marked.
+    // Allows to skip hyperedges with all vertices marked.
+    // Does not affect correctness, only there for speed-up.
     size_t eSize[m];
-    int betaE[m];
-    int gamma[m];
 
-    for (int eId = 0; eId < m; eId++)
-    {
-        gamma[eId] = -1;
-    }
-
-    while (!sets.isEmpty())
+    for (MaxCardinalitySet sets(m); !sets.isEmpty(); )
     {
         int S = sets.removeMax();
 
         // Skip hyperedges with all vertices marked.
         if (eSize[S] == hg[S].size()) continue;
 
-        k++;
-        betaE[S] = k;
-        R[k] = S;
-        eSize[S] = -1;
+        eCtr++;
+        eOrder[eCtr] = S;
+        eSize[S] = hg[S].size();
 
         for (const int& vId : hg[S])
         {
-            if (alpha[vId] >= 0) continue;
+            if (vProcessed[vId]) continue;
 
-            alpha[vId] = vCtr;
-            vCtr--;
-
-            betaV[vId] = k;
+            vProcessed[vId] = true;
+            vRootIdx[vId] = eCtr;
 
             for (const int& eId : hg(vId))
             {
-                if (eSize[S] == hg[S].size()) continue;
+                if (eId == S) continue;
 
-                gamma[eId] = k;
+                parIdx[eId] = eCtr;
 
                 sets.increaseSize(eId);
                 eSize[eId]++;
-            } // foreach eId
-        } // foreach vId
+            }
+        }
     }
 
 
     // --- Check if acyclic. ---
 
-    // Stores the hyperedges based on their gamm value, i.e., gammaEdges[i] are all hyperedges S with gamma[S] == i.
-    vector<int> gammaEdges[m];
+    // The check is based on Theorem 5 and the code after it in the paper.
+    // Informally, the hypergraph is acyclic if and only if, for all hyperedges S,
+    // all vertices in S which were discovered before processing S are also in the parent of S.
+
+
+    // Stores the hyperedges based on their parent-index.
+    // That is, childIds[i] stores all hyperedges S with parIdx[S] == i.
+    vector<int> childIds[m];
 
     for (int eId = 0; eId < m; eId++)
     {
-        if (gamma[eId] < 0) continue;
-        gammaEdges[gamma[eId]].push_back(eId);
+        if (parIdx[eId] < 0) continue;
+        childIds[parIdx[eId]].push_back(eId);
     }
 
-    int index[n];
+    // States for each vertex the last "parent" it was in.
+    // index in paper.
+    size_t vLastIdx[n];
     for (int i = 0; i < n; i++)
     {
-        index[i] = -1;
+        vLastIdx[i] = -1;
     }
 
-    for (int i = 0; i < m; i++)
+    // Iterate over all processed hyperedges ...
+    for (int eIdx = 0; eIdx <= eCtr; eIdx++)
     {
-        int eId = R[i];
+        int eId = eOrder[eIdx];
 
-        if (eId < 0) continue;
-
+        // Mark all vertices.
         for (const int& vId : hg[eId])
         {
-            index[vId] = i;
+            vLastIdx[vId] = eIdx;
         }
 
-        for (const int& S : gammaEdges[i])
+        // ... and check all their children.
+        for (const int& S : childIds[eIdx])
         {
-            for (const int& v : hg[S])
+            // Check if all vertices in S which were discovered before processing S are also in the parent of S.
+            for (const int& vId : hg[S])
             {
-                if (betaV[v] < i && index[v] < i)
+                // Let P be the parent of S.
+                // The following observation was not shown in the paper.
+
+                // Claim: v was discovered before S and is not in P if and only
+                //        if vRootIdx[v] < eIdx and vLastIdx[vId] < eIdx.
+
+                // Proof:
+                // =>
+                // Let X be the hyperedge in which v was discovered first.
+                // If X was processed before P (true for all ancestors of S), then vRootIdx[v] < eIdx.
+                // Now assume X was processed after P.
+                // Since X shares a vertex with S, line "parIdx[eId] = eCtr" would make X the parent of S.
+                // Hence, vRootIdx[v] < eIdx and X was processed before P.
+                // Additionally, since v not in P but in X (which was already processed), vLastIdx[vId] < eIdx.
+                //
+                // <=
+                // Clearly, if v was discovered in S or P, then vRootIdx[v] >= eIdx.
+                // Additionally, if v in P, then vLastIdx[vId] == eIdx.
+
+
+                if (vRootIdx[vId] < eIdx && vLastIdx[vId] < eIdx)
                 {
                     // Not acyclic.
                     return vector<int>();
