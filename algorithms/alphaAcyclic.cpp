@@ -371,5 +371,34 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
     Hypergraph sepHg = separatorHG(hg, joinTree);
 
 
+    // --- Line 2: Compute subset graph. ---
+
+    // List of edges.
+    vector<intPair> ssgEdges = A(sepHg);
+
+
+    // We later want to get the larger sets of a given set.
+    // We therefore build a structure that allows to do that easily.
+
+    vector<vector<int>> superSets;
+    superSets.resize(sepHg.getESize());
+
+    // Add separators themself.
+    for (int sId = 0; sId < superSets.size(); sId++)
+    {
+        superSets[sId].push_back(sId);
+    }
+
+    // Add all subset relations.
+    for (const intPair& edge : ssgEdges)
+    {
+        // An edge points from the large (.first) to the small (.second) set.
+        const int& lrgId = edge.first;
+        const int& smlId = edge.second;
+
+        superSets[smlId].push_back(lrgId);
+    }
+
+
     return Graph();
 }
