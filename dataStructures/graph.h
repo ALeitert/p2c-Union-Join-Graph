@@ -6,6 +6,10 @@
 
 #include <vector>
 
+
+#include "../helper.h"
+
+
 using namespace std;
 
 
@@ -23,7 +27,7 @@ public:
 
     // Constructor.
     // Needs to be sorted by vertex-IDs, not contain duplicates, and from-ID > to-ID.
-    Graph(const vector<size_t>& fList, const vector<size_t>& tList, const vector<int>& wList);
+    Graph(const vector<sizePair>& eList, const vector<int>& wList);
 
     // Destructor.
     ~Graph();

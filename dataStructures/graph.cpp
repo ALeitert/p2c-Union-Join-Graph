@@ -9,24 +9,24 @@ Graph::Graph() { /* Does nothing. */ }
 // Constructor.
 // Constructs a graph from the given edge list.
 // Needs to be sorted by vertex-IDs, not contain duplicates, and from-ID > to-ID.
-Graph::Graph(const vector<size_t>& fList, const vector<size_t>& tList, const vector<int>& wList)
+Graph::Graph(const vector<sizePair>& eList, const vector<int>& wList)
 {
     // --- Verify input. ---
 
     // Equal length?
-    if (fList.size() != tList.size() || tList.size() != wList.size())
+    if (eList.size() != wList.size())
     {
         throw logic_error("Size of given listst not equal.");
     }
 
     // Sorted, no duplicates?
-    for (size_t i = 1; i < fList.size(); i++)
+    for (size_t i = 1; i < eList.size(); i++)
     {
-        size_t preF = fList[i - 1];
-        size_t preT = tList[i - 1];
+        size_t preF = eList[i - 1].first;
+        size_t preT = eList[i - 1].second;
 
-        size_t curF = fList[i];
-        size_t curT = tList[i];
+        size_t curF = eList[i].first;
+        size_t curT = eList[i].second;
 
         // We want that the previous entry is strictly smaller than the current.
         // That is the case if and only if
@@ -40,9 +40,9 @@ Graph::Graph(const vector<size_t>& fList, const vector<size_t>& tList, const vec
     }
 
     // from-ID > to-ID?
-    for (size_t i = 0; i < fList.size(); i++)
+    for (size_t i = 0; i < eList.size(); i++)
     {
-        if (fList[i] <= tList[i])
+        if (eList[i].first <= eList[i].second)
         {
             throw logic_error("From-ID <= to-ID.");
         }
@@ -52,16 +52,16 @@ Graph::Graph(const vector<size_t>& fList, const vector<size_t>& tList, const vec
     // --- Build graph. ---
 
     // Due to order and from-ID > to-ID, largest ID is from-ID at the very end.
-    vSize = fList.back() + 1;
+    vSize = eList.back().first + 1;
 
     edges = new vector<size_t>[vSize];
     weights = new vector<int>[vSize];
 
 
-    for (size_t i = 0; i < fList.size(); i++)
+    for (size_t i = 0; i < eList.size(); i++)
     {
-        size_t fId = fList[i];
-        size_t tId = tList[i];
+        size_t fId = eList[i].first;
+        size_t tId = eList[i].second;
         int wei = wList[i];
 
         edges[fId].push_back(tId);
