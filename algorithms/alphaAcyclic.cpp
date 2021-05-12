@@ -400,5 +400,20 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
     }
 
 
+    // --- Line 3: Create empty union join graph. ---
+
+    vector<size_t> fList;
+    vector<size_t> tList;
+
+    vector<int> wList; // Will all be 0.
+
+
+    // --- Line 4: Loop over all separators S. ---
+
+    for (int sId = 0; sId < sepHg.getESize(); sId++)
+    {
+
+    }
+
     return Graph();
 }
