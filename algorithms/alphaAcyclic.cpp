@@ -174,6 +174,7 @@ vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
     // Allows to skip hyperedges with all vertices marked.
     // Does not affect correctness, only there for speed-up.
     size_t eSize[m];
+    for (int eId = 0; eId < m; eId++) eSize[eId] = 0;
 
     for (MaxCardinalitySet sets(m); !sets.isEmpty(); )
     {
