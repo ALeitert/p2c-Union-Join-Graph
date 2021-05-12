@@ -330,3 +330,38 @@ Hypergraph AlphaAcyclic::separatorHG(const Hypergraph& hg, const vector<int>& jo
 
     return Hypergraph(hgPairs);
 }
+
+// Computes the union join graph for a given acyclic hypergraph.
+Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
+{
+    throw runtime_error("Not implemented.");
+
+    // Implements Algorithm 2 from my paper.
+
+    // --- Outline ---
+
+    // 1  Find a join tree for H and call Algorithm 1.
+    //    Let T be the resulting join tree and S_H the resulting family of
+    //    separators (i.e., the hyperedges of S(H)).
+
+    // 2  Use algorithm A to compute the subset graph G_S of S_H.
+
+    // 3  Create a new graph G = (E, E_G) with E_G = ∅.
+
+    // 4  For Each S ∈ S_H
+
+    // 5      Use G_S to determine all separators S′ with S ⊆ S′ (including S).
+
+    // 6      For each such S′, let EE′ be the edge of T which S′ represents
+    //        and let E be the hyperedge farther away from S in T.
+    //        Add E to a set bbE of hyperedges.
+    //        If S and S′ represent the same edge of T, also add E′.
+
+    // 7      Partition bbE into two sets bbE_1 and bbE_2 based on which side
+    //        of S they are in T.
+
+    // 8      For each pair E_1, E_2 with E_1 ∈ bbE_1 and E_2 ∈ bbE_2,
+    //        add E_1E_2 into E_G.
+
+    return Graph();
+}
