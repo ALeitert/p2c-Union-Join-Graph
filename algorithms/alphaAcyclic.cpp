@@ -331,6 +331,92 @@ Hypergraph AlphaAcyclic::separatorHG(const Hypergraph& hg, const vector<int>& jo
     return Hypergraph(hgPairs);
 }
 
+
+// Helper for DFS.
+typedef pair<vector<size_t>, vector<size_t>> orderPair;
+
+// Runs a DFS on the given join tree and returns a pre- and post-order.
+// The returned orders state for a given vertex its index in that order.
+orderPair joinTreeDfs(const vector<int>& joinTree)
+{
+    const int n = joinTree.size();
+    const int rootId = n - 1;
+
+
+    // --- Determine children of each node. ---
+
+    vector<vector<int>> childIds;
+    childIds.resize(n);
+
+    for (int eId = 0; eId < rootId /* skip root */; eId++)
+    {
+        int pId = joinTree[eId];
+        childIds[pId].push_back(eId);
+    }
+
+
+    // --- Prepare DFS. ---
+
+    // Initialise orders.
+    orderPair orders;
+
+    vector<size_t>& preOrder = orders.first;
+    vector<size_t>& postOrder = orders.second;
+
+    preOrder.resize(n, -1);
+    postOrder.resize(n, -1);
+
+    size_t preIdx = 0;
+    size_t postIdx = 0;
+
+
+    // Helpers to compute DFS.
+    vector<size_t> childIndex;
+    childIndex.resize(n, 0);
+
+    vector<int> stack;
+    stack.push_back(rootId);
+
+
+    // --- Run DFS. ---
+
+    while (stack.size() > 0)
+    {
+        int eId = stack.back();
+        size_t cIdx = childIndex[eId];
+
+        if (cIdx == 0)
+        {
+            // *** Pre-order for vId ***
+            preOrder[eId] = preIdx;
+            preIdx++;
+        }
+
+        if (cIdx < childIds[eId].size())
+        {
+            int childId = childIds[eId][cIdx];
+
+            // No need to check if child was visited before,
+            // since we only have edges to children.
+
+            stack.push_back(childId);
+
+            childIndex[eId]++;
+        }
+        else
+        {
+            // All neighbours checked, backtrack.
+            stack.pop_back();
+
+            // *** Post-order for vId ***
+            postOrder[eId] = postIdx;
+            postIdx++;
+        }
+    }
+
+    return orders;
+}
+
 // Computes the union join graph for a given acyclic hypergraph.
 Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
 {
@@ -369,6 +455,17 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
 
     vector<int> joinTree = getJoinTree(hg);
     Hypergraph sepHg = separatorHG(hg, joinTree);
+
+
+    // --- Preprocessing for lines 6 and 7. ---
+
+    // To determine which hyperedges are farther away and on which side of a
+    // separator they are, we compute pre- and post-order of the join tree.
+
+    orderPair jtDfs = joinTreeDfs(joinTree);
+
+    vector<size_t>& pre = jtDfs.first;
+    vector<size_t>& post = jtDfs.second;
 
 
     // --- Line 2: Compute subset graph. ---
