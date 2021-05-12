@@ -514,6 +514,94 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
         // --- Line 5: Determine all S′ with S ⊆ S′ (including S). ---
 
         const vector<int>& spList = superSets[sId];
+
+
+        // --- Line 6: For each, S' determine hyperedges it represents. ---
+        //     Line 7: Partition then based on their side of S in T.
+
+
+        // All hyperedges that are below S, i.e., descendants of S in T.
+        vector<int> downList; // bbE_1 in paper.
+
+        // All hyperedges that are above S, i.e., not descendants of S in T.
+        vector<int> aboveList; // bbE_2 in paper.
+
+
+        for (const int& spId : spList)
+        {
+            // Hyperedge below S'.
+            // The way the sparator hypergraph is created, each separator has
+            // the same ID as the hyperedge below it in the rooted join tree.
+            int chiId = spId;
+
+            // Hyperedge above S'.
+            int parId = joinTree[chiId];
+
+
+            // ----------------------------------
+            // From proof in paper:
+
+            // x is a descendant of y if and only if
+            // pre(x) > pre(y) and post(x) < post(y).
+
+            // There are four cases when determining which of E and E′ to pick:
+            // 1) If S and S′ represent the same edge, add E and E′.
+            // 2) If S′ is a descendant of S, add the child-hyperedge.
+            // 3) If S′ is an ancestor of S, add the parent-hyperedge.
+            // 4) If S′ is neither an ancestor nor a descendant of S,
+            //    add the child-hyperedge.
+
+            // Clearly, one side of S contains all its descendants and the other
+            // side all remaining hyperedges and separators.
+
+            // ----------------------------------
+
+
+            // -- Determine ancestor/descendant relationship. --
+
+            // We use the ID of the hyperedge below S and S' (which give S and
+            // S' their IDs). If we would compute a pre- or post-order of T
+            // where we treat separators as their own nodes, they would be
+            // directly before (in pre-) or after (in post-) their corresponding
+            // hyperedge. Thus, we still determine ancestory correctly.
+
+            bool sIsDec = pre[sId] > pre[spId] && post[sId] < post[spId];
+            bool sIsAnc = pre[spId] > pre[sId] && post[spId] < post[sId];
+
+
+            // -- Add hyperedges. --
+
+            // Case 1.
+            if (spId == sId)
+            {
+                downList.push_back(chiId);
+                aboveList.push_back(parId);
+            }
+
+            // Case 2.
+            else if (sIsAnc)
+            {
+                // S' is a descendent of S.
+                // Hence, the hyperedge below S' is farther from and below S.
+                downList.push_back(chiId);
+            }
+
+            // Case 3.
+            else if (sIsDec)
+            {
+                // S′ is an ancestor of S.
+                // Hence, the hyperedge above S' is farther from and above S.
+                aboveList.push_back(parId);
+            }
+
+            // Case 4.
+            else
+            {
+                // S′ is neither an ancestor nor a descendant of S.
+                // Hence, the hyperedge below S' is farther from and above S.
+                aboveList.push_back(chiId);
+            }
+        }
     }
 
     return Graph();
