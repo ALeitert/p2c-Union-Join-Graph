@@ -16,6 +16,9 @@ namespace AlphaAcyclic
     // Returns a list that contains the parent-ID for each hyperedge.
     // Returns an empty list if the given hypergraph is not acyclic.
     vector<int> getJoinTree(const Hypergraph& hg);
+
+    // Computes the separator hypergraph for a given acyclic hypergraph with a given join tree.
+    Hypergraph separatorHG(const Hypergraph& hg, const vector<int>& joinTree);
 }
 
 #endif

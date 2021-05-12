@@ -297,3 +297,36 @@ vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
 
     return joinTree;
 }
+
+// Computes the separator hypergraph for a given acyclic hypergraph with a given join tree.
+Hypergraph AlphaAcyclic::separatorHG(const Hypergraph& hg, const vector<int>& joinTree)
+{
+    // Implementation of getJoinTree() always makes highest-ID hyperedge the root.
+    // That is convinient, because we can make the separator HG have matching IDs
+    // while still having one fewer hyperedge.
+
+    size_t m = hg.getESize();
+    vector<intPair> hgPairs;
+
+    // Process all but last (i.e. root) hyperedge.
+    for (int eId = 0; eId < m - 1; eId++)
+    {
+        int pId = joinTree[eId];
+
+        const vector<int>& eList = hg[eId];
+        const vector<int>& pList = hg[pId];
+
+        for (size_t e = 0, p = 0; e < eList.size() && p < pList.size(); )
+        {
+            int evId = eList[e];
+            int pvId = pList[p];
+
+            if (evId <= pvId) e++;
+            if (evId >= pvId) p++;
+
+            if (evId == pvId) hgPairs.push_back(intPair(eId, evId));
+        }
+    }
+
+    return Hypergraph(hgPairs);
+}
