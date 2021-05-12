@@ -132,8 +132,6 @@ Hypergraph AlphaAcyclic::genrate(size_t m, size_t N)
 // Returns an empty list if the given hypergraph is not acyclic.
 vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
 {
-    throw runtime_error("Not implemented.");
-
     // Algorithm based on
     // R.E. Tarjan, M. Yannakakis:
     // Simple Linear-Time Algorithms to Test Chordality of Graphs, Test Acyclicity of Hypergraphs, and Selectively Reduce Acyclic Hypergraphs
@@ -281,5 +279,20 @@ vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
 
     // Hypergraph is acyclic.
 
-    return vector<int>();
+
+    // --- Compute join tree. ---
+
+    vector<int> joinTree;
+    joinTree.resize(m, -1);
+
+    for (int eId = 0; eId < m; eId++)
+    {
+        int pIdx = parIdx[eId];
+        if (pIdx < 0) continue;
+
+        int pId = eOrder[pIdx];
+        joinTree[eId] = pId;
+    }
+
+    return joinTree;
 }
