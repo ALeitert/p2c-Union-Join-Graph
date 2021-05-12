@@ -363,5 +363,13 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
     // 8      For each pair E_1, E_2 with E_1 ∈ bbE_1 and E_2 ∈ bbE_2,
     //        add E_1E_2 into E_G.
 
+
+
+    // --- Line 1: Compute join tree and separator hypergraph. ---
+
+    vector<int> joinTree = getJoinTree(hg);
+    Hypergraph sepHg = separatorHG(hg, joinTree);
+
+
     return Graph();
 }
