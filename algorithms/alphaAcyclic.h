@@ -4,7 +4,9 @@
 #define __Algorithms_AlphaAcyclic_H__
 
 
+#include "../dataStructures/graph.h"
 #include "../dataStructures/hypergraph.h"
+#include "subsetGraph.h"
 
 
 namespace AlphaAcyclic
@@ -19,6 +21,9 @@ namespace AlphaAcyclic
 
     // Computes the separator hypergraph for a given acyclic hypergraph with a given join tree.
     Hypergraph separatorHG(const Hypergraph& hg, const vector<int>& joinTree);
+
+    // Computes the union join graph for a given acyclic hypergraph.
+    Graph unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A);
 }
 
 #endif

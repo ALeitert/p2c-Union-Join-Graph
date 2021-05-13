@@ -13,14 +13,14 @@
 namespace MstEdges
 {
     // A reference to a function that computes the subset graph of a given hypergraph.
-    typedef vector<sizePair> (&mstAlgo)(const Graph&);
+    typedef vector<intPair> (&mstAlgo)(const Graph&);
 
 
     // Determines all edges which are part of a MaxST by checking each edge individually.
-    vector<sizePair> checkAllEdges(const Graph& g);
+    vector<intPair> checkAllEdges(const Graph& g);
 
     // Determines all edges which are part of a MaxST based on Kruskal's algorithm.
-    vector<sizePair> kruskal(const Graph& g);
+    vector<intPair> kruskal(const Graph& g);
 }
 
 #endif
