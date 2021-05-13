@@ -27,17 +27,17 @@ public:
 
     // Constructor.
     // Needs to be sorted by vertex-IDs, not contain duplicates, and from-ID > to-ID.
-    Graph(const vector<sizePair>& eList, const vector<int>& wList);
+    Graph(const vector<intPair>& eList, const vector<int>& wList);
 
     // Destructor.
     ~Graph();
 
 
     // Returns the neighbours of the given vertex.
-    const vector<size_t>& operator[](const size_t vId) const;
+    const vector<int>& operator[](const int vId) const;
 
     // Returns the weights to neighbours of the given vertex.
-    const vector<int>& operator()(const size_t vId) const;
+    const vector<int>& operator()(const int vId) const;
 
 
     // The number of vertices.
@@ -47,7 +47,7 @@ public:
 private:
 
     // Adjacency list.
-    vector<size_t>* edges = nullptr;
+    vector<int>* edges = nullptr;
     vector<int>* weights = nullptr;
 
     // Number of vertices.

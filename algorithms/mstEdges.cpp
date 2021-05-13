@@ -7,7 +7,7 @@
 
 // Helper function for checkAllEdges().
 // Computes, for a given vertex u and all neighbours v, the largest minimum edge weight of all paths from u to v.
-vector<int> maxMinWeights(const Graph& g, size_t startId)
+vector<int> maxMinWeights(const Graph& g, int startId)
 {
     // Assume we are given a vertex u.
     // For all neighbours v, we want to compute the largest minimum edge weight of all paths from u to v.
@@ -43,7 +43,7 @@ vector<int> maxMinWeights(const Graph& g, size_t startId)
 
     while (heap.getSize() > 0)
     {
-        size_t uId = heap.removeMin();
+        int uId = heap.removeMin();
 
         // Unreachable vertex.
         if (distances[uId] == numeric_limits<int>::max()) break;
@@ -53,7 +53,7 @@ vector<int> maxMinWeights(const Graph& g, size_t startId)
         // Relax all neighbours.
         for (int nIdx = 0; nIdx < g[uId].size(); nIdx++)
         {
-            size_t vId = g[uId][nIdx];
+            int vId = g[uId][nIdx];
             int vDist = -distances[vId]; // times -1 since heap is min-heap.
 
             int uvWei = g(uId)[nIdx];
@@ -71,7 +71,7 @@ vector<int> maxMinWeights(const Graph& g, size_t startId)
     vector<int> result;
     for (size_t i = 0; i < g[startId].size(); i++)
     {
-        size_t vId = g[startId][i];
+        int vId = g[startId][i];
         int vDist = -distances[vId]; // times -1 since heap is min-heap.
         result.push_back(vDist);
     }
@@ -80,7 +80,7 @@ vector<int> maxMinWeights(const Graph& g, size_t startId)
 }
 
 // Determines all edges which are part of a MaxST by checking each edge individually.
-vector<sizePair> MstEdges::checkAllEdges(const Graph& g)
+vector<intPair> MstEdges::checkAllEdges(const Graph& g)
 {
     // Consider an edge uv with weigth w.
 
@@ -120,7 +120,7 @@ vector<sizePair> MstEdges::checkAllEdges(const Graph& g)
     // For each neighbour v of u, if A[v] <= wei(uv), add uv to result.
 
 
-    vector<sizePair> result;
+    vector<intPair> result;
 
     for (size_t uId = 0; uId < g.size(); uId++)
     {
@@ -146,7 +146,7 @@ vector<sizePair> MstEdges::checkAllEdges(const Graph& g)
 }
 
 // Determines all edges which are part of a MaxST based on Kruskal's algorithm.
-vector<sizePair> MstEdges::kruskal(const Graph& g)
+vector<intPair> MstEdges::kruskal(const Graph& g)
 {
     // Kruskal's algorithm computes a MST by first sorting all edges by weight.
     // Edges are then processed in that order.
@@ -161,16 +161,16 @@ vector<sizePair> MstEdges::kruskal(const Graph& g)
 
     // --- Create a list of all edges and sort them. ---
 
-    vector<pair<int, sizePair>> edgeList;
+    vector<pair<int, intPair>> edgeList;
 
     for (size_t uId = 0; uId < g.size(); uId++)
     {
-        const vector<size_t>& neighs = g[uId];
+        const vector<int>& neighs = g[uId];
         const vector<int>& weights = g(uId);
 
         for (size_t vIdx = 0; vIdx < neighs.size(); vIdx++)
         {
-            size_t vId = neighs[vIdx];
+            int vId = neighs[vIdx];
             if (vId <= uId) continue;
 
             int uvWei = weights[vIdx];
@@ -183,8 +183,8 @@ vector<sizePair> MstEdges::kruskal(const Graph& g)
 
     // --- Process edges. ---
 
-    vector<sizePair> result;
-    vector<sizePair> buffer;
+    vector<intPair> result;
+    vector<intPair> buffer;
 
     UnionFind uf(g.size());
 
@@ -195,22 +195,22 @@ vector<sizePair> MstEdges::kruskal(const Graph& g)
         // Add all edges with same weight that connect allow to join two sets.
         for (; ePtr < edgeList.size() && curWei == edgeList[ePtr].first; ePtr++)
         {
-            size_t uId = edgeList[ePtr].second.first;
-            size_t vId = edgeList[ePtr].second.second;
+            int uId = edgeList[ePtr].second.first;
+            int vId = edgeList[ePtr].second.second;
 
             if (uf.findSet(uId) != uf.findSet(vId))
             {
-                buffer.push_back(sizePair(uId, vId));
+                buffer.push_back(intPair(uId, vId));
             }
         }
 
         // Process buffered edges.
         for (size_t i = 0; i < buffer.size(); i++)
         {
-            sizePair& edge = buffer[i];
+            intPair& edge = buffer[i];
 
-            size_t uId = edge.first;
-            size_t vId = edge.second;
+            int uId = edge.first;
+            int vId = edge.second;
 
             uf.unionSets(uId, vId);
             result.push_back(edge);

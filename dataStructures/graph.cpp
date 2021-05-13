@@ -9,7 +9,7 @@ Graph::Graph() { /* Does nothing. */ }
 // Constructor.
 // Constructs a graph from the given edge list.
 // Needs to be sorted by vertex-IDs, not contain duplicates, and from-ID > to-ID.
-Graph::Graph(const vector<sizePair>& eList, const vector<int>& wList)
+Graph::Graph(const vector<intPair>& eList, const vector<int>& wList)
 {
     // --- Verify input. ---
 
@@ -22,11 +22,11 @@ Graph::Graph(const vector<sizePair>& eList, const vector<int>& wList)
     // Sorted, no duplicates?
     for (size_t i = 1; i < eList.size(); i++)
     {
-        size_t preF = eList[i - 1].first;
-        size_t preT = eList[i - 1].second;
+        int preF = eList[i - 1].first;
+        int preT = eList[i - 1].second;
 
-        size_t curF = eList[i].first;
-        size_t curT = eList[i].second;
+        int curF = eList[i].first;
+        int curT = eList[i].second;
 
         // We want that the previous entry is strictly smaller than the current.
         // That is the case if and only if
@@ -54,14 +54,14 @@ Graph::Graph(const vector<sizePair>& eList, const vector<int>& wList)
     // Due to order and from-ID > to-ID, largest ID is from-ID at the very end.
     vSize = eList.back().first + 1;
 
-    edges = new vector<size_t>[vSize];
+    edges = new vector<int>[vSize];
     weights = new vector<int>[vSize];
 
 
     for (size_t i = 0; i < eList.size(); i++)
     {
-        size_t fId = eList[i].first;
-        size_t tId = eList[i].second;
+        int fId = eList[i].first;
+        int tId = eList[i].second;
         int wei = wList[i];
 
         edges[fId].push_back(tId);
@@ -82,7 +82,7 @@ Graph::~Graph()
 
 
 // Returns the neighbours of the given vertex.
-const vector<size_t>& Graph::operator[](const size_t vId) const
+const vector<int>& Graph::operator[](const int vId) const
 {
     if (vId >= vSize) throw out_of_range("vId");
 
@@ -90,7 +90,7 @@ const vector<size_t>& Graph::operator[](const size_t vId) const
 }
 
 // Returns the weights to neighbours of the given vertex.
-const vector<int>& Graph::operator()(const size_t vId) const
+const vector<int>& Graph::operator()(const int vId) const
 {
     if (vId >= vSize) throw out_of_range("vId");
 
