@@ -4,8 +4,16 @@
 #define __Testing_UnionJoinTest_H__
 
 
+#include "../dataStructures/graph.h"
+#include "../dataStructures/hypergraph.h"
+
+
 namespace Testing
 {
+    // A reference to a function that computes the union join graph of a given hypergraph.
+    typedef Graph (&ujgAlgo)(const Hypergraph&);
+
+
     class UnionJoinTest
     {
     public:
@@ -13,6 +21,12 @@ namespace Testing
         // Default constructor.
         UnionJoinTest() { /* Does nothing */ }
 
+
+        // --- Static wrapper functions. ---
+
+        // Computes the union join graph of a given acyclic hypergraph using my
+        // algorithm with Pritchard's algorithm for subset graphs.
+        static Graph ujgLeitertPritchard(const Hypergraph&);
 
     private:
 
