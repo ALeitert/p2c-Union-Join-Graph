@@ -9,24 +9,24 @@ Graph::Graph() { /* Does nothing. */ }
 // Constructor.
 // Constructs a graph from the given edge list.
 // Needs to be sorted by vertex-IDs, not contain duplicates, and from-ID > to-ID.
-Graph::Graph(const vector<size_t>& fList, const vector<size_t>& tList, const vector<int>& wList)
+Graph::Graph(const vector<intPair>& eList, const vector<int>& wList)
 {
     // --- Verify input. ---
 
     // Equal length?
-    if (fList.size() != tList.size() || tList.size() != wList.size())
+    if (eList.size() != wList.size())
     {
         throw logic_error("Size of given listst not equal.");
     }
 
     // Sorted, no duplicates?
-    for (size_t i = 1; i < fList.size(); i++)
+    for (size_t i = 1; i < eList.size(); i++)
     {
-        size_t preF = fList[i - 1];
-        size_t preT = tList[i - 1];
+        int preF = eList[i - 1].first;
+        int preT = eList[i - 1].second;
 
-        size_t curF = fList[i];
-        size_t curT = tList[i];
+        int curF = eList[i].first;
+        int curT = eList[i].second;
 
         // We want that the previous entry is strictly smaller than the current.
         // That is the case if and only if
@@ -40,9 +40,9 @@ Graph::Graph(const vector<size_t>& fList, const vector<size_t>& tList, const vec
     }
 
     // from-ID > to-ID?
-    for (size_t i = 0; i < fList.size(); i++)
+    for (size_t i = 0; i < eList.size(); i++)
     {
-        if (fList[i] <= tList[i])
+        if (eList[i].first <= eList[i].second)
         {
             throw logic_error("From-ID <= to-ID.");
         }
@@ -52,16 +52,16 @@ Graph::Graph(const vector<size_t>& fList, const vector<size_t>& tList, const vec
     // --- Build graph. ---
 
     // Due to order and from-ID > to-ID, largest ID is from-ID at the very end.
-    vSize = fList.back() + 1;
+    vSize = eList.back().first + 1;
 
-    edges = new vector<size_t>[vSize];
+    edges = new vector<int>[vSize];
     weights = new vector<int>[vSize];
 
 
-    for (size_t i = 0; i < fList.size(); i++)
+    for (size_t i = 0; i < eList.size(); i++)
     {
-        size_t fId = fList[i];
-        size_t tId = tList[i];
+        int fId = eList[i].first;
+        int tId = eList[i].second;
         int wei = wList[i];
 
         edges[fId].push_back(tId);
@@ -82,7 +82,7 @@ Graph::~Graph()
 
 
 // Returns the neighbours of the given vertex.
-const vector<size_t>& Graph::operator[](const size_t vId) const
+const vector<int>& Graph::operator[](const int vId) const
 {
     if (vId >= vSize) throw out_of_range("vId");
 
@@ -90,7 +90,7 @@ const vector<size_t>& Graph::operator[](const size_t vId) const
 }
 
 // Returns the weights to neighbours of the given vertex.
-const vector<int>& Graph::operator()(const size_t vId) const
+const vector<int>& Graph::operator()(const int vId) const
 {
     if (vId >= vSize) throw out_of_range("vId");
 

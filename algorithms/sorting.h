@@ -31,6 +31,18 @@ namespace Sorting
 
     // Creates a random permutation of integers in range [0, size) in the given array.
     void makePermutation(int* arr, size_t size);
+
+    // Randomly moves k items from the given list to its front.
+    template<class T>
+    void kShuffle(vector<T>& vec, size_t k)
+    {
+        k = min(k, vec.size());
+        for (size_t i = 0; i < k; i++)
+        {
+            size_t rndIdx = rand() % (vec.size() - i) + i;
+            swap(vec[i], vec[rndIdx]);
+        }
+    }
 }
 
 #endif

@@ -55,7 +55,8 @@ void Sorting::radixSort(vector<intPair>& pairs)
     }
 
     // Sort.
-    pair<int, int> buffer[pairs.size()];
+    vector<pair<int, int>> buffer;
+    buffer.resize(pairs.size());
     for (int i = pairs.size() - 1; i >= 0; i--)
     {
         int key = pairs[i].second;
