@@ -420,8 +420,6 @@ orderPair joinTreeDfs(const vector<int>& joinTree)
 // Computes the union join graph for a given acyclic hypergraph.
 Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
 {
-    throw runtime_error("Not implemented.");
-
     // Implements Algorithm 2 from my paper.
 
     // --- Outline ---
@@ -501,9 +499,7 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
 
     // --- Line 3: Create empty union join graph. ---
 
-    vector<size_t> fList;
-    vector<size_t> tList;
-
+    vector<intPair> eList;
     vector<int> wList; // Will all be 0.
 
 
@@ -602,7 +598,45 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
                 aboveList.push_back(chiId);
             }
         }
+
+
+        // --- Line 8: Add all E_1E_2 pairs. ---
+
+        for (const int& e1 : downList)
+        {
+            for (const int& e2 : aboveList)
+            {
+                // Ensure that from > to.
+                int fId = max(e1, e2);
+                int tId = min(e1, e2);
+
+                eList.push_back(sizePair(fId, tId));
+            }
+        }
     }
 
-    return Graph();
+    Sorting::radixSort(eList);
+
+    // Remove duplicates.
+    if (eList.size() > 1)
+    {
+        size_t preIdx = 0;
+
+        for (size_t i = 1; i < eList.size(); i++)
+        {
+            intPair prev = eList[preIdx];
+            intPair curr = eList[i];
+
+            if (prev == curr) continue;
+
+            preIdx++;
+            eList[preIdx] = curr;
+        }
+
+        eList.resize(preIdx + 1);
+    }
+
+    wList.resize(eList.size(), 0);
+
+    return Graph(eList, wList);
 }
