@@ -28,6 +28,11 @@ namespace Testing
         // algorithm with Pritchard's algorithm for subset graphs.
         static Graph ujgLeitertPritchard(const Hypergraph&);
 
+        // Computes the union join graph of a given acyclic hypergraph using the
+        // linegraph and a modification of Kruskal's algorithm.
+        static Graph ujgLineKruskal(const Hypergraph&);
+
+
     private:
 
     };
