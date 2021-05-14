@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "../helper.h"
+#include "graph.h"
 
 using namespace std;
 
@@ -56,6 +57,10 @@ public:
 
     // Prints the hypergraph as family of sets.
     void print(ostream& out) const;
+
+
+    // Computes the weighted linegraph of the hypergraph.
+    Graph getLinegraph() const;
 
 
 private:
