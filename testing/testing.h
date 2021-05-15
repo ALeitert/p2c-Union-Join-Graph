@@ -21,6 +21,9 @@ namespace Testing
     // Tests a given function that computes the subset graph of a given hypergraph.
     // Returns the time needed in milliseconds.
     uint64_t unionJoinGraph(ujgAlgo algo, string name, unsigned int seed, size_t tests, size_t maxSize);
+
+    // Tests if two given algorithms return the same result.
+    bool unionJoinGraph(ujgAlgo algo1, ujgAlgo algo2, unsigned int seed, size_t tests, size_t maxSize);
 }
 
 #endif

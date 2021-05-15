@@ -137,3 +137,68 @@ uint64_t Testing::unionJoinGraph(ujgAlgo algo, string name, unsigned int seed, s
     auto end = high_resolution_clock::now();
     return duration_cast<milliseconds>(end - start).count();
 }
+
+// Tests if two given algorithms return the same result.
+bool Testing::unionJoinGraph(ujgAlgo algo1, ujgAlgo algo2, unsigned int seed, size_t tests, size_t maxSize)
+{
+    cout << "\nTesting Result of Union Join Graph Implementations." << endl
+         << tests << " test cases with max. size " << maxSize << "." << endl;
+
+
+    srand(seed);
+    bool allPassed = true;
+
+
+    for (size_t tNo = 1, perc = -1; tNo < tests; tNo++)
+    {
+        // --- Determine size and create hypergraph. ---
+
+        size_t sz = rand() % maxSize + 5;
+        size_t N = sz + rand() % (sz * LogC(sz)) + 1;
+
+        Hypergraph aaHg = AlphaAcyclic::genrate(sz, N);
+
+
+        // --- Run tests. ---
+
+        bool equal = false;
+
+        try
+        {
+            equal = UnionJoinTest::compareAlgorithms(aaHg, algo1, algo2);
+        }
+        catch (const exception& e)
+        {
+            cout << "Test " << tNo << " failed with exception." << endl;
+            cerr << e.what() << endl;
+            allPassed = false;
+            break;
+        }
+
+
+        if (!equal)
+        {
+            cout << "Test " << tNo << " failed." << endl;
+            allPassed = false;
+            break;
+        }
+
+
+        // --- Print progress. ---
+
+        int progress = (tNo * 100) / tests;
+
+        if (progress != perc)
+        {
+            perc = progress;
+            cout << perc << " %\r" << flush;
+        }
+    }
+
+    if (allPassed)
+    {
+        cout << "All tests passed." << endl;
+    }
+
+    return allPassed;
+}
