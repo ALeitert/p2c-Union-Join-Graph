@@ -23,6 +23,10 @@ namespace Testing
         // Computes the union join graph of a given acyclic hypergraph using the
         // linegraph and a modification of Kruskal's algorithm.
         Graph ujgLineKruskal(const Hypergraph&);
+
+
+        // Runs two union join graph algorithms and verifies that their output is the same.
+        bool compareAlgorithms(const Hypergraph& hg, ujgAlgo algo1, ujgAlgo algo2);
     };
 }
 
