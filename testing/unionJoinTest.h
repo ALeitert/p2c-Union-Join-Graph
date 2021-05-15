@@ -14,27 +14,15 @@ namespace Testing
     typedef Graph (&ujgAlgo)(const Hypergraph&);
 
 
-    class UnionJoinTest
+    namespace UnionJoinTest
     {
-    public:
-
-        // Default constructor.
-        UnionJoinTest() { /* Does nothing */ }
-
-
-        // --- Static wrapper functions. ---
-
         // Computes the union join graph of a given acyclic hypergraph using my
         // algorithm with Pritchard's algorithm for subset graphs.
-        static Graph ujgLeitertPritchard(const Hypergraph&);
+        Graph ujgLeitertPritchard(const Hypergraph&);
 
         // Computes the union join graph of a given acyclic hypergraph using the
         // linegraph and a modification of Kruskal's algorithm.
-        static Graph ujgLineKruskal(const Hypergraph&);
-
-
-    private:
-
+        Graph ujgLineKruskal(const Hypergraph&);
     };
 }
 
