@@ -130,3 +130,70 @@ Hypergraph Interval::genrate(size_t m, size_t N)
     Sorting::radixSort(pairList);
     return Hypergraph(pairList);
 }
+
+// Computes a join path of a given hypergraph.
+// Returns a list that contains the parent-ID for each hyperedge.
+// Returns an empty list if the hypergraph is not an interval hypergraph.
+vector<int> getJoinPath(const Hypergraph& hg)
+{
+    throw runtime_error("Not implemented.");
+
+    // M. Habib, R. McConnell, C. Paul, L. Viennot:
+    // Lex-BFS and partition refinement, with applicationsto transitive orientation, interval graph recognition and consecutive ones testing.
+    // Theoretical Computer Science 234, 59-84, 2000.
+
+    // --- Algorithm 9 ---
+
+    //  Input: A graph G = (V, E)
+    // Output: A clique chain L if G is interval.
+
+    //  1  Compute the maximal cliques and a clique tree T = (X, F) using a LexBFS according to Algorithm 4.
+    //  2  Let X = { C_1, C_2, ..., C_k } be the set of maximal cliques.
+    //  3  Let L be the ordered list (X).
+    //  4  Create an empty stack pivots = ∅.
+
+    //  5  While there exists a non-singleton class X_C in L = ( X_1, X_2, ..., X_l )
+
+    //  6      If pivots = ∅ Then
+    //  7          Let C_l be the last clique in X_C discovered by the LexBFS (the clique with the greatest number).
+    //  8          Replace X_C by X_C \ { C_l }, { C_l } in L.
+    //  9          C = { C_l }
+
+    // 10      Else
+    // 11          Pick an unprocessed vertex x in pivots (throw away processed ones) and let C be the set of all maximal cliques containing X.
+    // 12          Let X_a and X_b be the first and last classes containing a member of C.
+    // 13          Replace X_a by X_a \ C, X_a \cap C and X_b by X_b \cap C, X_b \ C.
+
+    // 14      For Each remaining tree edge (C_i, C_j) connecting a clique C_i in C to a clique C_j not in C
+    // 15          Push C_i \cap C_j onto pivots.
+    // 16          Remove (C_i, C_j) from the clique tree.
+
+    // 17  For Each vertex x
+    // 18      If the cliques containing x are not consecutive in the ordering Then
+    // 19          Return "Not interval."
+    // 20      Return "Interval."
+
+
+
+    // --- Algorithm 10 ---
+
+    //  Input: A family of sets F.
+    // Output: A LexBFS-Ordering of the vertices of F.
+
+    //  1  Let L = (F).
+    //  2  Set i := n.
+
+    //  3  While L is not empty
+    //  4      Let C be a clique in the right-most class in L.
+    //  5      Pick an unnumbered vertex x from C.
+    //  6      Set pi(x) := i.
+
+    //  7      If all members of C are now numbered, then remove it from its class.
+    //         If its class is now empty, then remove it from L.
+
+    //  8      For Each class X_a in L
+    //  9          Let Y be the members of X_a that contain x.
+    // 10          If Y is not empty and Y != X_a, then remove Y from X_a and insert Y(?) to the right of X_a in L.
+
+    return vector<int>();
+}
