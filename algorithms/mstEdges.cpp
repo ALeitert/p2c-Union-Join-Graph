@@ -163,7 +163,7 @@ vector<intPair> MstEdges::kruskal(const Graph& g)
 
     vector<pair<int, intPair>> edgeList;
 
-    for (size_t uId = 0; uId < g.size(); uId++)
+    for (int uId = 0; uId < g.size(); uId++)
     {
         const vector<int>& neighs = g[uId];
         const vector<int>& weights = g(uId);
@@ -174,11 +174,48 @@ vector<intPair> MstEdges::kruskal(const Graph& g)
             if (vId >= uId) break;
 
             int uvWei = weights[vIdx];
-            edgeList.push_back(pair<int, sizePair>(-uvWei, sizePair(uId, vId))); // times -1 because we want a MaxST.
+            edgeList.push_back(pair<int, intPair>(uvWei, intPair(uId, vId)));
         }
     }
 
-    sort(edgeList.begin(), edgeList.end());
+
+    // --- Sort edges (using counting sort). ---
+
+    {
+        vector<pair<int, intPair>> buffer;
+        buffer.resize(edgeList.size());
+
+        const size_t n = g.size();
+
+        vector<size_t> count;
+        count.resize(n, 0);
+
+        // Count keys.
+        for (size_t i = 0; i < edgeList.size(); i++)
+        {
+            int key = edgeList[i].first;
+            count[key]++;
+        }
+
+        // Postfix sum (we want decreasing order).
+        for (size_t i = count.size() - 2; i < count.size(); i--)
+        {
+            count[i] += count[i + 1];
+        }
+
+        // Sort.
+        for (size_t i = edgeList.size() - 1; i < edgeList.size(); i--)
+        {
+            int key = edgeList[i].first;
+
+            count[key]--;
+            size_t idx = count[key];
+
+            buffer[idx] = edgeList[i];
+        }
+
+        buffer.swap(edgeList);
+    }
 
 
     // --- Process edges. ---
@@ -192,7 +229,7 @@ vector<intPair> MstEdges::kruskal(const Graph& g)
     {
         int curWei = edgeList[ePtr].first;
 
-        // Add all edges with same weight that connect allow to join two sets.
+        // Add all edges with same weight that allow to join two sets.
         for (; ePtr < edgeList.size() && curWei == edgeList[ePtr].first; ePtr++)
         {
             int uId = edgeList[ePtr].second.first;
