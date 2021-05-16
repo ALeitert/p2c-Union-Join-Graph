@@ -52,7 +52,7 @@ Graph::Graph(const vector<intPair>& eList, const vector<int>& wList)
     // --- Build graph. ---
 
     // Due to order and from-ID > to-ID, largest ID is from-ID at the very end.
-    vSize = eList.back().first + 1;
+    vSize = (eList.size() == 0 ? 0 : eList.back().first + 1);
 
     edges = new vector<int>[vSize];
     weights = new vector<int>[vSize];
