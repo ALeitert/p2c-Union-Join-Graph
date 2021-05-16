@@ -1,5 +1,4 @@
 #include <cassert>
-#include <unordered_map>
 
 #include "../algorithms/sorting.h"
 #include "hypergraph.h"
@@ -24,13 +23,14 @@ Hypergraph::Hypergraph(const vector<intPair>& eList)
     vector<vector<int>> eSet;
     vector<vector<int>> vSet;
 
+    eSet.resize(list.back().first + 1);
+
     for (int i = 0; i < list.size(); i++)
     {
         int eId = list[i].first;
         int vId = list[i].second;
 
-        while (eSet.size() <= eId) eSet.push_back(vector<int>());
-        while (vSet.size() <= vId) vSet.push_back(vector<int>());
+        if (vSet.size() <= vId) vSet.resize(vId + 1);
 
         eSet[eId].push_back(vId);
         vSet[vId].push_back(eId);
@@ -122,7 +122,7 @@ int Hypergraph::getTotalSize() const
 
 
 // Move assignment.
-Hypergraph& Hypergraph::operator= (Hypergraph&& other)
+Hypergraph& Hypergraph::operator=(Hypergraph&& other)
 {
     destruct();
 
@@ -177,8 +177,8 @@ Graph Hypergraph::getLinegraph() const
 {
     // We compute the linegraph by running a BFS-ish search on each hyperedge in
     // the incidence graph. The search is limited to two hops. Each hyperedge
-    // the search reaches is counted in a hash table. That count becomes the
-    // weight of the corresponding linegraph edge.
+    // the search reaches is counted in a table. That count becomes the weight
+    // of the corresponding linegraph edge.
 
     const size_t m = getESize();
 
@@ -187,10 +187,14 @@ Graph Hypergraph::getLinegraph() const
 
     size_t totalSize = 0;
 
+    vector<size_t> map;
+    map.resize(m, 0);
+
+    vector<int> inMap;
+
 
     for (int toId = 0; toId < m; toId++)
     {
-        unordered_map<int, int> map;
         const vector<int>& vList = operator[](toId);
 
         for (const int& vId : vList)
@@ -202,24 +206,25 @@ Graph Hypergraph::getLinegraph() const
                 int frId = eList[i];
                 if (frId <= toId) break;
 
-                if (map.count(frId) == 0)
+                if (map[frId] == 0)
                 {
-                    map.emplace(frId, 0);
+                    inMap.push_back(frId);
                 }
 
                 map[frId]++;
             }
         }
 
-        for (auto& ewPair : map)
+        for (int& frId : inMap)
         {
-            int frId = ewPair.first;
-            int weig = ewPair.second;
+            int weig = map[frId];
+            map[frId] = 0;
 
             edgeList[frId].push_back(intPair(toId, weig));
         }
 
-        totalSize += map.size();
+        totalSize += inMap.size();
+        inMap.clear();
     }
 
     vector<intPair> pairList;
