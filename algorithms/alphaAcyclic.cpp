@@ -1,4 +1,5 @@
 #include "../dataStructures/maxCardinalitySet.h"
+#include "../dataStructures/reducedSet.h"
 #include "alphaAcyclic.h"
 #include "sorting.h"
 
@@ -642,4 +643,118 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo al
     wList.resize(eList.size(), 0);
 
     return Graph(eList, wList);
+}
+
+// Computes the edges of the subset graph of the separator hypergraph.
+// Combines the computation of the separators with Pritchard's algorithm to avoid some overhead.
+vector<intPair> separatorSSG(const Hypergraph& hg, const vector<int>& joinTree, const vector<size_t>& postIdx)
+{
+    // This algorithm combines the computation of a separator hypergraph with
+    // Pritchard's algorithm for subset graphs. That way, we save the overhead
+    // of computing a hypergraph.
+
+    // Pritchard's algorithm determines for each vertex v the set X_v of
+    // hyperedges which contain v. It then intersects these sets.
+    // Observe that for each E_i in X_v, v is the the up-separator S_i of E_i if
+    // and only if E_i is not the root of the subtree induced by X_v.
+    // We use that observation when creating and processing the reduced sets
+    // during Pritchard's algorithm.
+
+
+    const size_t m = hg.getESize();
+    const size_t n = hg.getVSize();
+
+
+    // --- Determine Post-Order. ---
+
+    vector<int> postOrder;
+    postOrder.resize(m);
+
+    for (int eId = 0; eId < m; eId++)
+    {
+        size_t idx = postIdx[eId];
+        postOrder[idx] = eId;
+    }
+
+
+    // --- Determine highest hyperedge for each vertex. ---
+
+    vector<size_t> vMaxIdx;
+    vMaxIdx.resize(n, m + 1);
+
+    for (size_t eIdx = 0; eIdx < m; eIdx++)
+    {
+        int eId = postOrder[eIdx];
+        const vector<int>& vLst = hg[eId];
+
+        for (const int& vId : vLst)
+        {
+            vMaxIdx[vId] = eIdx;
+        }
+    }
+
+
+    // --- Create reduced sets for step 3. ---
+
+    ReducedSet vSets[n];
+    for (int vId = 0; vId < n; vId++)
+    {
+        // Ignore highest hyperedge that contains v.
+        int rootId = postOrder[vMaxIdx[vId]];
+        vSets[vId] = ReducedSet(hg(vId), rootId);
+    }
+
+
+    // --- Step 3) of Pritchard's algorithm. ---
+
+    vector<intPair> result;
+
+    for (int yId = 0; yId < m - 1 /* ignore root */; yId++)
+    {
+        const vector<int>& vertices = hg[yId];
+        if (vertices.size() <= 0) throw std::invalid_argument("Invalid hypergraph.");
+
+        // Compute F.y using the following relation:
+        // F.y = \bigcup_{d \in y} F.{d}
+
+
+        // -- Skip all vertices for which the current hyperedge is the root. --
+
+        size_t yPostIdx = postIdx[yId];
+        size_t firstIdx = 0;
+
+        for ( ; firstIdx < vertices.size(); firstIdx++)
+        {
+            int vId = vertices[firstIdx];
+            size_t vRoot = vMaxIdx[vId];
+            if (vRoot != yPostIdx) break;
+        }
+
+
+        // Initialise intersection with hyperedges of "first" vertex.
+        ReducedSet intersection(vSets[vertices[0 + firstIdx]]);
+
+        // Intersect with hyperedges of all other vertices.
+        for (int vIdx = 1 + firstIdx /* first done above */; vIdx < vertices.size(); vIdx++)
+        {
+            int vId = vertices[vIdx];
+
+            size_t vRoot = vMaxIdx[vId];
+            if (vRoot == yPostIdx) continue;
+
+            intersection &= vSets[vId];
+        }
+
+        // Intersection calculated. Add edges to result.
+        for (auto it = intersection.begin(); it != intersection.end(); ++it)
+        {
+            int xId = *it;
+            if (xId == yId) continue;
+
+            result.push_back(intPair(xId, yId));
+        }
+    }
+
+    Sorting::radixSort(result);
+    return result;
 }
