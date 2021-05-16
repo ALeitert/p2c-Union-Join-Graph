@@ -10,6 +10,12 @@
 using namespace std;
 
 
+// See https://stackoverflow.com/a/11376759.
+#ifndef __Log_Floor__
+#define LogF(X) ((unsigned) ((sizeof(unsigned long long) << 3) - __builtin_clzll((X)) - 1))
+#endif
+
+
 class ReducedSet
 {
     // Consider a bit-array A which represents a subset of some set F.
@@ -21,16 +27,11 @@ class ReducedSet
 
     // The values below allow to transform between bit representation and represented numbers with bit operations instead of multiplication, division, and modulo.
 
-    // See https://stackoverflow.com/a/11376759.
-    #define LOG2(X) ((unsigned) ((sizeof(unsigned long long) << 3) - __builtin_clzll((X)) - 1))
-
     // Size of a word of the local machine reduced to the next power of 2.
     // The +3 effectivly multiplies with 8 to get bits instead of bytes.
-    static const unsigned int WordSize = 1 << (LOG2(sizeof(word)) + 3);
-    static const unsigned int WordDiv = LOG2(WordSize);
+    static const unsigned int WordSize = 1 << (LogF(sizeof(word)) + 3);
+    static const unsigned int WordDiv = LogF(WordSize);
     static const unsigned int WordMod = WordSize - 1;
-
-    #undef LOG2
 
 
     // Allows to manage non-zero words and their indices.
