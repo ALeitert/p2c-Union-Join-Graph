@@ -31,6 +31,14 @@ class PartRefinement
 
 public:
 
+    // Default constructor.
+    // Creates an empty data structure.
+    PartRefinement();
+
+    // Constructor.
+    // Creates a partition refinement of size k.
+    PartRefinement(size_t k);
+
 
 private:
 
