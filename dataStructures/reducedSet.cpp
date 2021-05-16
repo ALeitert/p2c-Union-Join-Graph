@@ -51,6 +51,38 @@ ReducedSet::ReducedSet(const vector<int>& list)
     copy(rBuilder.begin(), rBuilder.end(), R);
 }
 
+// Constructor.
+// Creates a set from a list of elements while ignoring one of them.
+// Assumes that the given list is sorted.
+ReducedSet::ReducedSet(const vector<int>& list, int ignore)
+{
+    vector<wordIndex> rBuilder;
+
+    for (int i = 0, lastIdx = -1; i < list.size(); i++)
+    {
+        int id = list[i];
+        if (id == ignore) continue;
+
+        int wordIdx = id >> WordDiv;
+        int wordBit = id & WordMod;
+
+        if (wordIdx > lastIdx)
+        {
+            lastIdx = wordIdx;
+            rBuilder.push_back(wordIndex(wordIdx, 0));
+        }
+
+        word& lastWord = rBuilder.back().second;
+        lastWord |= (word)1 << wordBit;
+    }
+
+
+    // Store results.
+    n = rBuilder.size();
+    R = new wordIndex[n];
+    copy(rBuilder.begin(), rBuilder.end(), R);
+}
+
 
 // Destructor.
 ReducedSet::~ReducedSet()
