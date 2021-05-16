@@ -41,6 +41,10 @@ public:
     PartRefinement(size_t k);
 
 
+    // Refines the current groups based on the given list of IDs.
+    void refine(const vector<int>& idList);
+
+
 private:
 
     // All groups (not in order).
