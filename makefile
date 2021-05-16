@@ -5,3 +5,7 @@ $(oFile): $(wildcard *.cpp) $(wildcard *.h) $(wildcard **/*.cpp) $(wildcard **/*
 
 run: $(oFile)
 	./$(oFile)
+
+debug: $(wildcard *.cpp) $(wildcard *.h) $(wildcard **/*.cpp) $(wildcard **/*.h)
+	g++ **/*.cpp *.cpp -g -o $(oFile)
+	gdb -ex run ./$(oFile)
