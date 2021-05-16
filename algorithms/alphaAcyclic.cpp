@@ -418,7 +418,7 @@ orderPair joinTreeDfs(const vector<int>& joinTree)
 }
 
 // Computes the union join graph for a given acyclic hypergraph.
-Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
+Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo algo)
 {
     // Implements Algorithm 2 from my paper.
 
@@ -434,12 +434,12 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
 
     // 4  For Each S ∈ S_H
 
-    // 5      Use G_S to determine all separators S′ with S ⊆ S′ (including S).
+    // 5      Use G_S to determine all separators S' with S ⊆ S' (including S).
 
-    // 6      For each such S′, let EE′ be the edge of T which S′ represents
+    // 6      For each such S', let EE' be the edge of T which S' represents
     //        and let E be the hyperedge farther away from S in T.
     //        Add E to a set bbE of hyperedges.
-    //        If S and S′ represent the same edge of T, also add E′.
+    //        If S and S' represent the same edge of T, also add E'.
 
     // 7      Partition bbE into two sets bbE_1 and bbE_2 based on which side
     //        of S they are in T.
@@ -469,7 +469,7 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
     // --- Line 2: Compute subset graph. ---
 
     // List of edges.
-    vector<intPair> ssgEdges = A(sepHg);
+    vector<intPair> ssgEdges = algo(sepHg);
 
 
     // -- Preprocessing for line 5. ---
@@ -507,7 +507,7 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
 
     for (int sId = 0; sId < sepHg.getESize(); sId++)
     {
-        // --- Line 5: Determine all S′ with S ⊆ S′ (including S). ---
+        // --- Line 5: Determine all S' with S ⊆ S' (including S). ---
 
         const vector<int>& spList = superSets[sId];
 
@@ -540,11 +540,11 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
             // x is a descendant of y if and only if
             // pre(x) > pre(y) and post(x) < post(y).
 
-            // There are four cases when determining which of E and E′ to pick:
-            // 1) If S and S′ represent the same edge, add E and E′.
-            // 2) If S′ is a descendant of S, add the child-hyperedge.
-            // 3) If S′ is an ancestor of S, add the parent-hyperedge.
-            // 4) If S′ is neither an ancestor nor a descendant of S,
+            // There are four cases when determining which of E and E' to pick:
+            // 1) If S and S' represent the same edge, add E and E'.
+            // 2) If S' is a descendant of S, add the child-hyperedge.
+            // 3) If S' is an ancestor of S, add the parent-hyperedge.
+            // 4) If S' is neither an ancestor nor a descendant of S,
             //    add the child-hyperedge.
 
             // Clearly, one side of S contains all its descendants and the other
@@ -583,9 +583,12 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
             }
 
             // Case 3.
+            // Never happens. Assume we have case 3. All vertices in S would be
+            // in the hyperedge above S'. Thus, the join tree algorithm sets
+            // the hyperedge above S' as parent of the hyperedge below S.
             else if (sIsDec)
             {
-                // S′ is an ancestor of S.
+                // S' is an ancestor of S.
                 // Hence, the hyperedge above S' is farther from and above S.
                 aboveList.push_back(parId);
             }
@@ -593,7 +596,7 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
             // Case 4.
             else
             {
-                // S′ is neither an ancestor nor a descendant of S.
+                // S' is neither an ancestor nor a descendant of S.
                 // Hence, the hyperedge below S' is farther from and above S.
                 aboveList.push_back(chiId);
             }
