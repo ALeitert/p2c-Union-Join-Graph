@@ -1,4 +1,5 @@
 #include "../dataStructures/maxCardinalitySet.h"
+#include "../dataStructures/reducedSet.h"
 #include "alphaAcyclic.h"
 #include "sorting.h"
 
@@ -418,7 +419,7 @@ orderPair joinTreeDfs(const vector<int>& joinTree)
 }
 
 // Computes the union join graph for a given acyclic hypergraph.
-Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
+Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo algo)
 {
     // Implements Algorithm 2 from my paper.
 
@@ -434,12 +435,12 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
 
     // 4  For Each S ∈ S_H
 
-    // 5      Use G_S to determine all separators S′ with S ⊆ S′ (including S).
+    // 5      Use G_S to determine all separators S' with S ⊆ S' (including S).
 
-    // 6      For each such S′, let EE′ be the edge of T which S′ represents
+    // 6      For each such S', let EE' be the edge of T which S' represents
     //        and let E be the hyperedge farther away from S in T.
     //        Add E to a set bbE of hyperedges.
-    //        If S and S′ represent the same edge of T, also add E′.
+    //        If S and S' represent the same edge of T, also add E'.
 
     // 7      Partition bbE into two sets bbE_1 and bbE_2 based on which side
     //        of S they are in T.
@@ -469,7 +470,7 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
     // --- Line 2: Compute subset graph. ---
 
     // List of edges.
-    vector<intPair> ssgEdges = A(sepHg);
+    vector<intPair> ssgEdges = algo(sepHg);
 
 
     // -- Preprocessing for line 5. ---
@@ -507,7 +508,7 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
 
     for (int sId = 0; sId < sepHg.getESize(); sId++)
     {
-        // --- Line 5: Determine all S′ with S ⊆ S′ (including S). ---
+        // --- Line 5: Determine all S' with S ⊆ S' (including S). ---
 
         const vector<int>& spList = superSets[sId];
 
@@ -540,11 +541,11 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
             // x is a descendant of y if and only if
             // pre(x) > pre(y) and post(x) < post(y).
 
-            // There are four cases when determining which of E and E′ to pick:
-            // 1) If S and S′ represent the same edge, add E and E′.
-            // 2) If S′ is a descendant of S, add the child-hyperedge.
-            // 3) If S′ is an ancestor of S, add the parent-hyperedge.
-            // 4) If S′ is neither an ancestor nor a descendant of S,
+            // There are four cases when determining which of E and E' to pick:
+            // 1) If S and S' represent the same edge, add E and E'.
+            // 2) If S' is a descendant of S, add the child-hyperedge.
+            // 3) If S' is an ancestor of S, add the parent-hyperedge.
+            // 4) If S' is neither an ancestor nor a descendant of S,
             //    add the child-hyperedge.
 
             // Clearly, one side of S contains all its descendants and the other
@@ -583,9 +584,12 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
             }
 
             // Case 3.
+            // Never happens. Assume we have case 3. All vertices in S would be
+            // in the hyperedge above S'. Thus, the join tree algorithm sets
+            // the hyperedge above S' as parent of the hyperedge below S.
             else if (sIsDec)
             {
-                // S′ is an ancestor of S.
+                // S' is an ancestor of S.
                 // Hence, the hyperedge above S' is farther from and above S.
                 aboveList.push_back(parId);
             }
@@ -593,7 +597,7 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
             // Case 4.
             else
             {
-                // S′ is neither an ancestor nor a descendant of S.
+                // S' is neither an ancestor nor a descendant of S.
                 // Hence, the hyperedge below S' is farther from and above S.
                 aboveList.push_back(chiId);
             }
@@ -638,5 +642,315 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A)
 
     wList.resize(eList.size(), 0);
 
+    return Graph(eList, wList);
+}
+
+// Computes the edges of the subset graph of the separator hypergraph.
+// Combines the computation of the separators with Pritchard's algorithm to avoid some overhead.
+vector<intPair> separatorSSG(const Hypergraph& hg, const vector<int>& joinTree, const vector<size_t>& postIdx)
+{
+    // This algorithm combines the computation of a separator hypergraph with
+    // Pritchard's algorithm for subset graphs. That way, we save the overhead
+    // of computing a hypergraph.
+
+    // Pritchard's algorithm determines for each vertex v the set X_v of
+    // hyperedges which contain v. It then intersects these sets.
+    // Observe that for each E_i in X_v, v is the the up-separator S_i of E_i if
+    // and only if E_i is not the root of the subtree induced by X_v.
+    // We use that observation when creating and processing the reduced sets
+    // during Pritchard's algorithm.
+
+
+    const size_t m = hg.getESize();
+    const size_t n = hg.getVSize();
+
+
+    // --- Determine Post-Order. ---
+
+    vector<int> postOrder;
+    postOrder.resize(m);
+
+    for (int eId = 0; eId < m; eId++)
+    {
+        size_t idx = postIdx[eId];
+        postOrder[idx] = eId;
+    }
+
+
+    // --- Determine highest hyperedge for each vertex. ---
+
+    vector<size_t> vMaxIdx;
+    vMaxIdx.resize(n, m + 1);
+
+    for (size_t eIdx = 0; eIdx < m; eIdx++)
+    {
+        int eId = postOrder[eIdx];
+        const vector<int>& vLst = hg[eId];
+
+        for (const int& vId : vLst)
+        {
+            vMaxIdx[vId] = eIdx;
+        }
+    }
+
+
+    // --- Create reduced sets for step 3. ---
+
+    ReducedSet vSets[n];
+    for (int vId = 0; vId < n; vId++)
+    {
+        // Ignore highest hyperedge that contains v.
+        int rootId = postOrder[vMaxIdx[vId]];
+        vSets[vId] = ReducedSet(hg(vId), rootId);
+    }
+
+
+    // --- Step 3) of Pritchard's algorithm. ---
+
+    vector<intPair> result;
+
+    for (int yId = 0; yId < m - 1 /* ignore root */; yId++)
+    {
+        const vector<int>& vertices = hg[yId];
+        if (vertices.size() <= 0) throw std::invalid_argument("Invalid hypergraph.");
+
+        // Compute F.y using the following relation:
+        // F.y = \bigcup_{d \in y} F.{d}
+
+
+        // -- Skip all vertices for which the current hyperedge is the root. --
+
+        size_t yPostIdx = postIdx[yId];
+        size_t firstIdx = 0;
+
+        for ( ; firstIdx < vertices.size(); firstIdx++)
+        {
+            int vId = vertices[firstIdx];
+            size_t vRoot = vMaxIdx[vId];
+            if (vRoot != yPostIdx) break;
+        }
+
+
+        // Initialise intersection with hyperedges of "first" vertex.
+        ReducedSet intersection(vSets[vertices[0 + firstIdx]]);
+
+        // Intersect with hyperedges of all other vertices.
+        for (int vIdx = 1 + firstIdx /* first done above */; vIdx < vertices.size(); vIdx++)
+        {
+            int vId = vertices[vIdx];
+
+            size_t vRoot = vMaxIdx[vId];
+            if (vRoot == yPostIdx) continue;
+
+            intersection &= vSets[vId];
+        }
+
+        // Intersection calculated. Add edges to result.
+        for (auto it = intersection.begin(); it != intersection.end(); ++it)
+        {
+            int xId = *it;
+            if (xId == yId) continue;
+
+            result.push_back(intPair(xId, yId));
+        }
+    }
+
+    Sorting::radixSort(result);
+    return result;
+}
+
+// Computes the union join graph for a given acyclic hypergraph.
+Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg)
+{
+    // --- Line 1: Compute join tree and separator hypergraph. ---
+
+    vector<int> joinTree = getJoinTree(hg);
+
+
+    // --- Preprocessing for lines 6 and 7. ---
+
+    // To determine which hyperedges are farther away and on which side of a
+    // separator they are, we compute pre- and post-order of the join tree.
+
+    orderPair jtDfs = joinTreeDfs(joinTree);
+
+    vector<size_t>& pre = jtDfs.first;
+    vector<size_t>& post = jtDfs.second;
+
+
+    // --- Line 2: Compute subset graph. ---
+
+    // List of edges.
+    vector<intPair> ssgEdges = separatorSSG(hg, joinTree, post);
+
+
+    // -- Preprocessing for line 5. ---
+
+    // We later want to get the larger sets of a given set.
+    // We therefore build a structure that allows to do that easily.
+
+    vector<vector<int>> superSets;
+    superSets.resize(hg.getESize() - 1);
+
+    // Add separators themself.
+    for (int sId = 0; sId < superSets.size(); sId++)
+    {
+        superSets[sId].push_back(sId);
+    }
+
+    // Add all subset relations.
+    for (const intPair& edge : ssgEdges)
+    {
+        // An edge points from the large (.first) to the small (.second) set.
+        const int& lrgId = edge.first;
+        const int& smlId = edge.second;
+
+        superSets[smlId].push_back(lrgId);
+    }
+
+
+    // --- Line 3: Create empty union join graph. ---
+
+    vector<intPair> eList;
+    vector<int> wList; // Will all be 0.
+
+
+    // --- Line 4: Loop over all separators S. ---
+
+    for (int sId = 0; sId < hg.getESize() - 1; sId++)
+    {
+        // --- Line 5: Determine all S' with S ⊆ S' (including S). ---
+
+        const vector<int>& spList = superSets[sId];
+
+
+        // --- Line 6: For each, S' determine hyperedges it represents. ---
+        //     Line 7: Partition then based on their side of S in T.
+
+
+        // All hyperedges that are below S, i.e., descendants of S in T.
+        vector<int> downList; // bbE_1 in paper.
+
+        // All hyperedges that are above S, i.e., not descendants of S in T.
+        vector<int> aboveList; // bbE_2 in paper.
+
+
+        for (const int& spId : spList)
+        {
+            // Hyperedge below S'.
+            // The way the sparator hypergraph is created, each separator has
+            // the same ID as the hyperedge below it in the rooted join tree.
+            int chiId = spId;
+
+            // Hyperedge above S'.
+            int parId = joinTree[chiId];
+
+
+            // ----------------------------------
+            // From proof in paper:
+
+            // x is a descendant of y if and only if
+            // pre(x) > pre(y) and post(x) < post(y).
+
+            // There are four cases when determining which of E and E' to pick:
+            // 1) If S and S' represent the same edge, add E and E'.
+            // 2) If S' is a descendant of S, add the child-hyperedge.
+            // 3) If S' is an ancestor of S, add the parent-hyperedge.
+            // 4) If S' is neither an ancestor nor a descendant of S,
+            //    add the child-hyperedge.
+
+            // Clearly, one side of S contains all its descendants and the other
+            // side all remaining hyperedges and separators.
+
+            // ----------------------------------
+
+
+            // -- Determine ancestor/descendant relationship. --
+
+            // We use the ID of the hyperedge below S and S' (which give S and
+            // S' their IDs). If we would compute a pre- or post-order of T
+            // where we treat separators as their own nodes, they would be
+            // directly before (in pre-) or after (in post-) their corresponding
+            // hyperedge. Thus, we still determine ancestory correctly.
+
+            bool sIsDec = pre[sId] > pre[spId] && post[sId] < post[spId];
+            bool sIsAnc = pre[spId] > pre[sId] && post[spId] < post[sId];
+
+
+            // -- Add hyperedges. --
+
+            // Case 1.
+            if (spId == sId)
+            {
+                downList.push_back(chiId);
+                aboveList.push_back(parId);
+            }
+
+            // Case 2.
+            else if (sIsAnc)
+            {
+                // S' is a descendent of S.
+                // Hence, the hyperedge below S' is farther from and below S.
+                downList.push_back(chiId);
+            }
+
+            // Case 3.
+            // Never happens. Assume we have case 3. All vertices in S would be
+            // in the hyperedge above S'. Thus, the join tree algorithm sets
+            // the hyperedge above S' as parent of the hyperedge below S.
+            else if (sIsDec)
+            {
+                // S' is an ancestor of S.
+                // Hence, the hyperedge above S' is farther from and above S.
+                aboveList.push_back(parId);
+            }
+
+            // Case 4.
+            else
+            {
+                // S' is neither an ancestor nor a descendant of S.
+                // Hence, the hyperedge below S' is farther from and above S.
+                aboveList.push_back(chiId);
+            }
+        }
+
+
+        // --- Line 8: Add all E_1E_2 pairs. ---
+
+        for (const int& e1 : downList)
+        {
+            for (const int& e2 : aboveList)
+            {
+                // Ensure that from > to.
+                int fId = max(e1, e2);
+                int tId = min(e1, e2);
+
+                eList.push_back(sizePair(fId, tId));
+            }
+        }
+    }
+
+    Sorting::radixSort(eList);
+
+    // Remove duplicates.
+    if (eList.size() > 1)
+    {
+        size_t preIdx = 0;
+
+        for (size_t i = 1; i < eList.size(); i++)
+        {
+            intPair prev = eList[preIdx];
+            intPair curr = eList[i];
+
+            if (prev == curr) continue;
+
+            preIdx++;
+            eList[preIdx] = curr;
+        }
+
+        eList.resize(preIdx + 1);
+    }
+
+    wList.resize(eList.size(), 0);
     return Graph(eList, wList);
 }

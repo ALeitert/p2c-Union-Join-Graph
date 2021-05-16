@@ -55,6 +55,11 @@ public:
     // Assumes that the given list is sorted.
     ReducedSet(const vector<int>& list);
 
+    // Constructor.
+    // Creates a set from a list of elements while ignoring one of them.
+    // Assumes that the given list is sorted.
+    ReducedSet(const vector<int>& list, int ignore);
+
     // Destructor.
     ~ReducedSet();
 

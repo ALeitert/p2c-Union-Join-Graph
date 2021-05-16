@@ -24,6 +24,9 @@ namespace AlphaAcyclic
 
     // Computes the union join graph for a given acyclic hypergraph.
     Graph unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo A);
+
+    // Computes the union join graph for a given acyclic hypergraph.
+    Graph unionJoinGraph(const Hypergraph& hg);
 }
 
 #endif
