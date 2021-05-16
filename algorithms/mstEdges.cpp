@@ -171,7 +171,7 @@ vector<intPair> MstEdges::kruskal(const Graph& g)
         for (size_t vIdx = 0; vIdx < neighs.size(); vIdx++)
         {
             int vId = neighs[vIdx];
-            if (vId <= uId) continue;
+            if (vId >= uId) break;
 
             int uvWei = weights[vIdx];
             edgeList.push_back(pair<int, sizePair>(-uvWei, sizePair(uId, vId))); // times -1 because we want a MaxST.

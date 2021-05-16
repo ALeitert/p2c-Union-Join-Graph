@@ -1,7 +1,9 @@
 #include <cassert>
+#include <unordered_map>
 
 #include "../algorithms/sorting.h"
 #include "hypergraph.h"
+
 
 // Default constructor.
 // Creates an empty hypergraph.
@@ -167,4 +169,80 @@ void Hypergraph::print(ostream& out) const
 
         out << endl;
     }
+}
+
+
+// Computes the weighted linegraph of the hypergraph.
+Graph Hypergraph::getLinegraph() const
+{
+    // We compute the linegraph by running a BFS-ish search on each hyperedge in
+    // the incidence graph. The search is limited to two hops. Each hyperedge
+    // the search reaches is counted in a hash table. That count becomes the
+    // weight of the corresponding linegraph edge.
+
+    const size_t m = getESize();
+
+    vector<vector<intPair>> edgeList;
+    edgeList.resize(m);
+
+    size_t totalSize = 0;
+
+
+    for (int toId = 0; toId < m; toId++)
+    {
+        unordered_map<int, int> map;
+        const vector<int>& vList = operator[](toId);
+
+        for (const int& vId : vList)
+        {
+            const vector<int>& eList = operator()(vId);
+
+            for (size_t i = eList.size() - 1; i < eList.size(); i--)
+            {
+                int frId = eList[i];
+                if (frId <= toId) break;
+
+                if (map.count(frId) == 0)
+                {
+                    map.emplace(frId, 0);
+                }
+
+                map[frId]++;
+            }
+        }
+
+        for (auto& ewPair : map)
+        {
+            int frId = ewPair.first;
+            int weig = ewPair.second;
+
+            edgeList[frId].push_back(intPair(toId, weig));
+        }
+
+        totalSize += map.size();
+    }
+
+    vector<intPair> pairList;
+    vector<int> weigList;
+
+    pairList.resize(totalSize);
+    weigList.resize(totalSize);
+
+    size_t ptr = 0;
+
+    for (int frId = 0; frId < m; frId++)
+    {
+        for (size_t i = 0; i < edgeList[frId].size(); i++)
+        {
+            int toId = edgeList[frId][i].first;
+            int weig = edgeList[frId][i].second;
+
+            pairList[ptr] = intPair(frId, toId);
+            weigList[ptr] = weig;
+
+            ptr++;
+        }
+    }
+
+    return Graph(pairList, weigList);
 }
