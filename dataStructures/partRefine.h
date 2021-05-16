@@ -5,6 +5,9 @@
 
 
 #include <cstdlib>
+#include <vector>
+
+using namespace std;
 
 
 class PartRefinement
@@ -31,7 +34,17 @@ public:
 
 private:
 
+    // All groups (not in order).
+    vector<Group> groups;
 
+    // All IDs in their current order.
+    vector<int> order;
+
+    // States for each ID in which group it is.
+    vector<size_t> id2Grp;
+
+    // States for each ID where it is in the order.
+    vector<size_t> id2Ord;
 };
 
 #endif
