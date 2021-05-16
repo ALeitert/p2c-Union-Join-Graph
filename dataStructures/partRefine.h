@@ -21,8 +21,9 @@ class PartRefinement
         // The index of the last element in the group (inclusive).
         size_t end = 0;
 
-        // The index of the next group.
-        size_t nextId = 0;
+        // The indices previous and next group.
+        size_t prev = 0;
+        size_t next = 0;
 
         // A temporary counter how many elements will be removed from the group.
         size_t count = 0;
@@ -44,6 +45,13 @@ private:
 
     // All groups (not in order).
     vector<Group> groups;
+
+    // The indices of first and last group.
+    size_t fGrpIdx = 0;
+    size_t lGrpIdx = 0;
+
+    // The total number of non-empty groups.
+    size_t grpCount = 0;
 
     // All IDs in their current order.
     vector<int> order;
