@@ -45,6 +45,10 @@ public:
     void refine(const vector<int>& idList);
 
 
+    // The current number of non-empty groups.
+    size_t size() const;
+
+
 private:
 
     // All groups (not in order).

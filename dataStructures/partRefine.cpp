@@ -105,3 +105,9 @@ void PartRefinement::refine(const vector<int>& idList)
         }
     }
 }
+
+// The current number of non-empty groups.
+size_t PartRefinement::size() const
+{
+    return grpCount;
+}
