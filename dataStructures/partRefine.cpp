@@ -1,3 +1,4 @@
+#include <cassert>
 #include <stdexcept>
 
 #include "partRefine.h"
@@ -98,6 +99,176 @@ void PartRefinement::refine(const vector<int>& idList)
             Group& nextGrp = groups[newGrp.next];
             nextGrp.prev = newGrpIdx;
         }
+
+        // Update references for IDs in group.
+        for (size_t i = newGrp.start; i <= newGrp.end; i++)
+        {
+            int vId = order[i];
+            id2Grp[vId] = newGrpIdx;
+        }
+    }
+}
+
+// Refines the the first and last group that contain any of the given IDs.
+// Refinement happens towards each other instead of towards the end.
+void PartRefinement::flRefine(const vector<int>& idList)
+{
+    // --- Find first and last group. ---
+
+    size_t lstIdx = 0;
+    int id0 = -1;
+
+    for (; lstIdx < idList.size(); lstIdx++)
+    {
+        int id = idList[lstIdx];
+        size_t grpIdx = id2Grp[id];
+
+        if (grpIdx == -1) continue;
+
+        id0 = id;
+        break;
+    }
+    assert(id0 != -1);
+
+    size_t f_GrpIdx = id2Grp[id0];
+    size_t l_GrpIdx = id2Grp[id0];
+
+    // IDs that are in the first or last group, respectively.
+    vector<int> inFirst;
+    vector<int> inLast;
+
+    for (; lstIdx < idList.size(); lstIdx++)
+    {
+        int id = idList[lstIdx];
+        size_t grpIdx = id2Grp[id];
+        if (grpIdx == -1) continue;
+
+        Group& f_Grp = groups[f_GrpIdx];
+        Group& l_Grp = groups[l_GrpIdx];
+
+        Group& grp = groups[grpIdx];
+
+        if (grp.start < f_Grp.start)
+        {
+            f_GrpIdx = grpIdx;
+            inFirst.clear();
+        }
+
+        if (grp.end > l_Grp.end)
+        {
+            f_GrpIdx = grpIdx;
+            inLast.clear();
+        }
+
+        if (grpIdx == f_GrpIdx) inFirst.push_back(id);
+        if (grpIdx == l_GrpIdx) inLast.push_back(id);
+    }
+
+    assert(f_GrpIdx != l_GrpIdx);
+
+
+    // --- Flag IDs in first group and move to the ond of the group. ---
+
+    Group& f_Grp = groups[f_GrpIdx];
+
+    for (const int& id : inFirst)
+    {
+        // Move to end of group.
+        int endId = order[f_Grp.end - f_Grp.count];
+
+        size_t& ordIdx = id2Ord[id];
+        size_t& endIdx = id2Ord[endId];
+
+        swap(order[ordIdx], order[endIdx]);
+        swap(ordIdx, endIdx);
+
+        f_Grp.count++;
+    }
+
+
+    // --- Flag IDs in last group and move to the beginning of the group. ---
+
+    Group& l_Grp = groups[l_GrpIdx];
+
+    for (const int& id : inLast)
+    {
+        // Move to beginning of group.
+        int startId = order[l_Grp.start + l_Grp.count];
+
+        size_t& orderIdx = id2Ord[id];
+        size_t& startIdx = id2Ord[startId];
+
+        swap(order[orderIdx], order[startIdx]);
+        swap(orderIdx, startIdx);
+
+        l_Grp.count++;
+    }
+
+
+    // --- Split first group. ---
+
+    // Full group marked?
+    if (f_Grp.end - f_Grp.start + 1 == f_Grp.count)
+    {
+        // No need to split.
+        f_Grp.count = 0;
+    }
+    else
+    {
+        size_t newGrpIdx = groups.size();
+        groups.push_back(Group());
+        Group& newGrp = groups.back();
+        grpCount++;
+
+        newGrp.end = f_Grp.end;
+        newGrp.start = f_Grp.end - f_Grp.count + 1;
+        newGrp.prev = f_GrpIdx;
+        newGrp.next = f_Grp.next;
+
+        f_Grp.end -= f_Grp.count;
+        f_Grp.next = newGrpIdx;
+        f_Grp.count = 0;
+
+        // Note that, since f_GrpIdx != l_GrpIdx, f_Grp cannot be the last group
+        // in the data structure overall, i.e., there is a next group.
+        Group& nextGrp = groups[newGrp.next];
+        nextGrp.prev = newGrpIdx;
+
+        // Update references for IDs in group.
+        for (size_t i = newGrp.start; i <= newGrp.end; i++)
+        {
+            int vId = order[i];
+            id2Grp[vId] = newGrpIdx;
+        }
+    }
+
+
+    // --- Split last group. ---
+
+    // Full group marked?
+    if (l_Grp.end - l_Grp.start + 1 == l_Grp.count)
+    {
+        // No need to split.
+        l_Grp.count = 0;
+    }
+    else
+    {
+        size_t newGrpIdx = groups.size();
+        groups.push_back(Group());
+        Group& newGrp = groups.back();
+        grpCount++;
+
+        newGrp.start = l_Grp.start;
+        newGrp.end = l_Grp.start + l_Grp.count - 1;
+        newGrp.prev = l_Grp.prev;
+        newGrp.next = l_GrpIdx;
+
+        l_Grp.start += l_Grp.count;
+        l_Grp.prev = newGrpIdx;
+        l_Grp.count = 0;
+
+        Group& prevGrp = groups[newGrp.prev];
+        prevGrp.next = newGrpIdx;
 
         // Update references for IDs in group.
         for (size_t i = newGrp.start; i <= newGrp.end; i++)

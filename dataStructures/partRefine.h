@@ -44,6 +44,10 @@ public:
     // Refines the current groups based on the given list of IDs.
     void refine(const vector<int>& idList);
 
+    // Refines the the first and last group that contain any of the given IDs.
+    // Refinement happens towards each other instead of towards the end.
+    void flRefine(const vector<int>& idList);
+
 
     // The current number of non-empty groups.
     size_t size() const;
