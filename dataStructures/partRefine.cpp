@@ -285,6 +285,12 @@ size_t PartRefinement::size() const
     return grpCount;
 }
 
+// Returns the current order.
+const vector<int>& PartRefinement::getOrder() const
+{
+    return order;
+}
+
 // Returns the last ID in the last group.
 int PartRefinement::last() const
 {

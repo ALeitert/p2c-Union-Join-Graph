@@ -52,6 +52,9 @@ public:
     // The current number of non-empty groups.
     size_t size() const;
 
+    // Returns the current order.
+    const vector<int>& getOrder() const;
+
 
     // Returns the last ID in the last group.
     int last() const;
