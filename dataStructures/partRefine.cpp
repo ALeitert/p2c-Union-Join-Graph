@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "partRefine.h"
 
 
@@ -110,4 +112,46 @@ void PartRefinement::refine(const vector<int>& idList)
 size_t PartRefinement::size() const
 {
     return grpCount;
+}
+
+// Returns the last ID in the last group.
+int PartRefinement::last() const
+{
+    if (size() == 0) throw logic_error("Data structure is empty.");
+
+    const Group& grp = groups[lGrpIdx];
+    return order[grp.end];
+}
+
+// "Removes" the last ID in the order from its group.
+// If the group becomes empty, it will be removed.
+void PartRefinement::dropLast()
+{
+    if (size() == 0) throw logic_error("Data structure is empty.");
+
+    // Last group.
+    Group& grp = groups[lGrpIdx];
+
+    // Update ID.
+    int lastId = order[grp.end];
+    id2Grp[lastId] = -1;
+
+
+    if (grp.start == grp.end)
+    {
+        // Single element. Remove group.
+
+        lGrpIdx = grp.prev;
+        grpCount--;
+
+        if (grpCount > 0)
+        {
+            groups[lGrpIdx].next = -1;
+        }
+    }
+    else
+    {
+        // Multiple elements in group. Just shift the end.
+        grp.end--;
+    }
 }

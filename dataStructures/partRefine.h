@@ -49,6 +49,14 @@ public:
     size_t size() const;
 
 
+    // Returns the last ID in the last group.
+    int last() const;
+
+    // "Removes" the last ID in the order from its group.
+    // If the group becomes empty, it will be removed.
+    void dropLast();
+
+
 private:
 
     // All groups (not in order).
