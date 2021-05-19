@@ -1,3 +1,4 @@
+#include "../dataStructures/partRefine.h"
 #include "interval.h"
 #include "sorting.h"
 
@@ -131,6 +132,109 @@ Hypergraph Interval::genrate(size_t m, size_t N)
     return Hypergraph(pairList);
 }
 
+// Helper for LexBfs.
+typedef pair<vector<int>, vector<int>> idOrderPair;
+
+// Helper function to compute a LexBFS of the vertices in the given hypergraph.
+// Returns a list of all hyperedges and vertices in LexBFS order.
+idOrderPair lexBfs(const Hypergraph& hg)
+{
+    // --- Algorithm 10 ---
+
+    //  Input: A family of sets F.
+    // Output: A LexBFS-Ordering of the vertices of F.
+
+    //  1  Let L = (F).
+    //  2  Set i := n.
+
+    //  3  While L is not empty
+    //  4      Let C be a clique in the right-most class in L.
+    //  5      Pick an unnumbered vertex x from C.
+    //  6      Set pi(x) := i.
+
+    //  7      If all members of C are now numbered, then remove it from its class.
+    //         If its class is now empty, then remove it from L.
+
+    //  8      For Each class X_a in L
+    //  9          Let Y be the members of X_a that contain x.
+    // 10          If Y is not empty and Y != X_a, then remove Y from X_a and insert Y(?) to the right of X_a in L.
+
+
+
+    const size_t n = hg.getVSize();
+    const size_t m = hg.getESize();
+
+
+    // --- Line 1 ---
+
+    // Add all hyperedge-IDs into one list.
+    PartRefinement L(m);
+
+    // States the current position in each hyperedge.
+    vector<size_t> edgeIdx;
+    edgeIdx.resize(m, 0);
+
+
+    // --- Line 2 ---
+
+    vector<int> vLexOrder;
+    vector<bool> inOrder(n, false);
+
+
+    // --- Line 3 ---
+
+    while (L.size() > 0)
+    {
+        // --- Line 4 ---
+
+        // Hyperedge C in last class.
+        int cId = L.last();
+        const vector<int>& cEdge = hg[cId];
+
+
+        // --- Line 5 ---
+
+        // Find unnumbered vertex in C.
+        size_t& xIdx = edgeIdx[cId];
+        int xId = -1;
+        for (; xIdx < cEdge.size(); xIdx++)
+        {
+            xId = cEdge[xIdx];
+            if (!inOrder[xId]) break;
+        }
+
+
+        // --- Line 6 ---
+
+        if (xIdx < cEdge.size())
+        {
+            // Found an unnumbered vertex.
+            // Add it to LexBFS-order and "remove" it from C.
+
+            inOrder[xId] = true;
+            vLexOrder.push_back(xId);
+            xIdx++;
+        }
+
+
+        // --- Line 7 ---
+
+        // If all vertices in C are numbered, ...
+        if (xIdx >= cEdge.size())
+        {
+            // ... then remove it from L.
+            L.dropLast();
+        }
+
+
+        // --- Line 8 + 9 + 10 ---
+
+        if (xId >= 0) L.refine(hg(xId));
+    }
+
+    return idOrderPair(L.getOrder(), vLexOrder);
+}
+
 // Computes a join path of a given hypergraph.
 // Returns a list that contains the parent-ID for each hyperedge.
 // Returns an empty list if the hypergraph is not an interval hypergraph.
@@ -158,7 +262,6 @@ vector<int> getJoinPath(const Hypergraph& hg)
     //  7          Let C_l be the last clique in X_C discovered by the LexBFS (the clique with the greatest number).
     //  8          Replace X_C by X_C \ { C_l }, { C_l } in L.
     //  9          C = { C_l }
-
     // 10      Else
     // 11          Pick an unprocessed vertex x in pivots (throw away processed ones) and let C be the set of all maximal cliques containing X.
     // 12          Let X_a and X_b be the first and last classes containing a member of C.
@@ -173,27 +276,8 @@ vector<int> getJoinPath(const Hypergraph& hg)
     // 19          Return "Not interval."
     // 20      Return "Interval."
 
+    // We use a different test for acyclicity. We use the one from the join tree algorithm.
 
-
-    // --- Algorithm 10 ---
-
-    //  Input: A family of sets F.
-    // Output: A LexBFS-Ordering of the vertices of F.
-
-    //  1  Let L = (F).
-    //  2  Set i := n.
-
-    //  3  While L is not empty
-    //  4      Let C be a clique in the right-most class in L.
-    //  5      Pick an unnumbered vertex x from C.
-    //  6      Set pi(x) := i.
-
-    //  7      If all members of C are now numbered, then remove it from its class.
-    //         If its class is now empty, then remove it from L.
-
-    //  8      For Each class X_a in L
-    //  9          Let Y be the members of X_a that contain x.
-    // 10          If Y is not empty and Y != X_a, then remove Y from X_a and insert Y(?) to the right of X_a in L.
 
     return vector<int>();
 }
