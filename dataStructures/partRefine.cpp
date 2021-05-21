@@ -12,6 +12,10 @@ PartRefinement::PartRefinement() { /* Do nothing. */ }
 // Creates a partition refinement of size k.
 PartRefinement::PartRefinement(size_t k)
 {
+    // Make sure vector is large enough.
+    // Prevents an error in refine() when adding a new group can destroy references.
+    groups.reserve(k);
+
     // One group containing all.
     groups.push_back(Group());
     groups[0].end = k - 1;
@@ -156,7 +160,7 @@ void PartRefinement::flRefine(const vector<int>& idList)
 
         if (grp.end > l_Grp.end)
         {
-            f_GrpIdx = grpIdx;
+            l_GrpIdx = grpIdx;
             inLast.clear();
         }
 
@@ -165,6 +169,8 @@ void PartRefinement::flRefine(const vector<int>& idList)
     }
 
     assert(f_GrpIdx != l_GrpIdx);
+    assert(inFirst.size() > 0);
+    assert(inLast.size() > 0);
 
 
     // --- Flag IDs in first group and move to the ond of the group. ---
@@ -229,10 +235,15 @@ void PartRefinement::flRefine(const vector<int>& idList)
         f_Grp.next = newGrpIdx;
         f_Grp.count = 0;
 
-        // Note that, since f_GrpIdx != l_GrpIdx, f_Grp cannot be the last group
-        // in the data structure overall, i.e., there is a next group.
-        Group& nextGrp = groups[newGrp.next];
-        nextGrp.prev = newGrpIdx;
+        if (lGrpIdx == f_GrpIdx)
+        {
+            lGrpIdx = newGrpIdx;
+        }
+        else
+        {
+            Group& nextGrp = groups[newGrp.next];
+            nextGrp.prev = newGrpIdx;
+        }
 
         // Update references for IDs in group.
         for (size_t i = newGrp.start; i <= newGrp.end; i++)
@@ -267,8 +278,15 @@ void PartRefinement::flRefine(const vector<int>& idList)
         l_Grp.prev = newGrpIdx;
         l_Grp.count = 0;
 
-        Group& prevGrp = groups[newGrp.prev];
-        prevGrp.next = newGrpIdx;
+        if (fGrpIdx == l_GrpIdx)
+        {
+            fGrpIdx = newGrpIdx;
+        }
+        else
+        {
+            Group& prevGrp = groups[newGrp.prev];
+            prevGrp.next = newGrpIdx;
+        }
 
         // Update references for IDs in group.
         for (size_t i = newGrp.start; i <= newGrp.end; i++)
