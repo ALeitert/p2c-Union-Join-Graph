@@ -63,6 +63,13 @@ public:
     // If the group becomes empty, it will be removed.
     void dropLast();
 
+    // Drops all groups at the end which only contain one element.
+    // Returns false if the data structure is empty afterwards.
+    bool dropSingles();
+
+    // Determines if the given ID is either dropped or allone in its group.
+    bool isDroppedOrSingle(int id) const;
+
 
 private:
 

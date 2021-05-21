@@ -350,3 +350,35 @@ void PartRefinement::dropLast()
         grp.end--;
     }
 }
+
+// Drops all groups at the end which only contain one element.
+// Returns false if the data structure is empty afterwards.
+bool PartRefinement::dropSingles()
+{
+    if (size() == 0) return false;
+
+    while (size() > 0 && groups[lGrpIdx].start == groups[lGrpIdx].end)
+    {
+        lGrpIdx = groups[lGrpIdx].prev;
+        grpCount--;
+
+        if (grpCount > 0)
+        {
+            groups[lGrpIdx].next = -1;
+        }
+    }
+
+    return size() > 0;
+}
+
+// Determines if the given ID is in a group with additional IDs.
+bool PartRefinement::isDroppedOrSingle(int id) const
+{
+    assert(id >= 0 && id < id2Grp.size());
+
+    size_t grpIdx = id2Grp[id];
+    if (grpIdx == -1) return true;
+
+    const Group& grp = groups[grpIdx];
+    return grp.start == grp.end;
+}
