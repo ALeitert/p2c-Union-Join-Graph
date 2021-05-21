@@ -13,35 +13,14 @@ Hypergraph Interval::genrate(size_t m, size_t N)
     // --- Generate a random tree. ---
 
     // Random permutation.
-    int edgeIds[m];
-    Sorting::makePermutation(edgeIds, m - 1);
-
-    // We ensure that largest ID is last because we want it to become the root.
-    int rootId = m - 1;
-    edgeIds[rootId] = rootId;
-
-    int parIds[m];
-    parIds[rootId] = -1;
-
-    for (size_t i = 1; i < m; i++)
-    {
-        // Parent is succeding hyperedge.
-        int eId = edgeIds[i - 1];
-        int pId = edgeIds[i];
-
-        parIds[eId] = pId;
-    }
+    vector<int> edgeIds(m);
+    Sorting::makePermutation(edgeIds.data(), m);
 
 
     // --- Determine size of each hyperedge. ---
 
-    size_t eSize[m];
-
     // At least one vertex in each hyperedge.
-    for (size_t i = 0; i < m; i++)
-    {
-        eSize[i] = 1;
-    }
+    vector<size_t> eSize(m, 1);
 
     // Randoly assign remaining vertices.
     for (size_t i = m; i < N; i++)
@@ -54,22 +33,23 @@ Hypergraph Interval::genrate(size_t m, size_t N)
     // --- Determine shared vertices between hyperedges and their parenst. ---
 
     // List of vertices in each hyperedge.
-    vector<int> vLists[m];
+    vector<vector<int>> vLists(m);
 
     // Total number of vertices.
     size_t n = 0;
 
     // Vertices in the root.
-    for (; n < eSize[rootId]; n++)
+    for (int rId = edgeIds[0]; n < eSize[rId]; n++)
     {
-        vLists[rootId].push_back(n);
+        vLists[rId].push_back(n);
     }
 
     // Remaining hyperedges.
     for (size_t i = 1; i < m; i++)
     {
-        int eId = edgeIds[i]; // current hyperedge
-        int pId = parIds[eId]; // parent
+        // Parent is preceding hyperedge.
+        int eId = edgeIds[i];
+        int pId = edgeIds[i - 1];
 
         size_t eS = eSize[eId];
         size_t pS = eSize[pId];
@@ -97,8 +77,9 @@ Hypergraph Interval::genrate(size_t m, size_t N)
 
     // --- Shuffle vertex IDs. ---
 
-    int vIds[n];
-    Sorting::makePermutation(vIds, n);
+    vector<int> vIds;
+    vIds.resize(n);
+    Sorting::makePermutation(vIds.data(), n);
 
     for (size_t i = 0; i < m; i++)
     {
