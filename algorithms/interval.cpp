@@ -1,4 +1,5 @@
 #include "../dataStructures/partRefine.h"
+#include "alphaAcyclic.h"
 #include "interval.h"
 #include "sorting.h"
 
@@ -217,12 +218,10 @@ idOrderPair lexBfs(const Hypergraph& hg)
 }
 
 // Computes a join path of a given hypergraph.
-// Returns a list that contains the parent-ID for each hyperedge.
+// Returns an order of hyperedges that is a valid join path.
 // Returns an empty list if the hypergraph is not an interval hypergraph.
-vector<int> getJoinPath(const Hypergraph& hg)
+vector<int> Interval::getJoinPath(const Hypergraph& hg)
 {
-    throw runtime_error("Not implemented.");
-
     // M. Habib, R. McConnell, C. Paul, L. Viennot:
     // Lex-BFS and partition refinement, with applicationsto transitive orientation, interval graph recognition and consecutive ones testing.
     // Theoretical Computer Science 234, 59-84, 2000.
@@ -244,7 +243,7 @@ vector<int> getJoinPath(const Hypergraph& hg)
     //  8          Replace X_C by X_C \ { C_l }, { C_l } in L.
     //  9          C = { C_l }
     // 10      Else
-    // 11          Pick an unprocessed vertex x in pivots (throw away processed ones) and let C be the set of all maximal cliques containing X.
+    // 11          Pick an unprocessed vertex x in pivots (throw away processed ones) and let C be the set of all maximal cliques containing x.
     // 12          Let X_a and X_b be the first and last classes containing a member of C.
     // 13          Replace X_a by X_a \ C, X_a \cap C and X_b by X_b \cap C, X_b \ C.
 
@@ -257,8 +256,226 @@ vector<int> getJoinPath(const Hypergraph& hg)
     // 19          Return "Not interval."
     // 20      Return "Interval."
 
-    // We use a different test for acyclicity. We use the one from the join tree algorithm.
 
 
-    return vector<int>();
+    const size_t n = hg.getVSize();
+    const size_t m = hg.getESize();
+
+    if (m == 1) return vector<int> { -1 };
+
+
+    // --- Lines 1 - 4 ---
+
+    vector<int> joinTree = AlphaAcyclic::getJoinTree(hg);
+
+    // Hypergraph acyclic?
+    if (joinTree.size() == 0) return vector<int>();
+
+    PartRefinement L(m);
+
+    // Run LexBFS.
+    idOrderPair lexBfsOrd = lexBfs(hg);
+    vector<int>& eOrder = lexBfsOrd.first;
+    vector<int>& vOrder = lexBfsOrd.second;
+
+    // Stack for vertices.
+    vector<int> pivot;
+
+    // Processed vertices.
+    vector<bool> processed(n, false);
+
+
+    // --- Preprocessing for lines 14 - 16 ---
+
+    // Allows to flag parts of the join tree.
+    vector<bool> eFlags(m, false);
+
+    // Convert to adjacency list.
+    vector<vector<int>> tree;
+    tree.resize(m);
+
+    for (int eId = 0; eId < m; eId++)
+    {
+        int pId = joinTree[eId];
+        if (pId == -1) continue;
+
+        tree[eId].push_back(pId);
+        tree[pId].push_back(eId);
+    }
+
+
+
+    // --- Line 5 ---
+
+    for (auto eIt = eOrder.begin(); L.dropSingles();)
+    {
+        // -- Clear processed vertices from stack. --
+
+        // We divert here from the given algorithm. The paper assumes that no
+        // hyperedge is subset of or equal to another. The autors suggest to add
+        // a dummy vertex into each hyperedge to ensure that. If two hyperedges
+        // E_1 and E_2 are equal, it can happen that the stack (pivot) only
+        // contains proccesd vertices while at the same time E_1 and E_2 are
+        // still in the same group of the partition refinement. That causes an
+        // exception when strictly following the given algorithm. To avoid that
+        // problem, we remove processed vertices from the stack at the beginning
+        // of each loop. As result, out implementation runs lines 7 to 9 instead
+        // of lines 11 to 13.
+
+        for (; pivot.size() > 0 && processed[pivot.back()]; pivot.pop_back()) { }
+
+
+        // Set of hyperedges to process in lines 14 to 16.
+        vector<int> C;
+
+
+        // --- Line 6 ---
+
+        if (pivot.size() == 0)
+        {
+            // --- Line 7 ---
+
+            for (; eIt != eOrder.end() && L.isDroppedOrSingle(*eIt); ++eIt) { }
+            int eId = *eIt;
+
+
+            // --- Line 9 + 8 ---
+
+            C.push_back(eId);
+            L.refine(C);
+        }
+        else
+        {
+            // --- Line 11 ---
+
+            // No need to processed vertices from stack here, since we do that
+            // above at the beginning of the for-loop.
+
+            int xId = pivot.back();
+            processed[xId] = true;
+
+
+            // --- Line 12 + 13 ---
+
+            C = hg(xId);
+            L.flRefine(C);
+        }
+
+
+        // --- Line 14 ---
+
+        // Set a flag for all hyperedges in C. That way, we can quickly identify
+        // if a hyperedge is in C or not.
+        for (const int& eId : C) eFlags[eId] = true;
+
+        // Iterate over all C_i in C.
+        for (const int& eiId : C)
+        {
+            // Parent and neighbours of C_i.
+            int& iPar = joinTree[eiId];
+            vector<int>& neighs = tree[eiId];
+
+            // Vertices in C_i.
+            const vector<int>& iList = hg[eiId];
+
+            // Iterate over all neighbous of C_i to find a C_j not in C.
+            for (size_t nIdx = 0; nIdx < neighs.size(); nIdx++)
+            {
+                int ejId = neighs[nIdx];
+                int& jPar = joinTree[ejId];
+
+                // Edge still in tree?
+                if (iPar != ejId && jPar != eiId)
+                {
+                    // No. Remove neighbour from list.
+                    neighs[nIdx] = neighs.back();
+                    neighs.pop_back();
+
+                    // Next iteration.
+                    nIdx--;
+                    continue;
+                }
+
+                // If in C, skip.
+                if (eFlags[ejId]) continue;
+
+
+                // --- Line 15 ---
+
+                // We found a C_j not in C.
+
+                // Vertices in C_j.
+                const vector<int>& jList = hg[ejId];
+
+                // Add intersection of C_i and C_j onto stack (pivot).
+                for (size_t i = 0, j = 0; i < iList.size() && j < jList.size();)
+                {
+                    int viId = iList[i];
+                    int vjId = jList[j];
+
+                    if (viId <= vjId) i++;
+                    if (viId >= vjId) j++;
+
+                    if (viId == vjId) pivot.push_back(viId);
+                }
+
+
+                // --- Line 16 ---
+
+                // Remove tree edge C_iC_j ...
+
+                // ... from list.
+                neighs[nIdx] = neighs.back();
+                neighs.pop_back();
+                nIdx--;
+
+                // ... from tree.
+                if (iPar == ejId) iPar = -1;
+                if (jPar == eiId) jPar = -1;
+            }
+        }
+
+        // Reset a flag for all hyperedges in C.
+        for (const int& eId : C) eFlags[eId] = false;
+    }
+
+    // We finished processingthe given hypergraph. If it is an interval
+    // hypergraph, then the partition refinement produced an order of hyperedges
+    // that is a valid join path for the hypergraph.
+    const vector<int>& result = L.getOrder();
+
+
+    // --- Check if acyclic. ---
+
+    // We do not use the acyclicity test described in lines 17 to 20. Instead,
+    // we use a simplified version of the test from the join tree algorithm.
+
+    vector<size_t> vLastIdx(n, -1);
+
+    // Iterate over sequence of hyperedges.
+    for (int eIdx = 0; eIdx < result.size(); eIdx++)
+    {
+        int eId = result[eIdx];
+
+        // Check and mark all vertices.
+        for (const int& vId : hg[eId])
+        {
+            size_t& vIdx = vLastIdx[vId];
+
+            if (vIdx == -1 || vIdx == eIdx - 1)
+            {
+                // Vertex is new or was in previous hyperedge.
+                vIdx = eIdx;
+            }
+            else
+            {
+                // Order is not a valid interval order.
+                return vector<int>();
+            }
+        }
+    }
+
+    // Hyperedge order satisfices acyclicity requirement.
+
+    return result;
 }

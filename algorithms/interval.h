@@ -13,7 +13,7 @@ namespace Interval
     Hypergraph genrate(size_t m, size_t N);
 
     // Computes a join path of a given hypergraph.
-    // Returns a list that contains the parent-ID for each hyperedge.
+    // Returns an order of hyperedges that is a valid join path.
     // Returns an empty list if the hypergraph is not an interval hypergraph.
     vector<int> getJoinPath(const Hypergraph& hg);
 }
