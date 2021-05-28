@@ -479,3 +479,83 @@ vector<int> Interval::getJoinPath(const Hypergraph& hg)
 
     return result;
 }
+
+// Computes the edges of the subset graph of the given interval hypergraph.
+// A pair (x, y) states that y is subset of x.
+vector<intPair> Interval::subsetGraph(const Hypergraph& hg)
+{
+    vector<int> joinPath = getJoinPath(hg);
+
+    if (joinPath.size() == 0)
+    {
+        throw invalid_argument("Given hypergraph is not interval.");
+    }
+
+
+    const size_t n = hg.getVSize();
+    const size_t m = hg.getESize();
+
+
+    // --- Determine range of each vertex. ---
+
+    // The range of a vertex v is a pair of indices. They represent the first
+    // and last hyperedge containing v with respect to the join path.
+
+    vector<sizePair> vRange(n, sizePair(m, -1));
+
+    for (size_t i = 0; i < m; i++)
+    {
+        int eId = joinPath[i];
+        const vector<int>& vList = hg[eId];
+
+        for (const int& vId : vList)
+        {
+            size_t& fr = vRange[vId].first;
+            size_t& to = vRange[vId].second;
+
+            fr = min(fr, i);
+            to = i /* max(to, i) is always i */;
+        }
+    }
+
+
+    // --- Determine subset relations. ---
+
+    vector<intPair> result;
+
+    for (size_t i = 0; i < m; i++)
+    {
+        int eId = joinPath[i];
+        const vector<int>& vList = hg[eId];
+
+        // The range that contains all vertices of e.
+        size_t eFr = 0;
+        size_t eTo = m;
+
+        for (const int& vId : vList)
+        {
+            const size_t& vFr = vRange[vId].first;
+            const size_t& vTo = vRange[vId].second;
+
+            eFr = max(eFr, vFr);
+            eTo = min(eTo, vTo);
+        }
+
+        // Larger hyperedges to the left.
+        for (size_t j = eFr; j < i; j++)
+        {
+            int fId = joinPath[j];
+            result.push_back(intPair(fId, eId));
+        }
+
+        // Larger hyperedges to the right.
+        for (size_t j = i + 1; j <= eTo; j++)
+        {
+            int fId = joinPath[j];
+            result.push_back(intPair(fId, eId));
+        }
+    }
+
+    Sorting::radixSort(result);
+    return result;
+}

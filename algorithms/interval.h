@@ -16,6 +16,10 @@ namespace Interval
     // Returns an order of hyperedges that is a valid join path.
     // Returns an empty list if the hypergraph is not an interval hypergraph.
     vector<int> getJoinPath(const Hypergraph& hg);
+
+    // Computes the edges of the subset graph of the given interval hypergraph.
+    // A pair (x, y) states that y is subset of x.
+    vector<intPair> subsetGraph(const Hypergraph& hg);
 }
 
 #endif
