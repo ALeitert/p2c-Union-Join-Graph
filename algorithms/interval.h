@@ -20,6 +20,10 @@ namespace Interval
     // Computes the edges of the subset graph of the given interval hypergraph.
     // A pair (x, y) states that y is subset of x.
     vector<intPair> subsetGraph(const Hypergraph& hg);
+
+    // Computes the union join graph for a given interval hypergraph.
+    // A slightly optimised function that avoids some overhead.
+    Graph unionJoinGraph(const Hypergraph& hg);
 }
 
 #endif
