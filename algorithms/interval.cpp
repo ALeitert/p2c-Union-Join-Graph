@@ -7,94 +7,42 @@
 // Genrates an interval hypergraph with m edges and total size N.
 Hypergraph Interval::genrate(size_t m, size_t N)
 {
-    // The algorithm is almost the same as for acyclic hypergraphs.
-    // The difference is that the tree for interval hypergraphs is just a path.
-
-
-    // --- Generate a random tree. ---
-
-    // Random permutation.
-    vector<int> edgeIds(m);
-    Sorting::makePermutation(edgeIds.data(), m);
-
-
-    // --- Determine size of each hyperedge. ---
-
-    // At least one vertex in each hyperedge.
-    vector<size_t> eSize(m, 1);
-
-    // Randoly assign remaining vertices.
-    for (size_t i = m; i < N; i++)
-    {
-        size_t eId = rand() % m;
-        eSize[eId]++;
-    }
-
-
-    // --- Determine shared vertices between hyperedges and their parenst. ---
-
     // List of vertices in each hyperedge.
     vector<vector<int>> vLists(m);
 
-    // Total number of vertices.
     size_t n = 0;
 
-    // Vertices in the root.
-    for (int rId = edgeIds[0]; n < eSize[rId]; n++)
+    // At least one vertex in each hyperedge.
+    for (size_t e = m - 1, s; e > 0; n++, e = s)
     {
-        vLists[rId].push_back(n);
-    }
+        s = rand() % e;
 
-    // Remaining hyperedges.
-    for (size_t i = 1; i < m; i++)
-    {
-        // Parent is preceding hyperedge.
-        int eId = edgeIds[i];
-        int pId = edgeIds[i - 1];
-
-        size_t eS = eSize[eId];
-        size_t pS = eSize[pId];
-
-        vector<int>& pList = vLists[pId];
-        vector<int>& eList = vLists[eId];
-
-        // Number of shared vertices.
-        size_t shared = rand() % min(eS, pS) + 1;
-        Sorting::kShuffle(pList, shared);
-
-        // Add shared vertices.
-        for (size_t j = 0; j < shared; j++)
+        for (size_t i = s; i <= e; i++)
         {
-            eList.push_back(pList[j]);
-        }
-
-        // Add remaining new vertices.
-        for (size_t j = shared; j < eS; j++, n++)
-        {
-            eList.push_back(n);
+            vLists[i].push_back(n);
+            N = min(N, N - 1);
         }
     }
 
-
-    // --- Shuffle vertex IDs. ---
-
-    vector<int> vIds;
-    vIds.resize(n);
-    Sorting::makePermutation(vIds.data(), n);
-
-    for (size_t i = 0; i < m; i++)
+    // Add remaining vertices randomly.
+    for (; N > 0; n++)
     {
-        vector<int>& lst = vLists[i];
+        size_t s = rand() % m;
+        size_t e = rand() % (m - 1);
 
-        for (size_t j = 0; j < lst.size(); j++)
+        // Ensures vertex is in at least two hyperedges.
+        if (s <= e) e++;
+
+        // Ensures s < e.
+        if (s > e) swap(s, e);
+
+        for (size_t i = s; i <= e; i++)
         {
-            size_t idx = lst[j];
-            lst[j] = vIds[idx];
+            vLists[i].push_back(n);
+            N = min(N, N - 1);
         }
     }
 
-
-    // --- Create hypergraph. ---
 
     // Build pair lists.
     vector<intPair> pairList;
