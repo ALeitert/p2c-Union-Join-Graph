@@ -328,15 +328,11 @@ Hypergraph AlphaAcyclic::separatorHG(const Hypergraph& hg, const vector<int>& jo
 }
 
 
-// Helper for DFS.
-typedef pair<vector<size_t>, vector<size_t>> orderPair;
-
 // Runs a DFS on the given join tree and returns a pre- and post-order.
 // The returned orders state for a given vertex its index in that order.
-orderPair joinTreeDfs(const vector<int>& joinTree)
+AlphaAcyclic::orderPair AlphaAcyclic::joinTreeDfs(const vector<int>& joinTree, int rootId)
 {
     const int n = joinTree.size();
-    const int rootId = n - 1;
 
 
     // --- Determine children of each node. ---
@@ -448,6 +444,11 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo al
     // --- Line 1: Compute join tree and separator hypergraph. ---
 
     vector<int> joinTree = getJoinTree(hg);
+
+    // Implementation of join tree algorithm has the result that the hyperedge
+    // with the largest ID is automatically the root.
+    int rootId = hg.getESize() - 1;
+
     Hypergraph sepHg = separatorHG(hg, joinTree);
 
 
@@ -456,7 +457,7 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo al
     // To determine which hyperedges are farther away and on which side of a
     // separator they are, we compute pre- and post-order of the join tree.
 
-    orderPair jtDfs = joinTreeDfs(joinTree);
+    orderPair jtDfs = joinTreeDfs(joinTree, rootId);
 
     vector<size_t>& pre = jtDfs.first;
     vector<size_t>& post = jtDfs.second;
@@ -761,13 +762,17 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg)
 
     vector<int> joinTree = getJoinTree(hg);
 
+    // Implementation of join tree algorithm has the result that the hyperedge
+    // with the largest ID is automatically the root.
+    int rootId = hg.getESize() - 1;
+
 
     // --- Preprocessing for lines 6 and 7. ---
 
     // To determine which hyperedges are farther away and on which side of a
     // separator they are, we compute pre- and post-order of the join tree.
 
-    orderPair jtDfs = joinTreeDfs(joinTree);
+    orderPair jtDfs = joinTreeDfs(joinTree, rootId);
 
     vector<size_t>& pre = jtDfs.first;
     vector<size_t>& post = jtDfs.second;
