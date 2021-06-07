@@ -167,14 +167,12 @@ vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
     // States for each hyperedge E the root-index of the vertex in E that was processed last.
     // Corresponds with the parent of E in the join tree.
     // gamma in paper.
-    int parIdx[m];
-    for (int eId = 0; eId < m; eId++) parIdx[eId] = -1;
+    vector<int> parIdx(m, -1);
 
     // Counts how many vertices in each hyperedge are already marked.
     // Allows to skip hyperedges with all vertices marked.
     // Does not affect correctness, only there for speed-up.
-    size_t eSize[m];
-    for (int eId = 0; eId < m; eId++) eSize[eId] = 0;
+    vector<size_t> eSize(m, 0);
 
     for (MaxCardinalitySet sets(m); !sets.isEmpty(); )
     {
@@ -216,7 +214,7 @@ vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
 
     // Stores the hyperedges based on their parent-index.
     // That is, childIds[i] stores all hyperedges S with parIdx[S] == i.
-    vector<int> childIds[m];
+    vector<vector<int>> childIds(m);
 
     for (int eId = 0; eId < m; eId++)
     {
@@ -304,10 +302,11 @@ Hypergraph AlphaAcyclic::separatorHG(const Hypergraph& hg, const vector<int>& jo
     size_t m = hg.getESize();
     vector<intPair> hgPairs;
 
-    // Process all but last (i.e. root) hyperedge.
-    for (int eId = 0; eId < m - 1; eId++)
+    // Process all hyperedges.
+    for (int eId = 0; eId < m; eId++)
     {
         int pId = joinTree[eId];
+        if (pId < 0) continue; // Skip root.
 
         const vector<int>& eList = hg[eId];
         const vector<int>& pList = hg[pId];
