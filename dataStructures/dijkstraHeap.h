@@ -25,7 +25,7 @@ public:
 
 
     // Returns the array with the weights of all vertices.
-    int* const getWeights() const;
+    const int* getWeights() const;
 
     // Return the current size of the heap.
     size_t getSize() const;

@@ -38,7 +38,7 @@ DijkstraHeap::~DijkstraHeap()
 
 
 // Returns the array with the weights of all vertices.
-int* const DijkstraHeap::getWeights() const
+const int* DijkstraHeap::getWeights() const
 {
     return weights;
 }
