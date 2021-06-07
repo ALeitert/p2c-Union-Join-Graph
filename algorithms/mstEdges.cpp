@@ -159,11 +159,14 @@ vector<intPair> MstEdges::kruskal(const Graph& g)
     // If that is the case, add uv to the answer. Afterwards, call union(u, v) on all these edges.
 
 
+    const size_t n = g.size();
+
+
     // --- Create a list of all edges and sort them. ---
 
     vector<pair<int, intPair>> edgeList;
 
-    for (int uId = 0; uId < g.size(); uId++)
+    for (int uId = 0; uId < n; uId++)
     {
         const vector<int>& neighs = g[uId];
         const vector<int>& weights = g(uId);
@@ -182,13 +185,8 @@ vector<intPair> MstEdges::kruskal(const Graph& g)
     // --- Sort edges (using counting sort). ---
 
     {
-        vector<pair<int, intPair>> buffer;
-        buffer.resize(edgeList.size());
-
-        const size_t n = g.size();
-
-        vector<size_t> count;
-        count.resize(n, 0);
+        vector<pair<int, intPair>> buffer(edgeList.size());
+        vector<size_t> count(n + 1, 0);
 
         // Count keys.
         for (size_t i = 0; i < edgeList.size(); i++)
@@ -223,7 +221,7 @@ vector<intPair> MstEdges::kruskal(const Graph& g)
     vector<intPair> result;
     vector<intPair> buffer;
 
-    UnionFind uf(g.size());
+    UnionFind uf(n);
 
     for (size_t ePtr = 0; ePtr < edgeList.size();)
     {

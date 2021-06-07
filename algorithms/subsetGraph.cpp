@@ -272,12 +272,9 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 
     // --- Step 1.2: Sort vertices by weight. ---
 
-
-    int vWeiOrder[n];
-
     // We use counting sort.
-    int count[m];
-    for (int i = 0; i < m; i++) count[i] = 0;
+    vector<int> vWeiOrder(n);
+    vector<size_t>count(m + 1, 0);
 
     // Count.
     for (int vId = 0; vId < n; vId++)
@@ -287,7 +284,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     }
 
     // Prefix sums.
-    for (int i = 1; i < m; i++)
+    for (int i = 1; i < count.size(); i++)
     {
         count[i] += count[i - 1];
     }
@@ -343,7 +340,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     hgVertices.resize(n);
 
     // Sort hyperedge indices into vertices.
-    for (int eoIdx = 0; eoIdx < n; eoIdx++)
+    for (int eoIdx = 0; eoIdx < m; eoIdx++)
     {
         int eId = eLexOrder[eoIdx];
         const vector<int>& eVerts = hg[eId];
@@ -377,7 +374,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
     vector<ReducedSet> history;
     history.push_back(ReducedSet());
 
-    for (int eoIdx = 0, sucShared = 0; eoIdx < n; eoIdx++)
+    for (int eoIdx = 0, sucShared = 0; eoIdx < m; eoIdx++)
     {
         int yId = eLexOrder[eoIdx];
 
@@ -406,7 +403,7 @@ vector<intPair> SubsetGraph::pritchardRefinement(const Hypergraph& hg)
 
         int shared = sucShared;
 
-        if (eoIdx + 1 < n)
+        if (eoIdx + 1 < m)
         {
             sucShared = 0;
             int postId = eLexOrder[eoIdx + 1];

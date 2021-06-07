@@ -162,8 +162,7 @@ vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
     // States for each vertex the index of the hyperedge in which it was first discovered.
     // Corresponds to index of hyperedge that is root of subtree of hyperedges containing that vertex.
     // beta (for vertices) in paper.
-    size_t vRootIdx[n];
-    for (int vId = 0; vId < n; vId++) vRootIdx[vId] = -1;
+    vector<size_t> vRootIdx(n, -1);
 
     // States for each hyperedge E the root-index of the vertex in E that was processed last.
     // Corresponds with the parent of E in the join tree.
@@ -227,11 +226,7 @@ vector<int> AlphaAcyclic::getJoinTree(const Hypergraph& hg)
 
     // States for each vertex the last "parent" it was in.
     // index in paper.
-    size_t vLastIdx[n];
-    for (int i = 0; i < n; i++)
-    {
-        vLastIdx[i] = -1;
-    }
+    vector<size_t> vLastIdx(n, -1);
 
     // Iterate over all processed hyperedges ...
     for (int eIdx = 0; eIdx <= eCtr; eIdx++)

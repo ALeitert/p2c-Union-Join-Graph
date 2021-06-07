@@ -182,8 +182,7 @@ Graph Hypergraph::getLinegraph() const
 
     const size_t m = getESize();
 
-    vector<vector<intPair>> edgeList;
-    edgeList.resize(m);
+    vector<vector<intPair>> edgeList(m);
 
     size_t totalSize = 0;
 
