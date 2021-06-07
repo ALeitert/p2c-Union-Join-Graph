@@ -542,90 +542,6 @@ vector<vector<int>> separators(const Hypergraph& hg, const vector<int>& joinPath
     return sepHg;
 }
 
-// Helper for DFS.
-typedef pair<vector<size_t>, vector<size_t>> orderPair;
-
-// Runs a DFS on the given join tree and returns a pre- and post-order.
-// The returned orders state for a given vertex its index in that order.
-orderPair joinTreeDfs(const vector<int>& joinTree, int rootId)
-{
-    const int n = joinTree.size();
-
-
-    // --- Determine children of each node. ---
-
-    vector<vector<int>> childIds;
-    childIds.resize(n);
-
-    for (int eId = 0; eId < rootId /* skip root */; eId++)
-    {
-        int pId = joinTree[eId];
-        childIds[pId].push_back(eId);
-    }
-
-
-    // --- Prepare DFS. ---
-
-    // Initialise orders.
-    orderPair orders;
-
-    vector<size_t>& preOrder = orders.first;
-    vector<size_t>& postOrder = orders.second;
-
-    preOrder.resize(n, -1);
-    postOrder.resize(n, -1);
-
-    size_t preIdx = 0;
-    size_t postIdx = 0;
-
-
-    // Helpers to compute DFS.
-    vector<size_t> childIndex;
-    childIndex.resize(n, 0);
-
-    vector<int> stack;
-    stack.push_back(rootId);
-
-
-    // --- Run DFS. ---
-
-    while (stack.size() > 0)
-    {
-        int eId = stack.back();
-        size_t cIdx = childIndex[eId];
-
-        if (cIdx == 0)
-        {
-            // *** Pre-order for vId ***
-            preOrder[eId] = preIdx;
-            preIdx++;
-        }
-
-        if (cIdx < childIds[eId].size())
-        {
-            int childId = childIds[eId][cIdx];
-
-            // No need to check if child was visited before,
-            // since we only have edges to children.
-
-            stack.push_back(childId);
-
-            childIndex[eId]++;
-        }
-        else
-        {
-            // All neighbours checked, backtrack.
-            stack.pop_back();
-
-            // *** Post-order for vId ***
-            postOrder[eId] = postIdx;
-            postIdx++;
-        }
-    }
-
-    return orders;
-}
-
 // Computes the union join graph for a given interval hypergraph.
 // A slightly optimised function that avoids some overhead.
 Graph Interval::unionJoinGraph(const Hypergraph& hg)
@@ -709,7 +625,7 @@ Graph Interval::unionJoinGraph(const Hypergraph& hg)
     // To determine which hyperedges are farther away and on which side of a
     // separator they are, we compute pre- and post-order of the join tree.
 
-    orderPair jtDfs = joinTreeDfs(joinTree, joinPath[0]);
+    AlphaAcyclic::orderPair jtDfs = AlphaAcyclic::joinTreeDfs(joinTree, joinPath[0]);
 
     vector<size_t>& pre = jtDfs.first;
     vector<size_t>& post = jtDfs.second;
