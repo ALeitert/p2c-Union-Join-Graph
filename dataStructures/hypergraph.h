@@ -62,6 +62,9 @@ public:
     // Computes the weighted linegraph of the hypergraph.
     Graph getLinegraph() const;
 
+    // Return the dual hypergraph.
+    const Hypergraph& getDual() const;
+
 
 private:
 
@@ -69,6 +72,10 @@ private:
     // Initialises a new hypergraph with n vertices and m hyperedges.
     // Does not create any edges in the bipartite representation.
     Hypergraph(const int n, const int m);
+
+    // Constructor.
+    // Initialises a hypergraph that is the dual of the given hypergraph.
+    Hypergraph(const Hypergraph* hg);
 
     // Helper function for constructors.
     // Initialises a new hypergraph with n vertices and m hyperedges,
@@ -96,6 +103,13 @@ private:
 
     // Set of hyperedges and the vertices they contain.
     vector<int>* hyperedges = nullptr;
+
+
+    // Represents the dual hypergraph.
+    mutable const Hypergraph* dual = nullptr;
+
+    // Indicates whether the current hypergraph is created as dual or not.
+    bool isDual = false;
 };
 
 #endif
