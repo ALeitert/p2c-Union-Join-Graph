@@ -31,7 +31,7 @@ public:
     Hypergraph(Hypergraph&&);
 
     // Destructor.
-	~Hypergraph();
+    ~Hypergraph();
 
 
     // The number n of vertices.

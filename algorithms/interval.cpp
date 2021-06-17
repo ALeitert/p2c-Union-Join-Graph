@@ -262,7 +262,6 @@ vector<int> Interval::getJoinPath(const Hypergraph& hg)
     // Run LexBFS.
     idOrderPair lexBfsOrd = lexBfs(hg);
     vector<int>& eOrder = lexBfsOrd.first;
-    vector<int>& vOrder = lexBfsOrd.second;
 
     // Stack for vertices.
     vector<int> pivot;

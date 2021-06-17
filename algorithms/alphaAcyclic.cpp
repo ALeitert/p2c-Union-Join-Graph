@@ -642,7 +642,7 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg, SubsetGraph::ssgAlgo al
 
 // Computes the edges of the subset graph of the separator hypergraph.
 // Combines the computation of the separators with Pritchard's algorithm to avoid some overhead.
-vector<intPair> separatorSSG(const Hypergraph& hg, const vector<int>& joinTree, const vector<size_t>& postIdx)
+vector<intPair> separatorSSG(const Hypergraph& hg, const vector<size_t>& postIdx)
 {
     // This algorithm combines the computation of a separator hypergraph with
     // Pritchard's algorithm for subset graphs. That way, we save the overhead
@@ -780,7 +780,7 @@ Graph AlphaAcyclic::unionJoinGraph(const Hypergraph& hg)
     // --- Line 2: Compute subset graph. ---
 
     // List of edges.
-    vector<intPair> ssgEdges = separatorSSG(hg, joinTree, post);
+    vector<intPair> ssgEdges = separatorSSG(hg, post);
 
 
     // -- Preprocessing for line 5. ---
