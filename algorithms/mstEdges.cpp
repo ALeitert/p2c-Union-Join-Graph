@@ -192,6 +192,11 @@ vector<intPair> MstEdges::kruskal(const Graph& g)
         for (size_t i = 0; i < edgeList.size(); i++)
         {
             int key = edgeList[i].first;
+
+            // The weight of edges can be larger than n when the original hypergraph
+            // has more vertices (max weight) then hyperedges (current n).
+            if (key >= count.size()) count.resize(key + 1, 0);
+
             count[key]++;
         }
 
