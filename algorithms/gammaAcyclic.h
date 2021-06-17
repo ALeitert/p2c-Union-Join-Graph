@@ -11,6 +11,9 @@ namespace GammaAcyclic
 {
     // Genrates a gamma-acyclic hypergraph with n vertices and m hyperedges.
     Hypergraph genrate(size_t m, size_t n);
+
+    // Computes the union join graph for a given gamma-acyclic hypergraph.
+    Graph unionJoinGraph(const Hypergraph& hg);
 }
 
 #endif
