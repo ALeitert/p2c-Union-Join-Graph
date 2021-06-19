@@ -4,6 +4,9 @@
 #define __Algorithms_DistH_H__
 
 
+#include "../dataStructures/graph.h"
+
+
 namespace DistH
 {
 
