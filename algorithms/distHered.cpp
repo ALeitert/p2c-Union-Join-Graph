@@ -15,6 +15,83 @@
 // Anonymous namespace for helper functions.
 namespace
 {
+    // Types of twins.
+    enum class TwinType
+    {
+        None,
+        FalseTwin,
+        TrueTwin
+    };
+
+    // Determines if two vertices are twins by comparing their neighbourhoods.
+    TwinType checkTwins(const Graph& g, int uId, int vId, const vector<bool> ignore)
+    {
+        const vector<int>& uNei = g[uId];
+        const vector<int>& vNei = g[vId];
+
+        bool trueTwins = false;
+
+        for (size_t i = 0, j = 0;; i++, j++)
+        {
+            // --- Skip ignored vertices and check adjacency. ---
+
+            int niId = -1;
+            int njId = -1;
+
+            for (; i < uNei.size(); i++)
+            {
+                niId = uNei[i];
+
+                if (ignore[niId]) continue;
+
+                if (niId == vId)
+                {
+                    trueTwins = true;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            for (; j < vNei.size(); j++)
+            {
+                // Simpler loop since we do not need to check for adjacency.
+                njId = vNei[j];
+
+                if (ignore[njId]) continue;
+                if (njId == uId) continue;
+
+                break;
+            }
+
+
+            // --- Compare neighbours. ---
+
+            // Now, i and j either refer to a neighbour still in G or to
+            // the end of their respective neighbourhoods.
+
+
+            bool iInRange = i < uNei.size();
+            bool jInRange = j < vNei.size();
+
+
+            // If one neighbourhood still contains vertices while the other is
+            // completed: not twins.
+            if (iInRange != jInRange) return TwinType::None;
+
+            // Both neighbourhoods completed?
+            if (!iInRange)
+            {
+                return trueTwins ? TwinType::TrueTwin : TwinType::FalseTwin;
+            }
+
+            // Both neighbours the same?
+            if (niId != njId) return TwinType::None;
+        }
+    }
+
+
     // Determines a factorising permutation if the given graph is a cograph.
     vector<int> factPermutation(const Graph& g)
     {
