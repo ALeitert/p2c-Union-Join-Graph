@@ -38,7 +38,8 @@ PartRefinement::PartRefinement(size_t k)
 }
 
 // Refines the current groups based on the given list of IDs.
-void PartRefinement::refine(const vector<int>& idList)
+// Returns the indices of the newly created groups.
+vector<size_t> PartRefinement::refine(const vector<int>& idList)
 {
     vector<size_t> modifiedGrps;
 
@@ -68,6 +69,8 @@ void PartRefinement::refine(const vector<int>& idList)
 
     // --- Split modified groups. ---
 
+    vector<size_t> newGroups;
+
     for (const size_t& grpIdx : modifiedGrps)
     {
         Group& grp = groups[grpIdx];
@@ -81,8 +84,11 @@ void PartRefinement::refine(const vector<int>& idList)
         }
 
         size_t newGrpIdx = groups.size();
+        newGroups.push_back(newGrpIdx);
+
         groups.push_back(Group());
         Group& newGrp = groups.back();
+
         grpCount++;
 
         newGrp.end = grp.end;
@@ -111,6 +117,8 @@ void PartRefinement::refine(const vector<int>& idList)
             id2Grp[vId] = newGrpIdx;
         }
     }
+
+    return newGroups;
 }
 
 // Refines the the first and last group that contain any of the given IDs.
@@ -301,7 +309,7 @@ void PartRefinement::flRefine(const vector<int>& idList)
 // Refines the group (part) containing the given vertex x according to
 // Rule 1 for factorising permutations.
 // Is used to recognise cographs.
-void PartRefinement::r1Refine(int xId, const vector<int>& xNeigh)
+vector<size_t> PartRefinement::r1Refine(int xId, const vector<int>& xNeigh)
 {
     // -- Rule 1 Refinement --
     // For a given part C and vertex x in C, split C into
@@ -313,6 +321,8 @@ void PartRefinement::r1Refine(int xId, const vector<int>& xNeigh)
 
 
     size_t cIdx = id2Grp[xId];
+    Group C = groups[cIdx];
+
     vector<int> neiList;
 
     for (const int& id : xNeigh)
@@ -321,17 +331,41 @@ void PartRefinement::r1Refine(int xId, const vector<int>& xNeigh)
         if (grpIdx == cIdx) neiList.push_back(id);
     }
 
-    refine(neiList);
-    refine(vector<int> { xId });
+    vector<size_t> grps;
+
+    if (neiList.size() > 0)
+    {
+        // If x has neighbours in C, then refine() adds them into a new group
+        // which follows C.
+
+        refine(neiList);
+        grps.push_back(C.next);
+    }
+
+    if (C.start < C.end)
+    {
+        // If x is not allone in C, then refine() adds it into a new group which
+        // follows C.
+
+        refine(vector<int> { xId });
+        grps.push_back(cIdx);
+    }
+
+    // Add group of x to the front.
+    grps.push_back(id2Grp[xId]);
+    if (grps.size() > 1) swap(grps[0], grps.back());
+
+    return grps;
 }
 
 // Refines the current groups (parts) which do not contain the given vertex
 // y according to Rule 2 for factorising permutations.
+// Returns the indices of the newly created groups.
 // Is used to recognise cographs.
-void PartRefinement::r2Refine(int yId, const vector<int>& yNeigh)
+vector<size_t> PartRefinement::r2Refine(int yId, const vector<int>& yNeigh)
 {
     // -- Rule 2 Refinement --
-    // For a given part C and vertex y not in C, split C into
+    // For a given vertex y, split all parts C not containing y into
     // [ co-N(y) \cap C, N(y) \cap C ].
 
     // -- Approach --
@@ -348,7 +382,7 @@ void PartRefinement::r2Refine(int yId, const vector<int>& yNeigh)
         if (grpIdx != yGrpIdx) neiList.push_back(id);
     }
 
-    refine(neiList);
+    return refine(neiList);
 }
 
 

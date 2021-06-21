@@ -42,7 +42,8 @@ public:
 
 
     // Refines the current groups based on the given list of IDs.
-    void refine(const vector<int>& idList);
+    // Returns the indices of the newly created groups.
+    vector<size_t> refine(const vector<int>& idList);
 
     // Refines the the first and last group that contain any of the given IDs.
     // Refinement happens towards each other instead of towards the end.
@@ -52,12 +53,13 @@ public:
     // Refines the group (part) containing the given vertex x according to
     // Rule 1 for factorising permutations.
     // Is used to recognise cographs.
-    void r1Refine(int xId, const vector<int>& xNeigh);
+    vector<size_t> r1Refine(int xId, const vector<int>& xNeigh);
 
     // Refines the current groups (parts) which do not contain the given vertex
     // y according to Rule 2 for factorising permutations.
+    // Returns the indices of the newly created groups.
     // Is used to recognise cographs.
-    void r2Refine(int yId, const vector<int>& yNeigh);
+    vector<size_t> r2Refine(int yId, const vector<int>& yNeigh);
 
 
     // The current number of non-empty groups.
