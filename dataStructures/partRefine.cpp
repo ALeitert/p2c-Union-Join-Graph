@@ -297,6 +297,61 @@ void PartRefinement::flRefine(const vector<int>& idList)
     }
 }
 
+
+// Refines the group (part) containing the given vertex x according to
+// Rule 1 for factorising permutations.
+// Is used to recognise cographs.
+void PartRefinement::r1Refine(int xId, const vector<int>& xNeigh)
+{
+    // -- Rule 1 Refinement --
+    // For a given part C and vertex x in C, split C into
+    // [ co-N(x) \cap C, { x }, N(x) \cap C ].
+
+    // -- Approach --
+    // Determine C and N(x) \cap C.
+    // Then, call Refine(N(x) \cap C) and Refine({ x }).
+
+
+    size_t cIdx = id2Grp[xId];
+    vector<int> neiList;
+
+    for (const int& id : xNeigh)
+    {
+        size_t grpIdx = id2Grp[id];
+        if (grpIdx == cIdx) neiList.push_back(id);
+    }
+
+    refine(neiList);
+    refine(vector<int> { xId });
+}
+
+// Refines the current groups (parts) which do not contain the given vertex
+// y according to Rule 2 for factorising permutations.
+// Is used to recognise cographs.
+void PartRefinement::r2Refine(int yId, const vector<int>& yNeigh)
+{
+    // -- Rule 2 Refinement --
+    // For a given part C and vertex y not in C, split C into
+    // [ co-N(y) \cap C, N(y) \cap C ].
+
+    // -- Approach --
+    // Determine set S of all neighbours of y which are not in the same
+    // group (part). Then, call Refine(S).
+
+
+    size_t yGrpIdx = id2Grp[yId];
+    vector<int> neiList;
+
+    for (const int& id : yNeigh)
+    {
+        size_t grpIdx = id2Grp[id];
+        if (grpIdx != yGrpIdx) neiList.push_back(id);
+    }
+
+    refine(neiList);
+}
+
+
 // The current number of non-empty groups.
 size_t PartRefinement::size() const
 {

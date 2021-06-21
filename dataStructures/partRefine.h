@@ -49,6 +49,17 @@ public:
     void flRefine(const vector<int>& idList);
 
 
+    // Refines the group (part) containing the given vertex x according to
+    // Rule 1 for factorising permutations.
+    // Is used to recognise cographs.
+    void r1Refine(int xId, const vector<int>& xNeigh);
+
+    // Refines the current groups (parts) which do not contain the given vertex
+    // y according to Rule 2 for factorising permutations.
+    // Is used to recognise cographs.
+    void r2Refine(int yId, const vector<int>& yNeigh);
+
+
     // The current number of non-empty groups.
     size_t size() const;
 
