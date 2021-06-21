@@ -367,6 +367,7 @@ vector<size_t> PartRefinement::r2Refine(int yId, const vector<int>& yNeigh)
     // -- Rule 2 Refinement --
     // For a given vertex y, split all parts C not containing y into
     // [ co-N(y) \cap C, N(y) \cap C ].
+    // Additionally, drop the group contining y if it is a singelton group.
 
     // -- Approach --
     // Determine set S of all neighbours of y which are not in the same
@@ -374,6 +375,13 @@ vector<size_t> PartRefinement::r2Refine(int yId, const vector<int>& yNeigh)
 
 
     size_t yGrpIdx = id2Grp[yId];
+
+    // No need to check neighbours if y is alone in its group.
+    if (dropIfSingle(yGrpIdx))
+    {
+        return refine(yNeigh);
+    }
+
     vector<int> neiList;
 
     for (const int& id : yNeigh)
@@ -470,4 +478,37 @@ bool PartRefinement::isDroppedOrSingle(int id) const
 
     const Group& grp = groups[grpIdx];
     return grp.start == grp.end;
+}
+
+
+// Drops the group containing the given ID if it is a singleton group.
+// Returns false if the given ID is not in a singleton group.
+bool PartRefinement::dropIfSingle(int id)
+{
+    assert(id >= 0 && id < id2Grp.size());
+
+    size_t grpIdx = id2Grp[id];
+    if (grpIdx == -1) return true;
+
+    const Group& grp = groups[grpIdx];
+    if (grp.start < grp.end) return false;
+
+
+    // ID is only element in group.
+    // Remove group from list.
+
+
+    size_t pIdx = grp.prev;
+    size_t nIdx = grp.next;
+
+    if (pIdx >= 0) groups[pIdx].next = nIdx;
+    if (nIdx >= 0) groups[nIdx].prev = pIdx;
+
+    if (fGrpIdx == grpIdx) fGrpIdx = nIdx;
+    if (lGrpIdx == grpIdx) lGrpIdx = pIdx;
+
+    grpCount--;
+    id2Grp[id] = -1;
+
+    return true;
 }

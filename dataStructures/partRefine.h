@@ -84,6 +84,11 @@ public:
     bool isDroppedOrSingle(int id) const;
 
 
+    // Drops the group containing the given ID if it is a singleton group.
+    // Returns false if the given ID is not in a singleton group.
+    bool dropIfSingle(int id);
+
+
 private:
 
     // All groups (not in order).
