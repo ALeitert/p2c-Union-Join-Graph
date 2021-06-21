@@ -393,6 +393,16 @@ vector<size_t> PartRefinement::r2Refine(int yId, const vector<int>& yNeigh)
     return refine(neiList);
 }
 
+// Determines the first element in the group with the given index.
+// Is used to recognise cographs.
+int PartRefinement::firstInGroup(size_t grpIdx)
+{
+    assert(grpIdx < groups.size());
+
+    const Group& grp = groups[grpIdx];
+    return order[grp.start];
+}
+
 
 // The current number of non-empty groups.
 size_t PartRefinement::size() const

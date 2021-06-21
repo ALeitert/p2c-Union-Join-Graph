@@ -61,6 +61,10 @@ public:
     // Is used to recognise cographs.
     vector<size_t> r2Refine(int yId, const vector<int>& yNeigh);
 
+    // Determines the first element in the group with the given index.
+    // Is used to recognise cographs.
+    int firstInGroup(size_t grpIdx);
+
 
     // The current number of non-empty groups.
     size_t size() const;
