@@ -97,7 +97,41 @@ namespace
     {
         throw runtime_error("Not implemented.");
 
-        // Algorithm 2 from [2].
+
+        // --- Algorithm 2 from [2] ---
+
+        // Rule 1 Refinement:
+        // For a given part C and vertex x in C, split C into
+        // [ co-N(x) \cap C, { x }, N(x) \cap C ].
+
+        // Rule 2 Refinement:
+        // For a given part C and vertex y not in C, split C into
+        // [ co-N(y) \cap C, N(y) \cap C ].
+
+        //  1  Let P = [V].
+        //  2  Chose an arbitrary vertex o as Origin.
+        //  3  If o is an isolated vertex or a universal vertex Then
+        //  4      Recurse on G - o.
+        //  5  While there exist some non-singleton parts
+        //  6      If C_o is not a singleton Then
+        //  7          Use rule 1 on C_o with o as pivot.
+        //  8          Set co-N(o) \cap C_o and N(o) \cap C_o as unused parts.
+        //  9      While there exist unused parts
+        // 10          Pick an arbitrary unused part C and an arbitrary vertex y
+        //             in C.
+        // 11          Set y as the pivot of C.
+        // 12          Refine the parts C' != C of P with rule 2 using the
+        //             pivot set N(y).
+        // 13          Mark C as used and the new created subparts without pivot
+        //             as unused.
+        // 14      Let z_l and z_r be the pivots of the nearest non-singleton
+        //         parts to o respectively to its left and on its right.
+        // 15      If z_l is adjacent to z_r Then
+        // 16          Set o := z_l.
+        // 17      Else
+        // 18          Set o := z_r.
+        // 19  Return P.
+
     }
 
     // Computes a cotree for the given graph if it is a cograph.
