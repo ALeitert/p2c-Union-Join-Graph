@@ -1,6 +1,9 @@
 #include "distHered.h"
 
 
+#include "../dataStructures/partRefine.h"
+
+
 // --- Papers ---
 
 // [1] Damiand, Habib, Paul:
@@ -95,9 +98,6 @@ namespace
     // Determines a factorising permutation if the given graph is a cograph.
     vector<int> factPermutation(const Graph& g)
     {
-        throw runtime_error("Not implemented.");
-
-
         // --- Algorithm 2 from [2] ---
 
         // Rule 1 Refinement:
@@ -132,6 +132,172 @@ namespace
         // 18          Set o := z_r.
         // 19  Return P.
 
+        // In order to efficiently implement step 4 [lines 14 - 18] of
+        // Algorithm 2, each time a vertex of a singleton part C is used as
+        // pivot with rule 2, the part C is removed from the lists of parts.
+        // Also, when the origin of the partition changes, the part containing
+        // the old origin is removed from the lists of parts. Therefore, to
+        // choose the new origin, we just have to look at the pivots of the two
+        // parts adjacent to the part containing the origin.
+
+
+        size_t n = g.size();
+
+
+        // --- Line 1 ---
+
+        PartRefinement P(n);
+
+
+        // --- Initialise management of used groups. ---
+
+        // All unused groups (in no particular order).
+        vector<size_t> unusedGrps = { 0 };
+
+        // States the index of a group in the list of used groups.
+        // Unused groups have value -1.
+        vector<int> unusedPos(n, -1);
+        unusedPos[0] = 0;
+
+        // The pivot of each group.
+        vector<int> pivot(n, -1);
+
+
+        // --- Line 2 ---
+
+        int oId = 0;
+
+
+        // --- Line 5 ---
+
+        while (P.dropSingles())
+        {
+            // --- Line 6 ---
+
+            if (!P.isDroppedOrSingle(oId))
+            {
+                // --- Line 7 ---
+
+                vector<size_t> r1Grps = P.r1Refine(oId, g[oId]);
+
+
+                // --- Line 8 ---
+
+                // According to Procedure 3 in [2], { x } is marked as used.
+                size_t xGrp = r1Grps[0];
+                int xGrpPos = unusedPos[xGrp];
+
+                if (xGrpPos >= 0)
+                {
+                    // Swap with last group.
+                    swap(unusedGrps[xGrpPos], unusedGrps.back());
+                    size_t lastGrp = unusedGrps[xGrpPos];
+                    unusedPos[lastGrp] = xGrpPos;
+
+                    unusedGrps.pop_back();
+                    unusedPos[xGrp] = -1;
+                }
+
+
+                for (size_t i = 1; i < r1Grps.size(); i++)
+                {
+                    size_t grpIdx = r1Grps[i];
+                    int& grpPos = unusedPos[grpIdx];
+                    if (grpPos >= 0) continue;
+
+                    // Add to list of unused groups.
+                    grpPos = unusedGrps.size();
+                    unusedGrps.push_back(grpIdx);
+                }
+            }
+
+
+            // --- Line 9 ---
+
+            while (unusedGrps.size() > 0)
+            {
+                // --- Lines 10 + 11 ---
+
+                size_t cIdx = unusedGrps.back();
+                int yId = P.firstInGroup(cIdx);
+                pivot[cIdx] = yId;
+
+
+                // --- Lines 12 + 13 ---
+
+                vector<size_t> newGrps = P.r2Refine(yId, g[yId]);
+
+                // Mark C as used.
+                // Because we picked C as last group in unusedGrps, we can
+                // simply drop it from the list.
+                unusedGrps.pop_back();
+                unusedPos[cIdx] = -1;
+
+                // Mark new groups as unused.
+                for (const size_t& grpIdx : newGrps)
+                {
+                    unusedPos[grpIdx] = unusedGrps.size();
+                    unusedGrps.push_back(grpIdx);
+                }
+            }
+
+
+            // --- Line 14 ---
+
+            vector<size_t> zGrps = P.findLRNonSingles(oId);
+
+            if (zGrps.size() == 0)
+            {
+                throw logic_error("Unable to find groups.");
+            }
+
+            // Remove group with old origin.
+            P.dropIfSingle(oId);
+
+            if (zGrps.size() == 1)
+            {
+                // Well, guess its pivot is the new origin.
+                size_t zGrp = zGrps[0];
+                oId = pivot[zGrp];
+                continue;
+            }
+
+
+            // --- Line 15 ---
+
+            size_t lGrp = zGrps[0];
+            size_t rGrp = zGrps[0];
+
+            int zL = pivot[lGrp];
+            int zR = pivot[rGrp];
+
+
+            // -- Check if zL and zR are adjacent. --
+
+            int zSml = zL;
+            int zLrg = zR;
+
+            if (g[zL].size() > g[zR].size())
+            {
+                swap(zSml, zLrg);
+            }
+
+            const vector<int> zSNeig = g[zSml];
+            bool adjacent = false;
+
+            for (const int& nId : zSNeig)
+            {
+                if (nId == zLrg)
+                {
+                    adjacent = true;
+                    break;
+                }
+            }
+
+            oId = adjacent ? zL : zR;
+        }
+
+        return P.getOrder();
     }
 
     // Computes a cotree for the given graph if it is a cograph.
