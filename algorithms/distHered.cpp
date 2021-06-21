@@ -102,10 +102,9 @@ namespace
 
     // Computes a cotree for the given graph if it is a cograph.
     // Otherwise nothing is returned.
-    void cotree(const Graph& g)
+    bool cotree(const Graph& g)
     {
-        // ToDo: return type.
-        throw runtime_error("Not implemented.");
+        // ToDo: Return prper cotree.
 
 
         // --- Algorithm 5 from [2] ---
@@ -131,5 +130,68 @@ namespace
         // 13      G is a cograph.
         // 14  Else
         // 15      G contains a P_4.
+
+
+        size_t n = g.size();
+
+
+        // --- Line 0 ---
+
+        vector<int> sigma = factPermutation(g);
+
+
+        // --- Line 3 ---
+
+        // Index of the preceeding element in sigma.
+        // We use int instead of size_t, to have -1 as null-pointer.
+        vector<int> pre(n);
+
+        for (int i = 0; i < n; i++)
+        {
+            pre[i] = i - 1;
+        }
+
+        // States if a vertex was removed from sigma.
+        vector<bool> removed(n, false);
+
+
+        // --- Line 4 ---
+
+        // We simplify the loop starting in line 4 as shown below.
+        // The change avoids checking the same pair of vertices twice.
+
+        // For z := v_1 To v_n
+        //     While z and pre(z) are twins (true or false) in G(sigma)
+        //         Remove pre(z) from sigma.
+
+        for (int z = 1; z < n; z++)
+        {
+            // --- Lines 5 - 11 (modified) ---
+
+            int zId = sigma[z];
+
+            for (int& p = pre[z]; p >= 0;)
+            {
+                int pId = sigma[p];
+
+                TwinType tt = checkTwins(g, zId, pId, removed);
+                if (tt == TwinType::None) break;
+
+                // z and pre(z) are twins.
+
+                // "Remove" pre(z) from sigma.
+                removed[pId] = true;
+                p = pre[p]; // Also updates pre[z].
+            }
+        }
+
+
+        // --- Lines 12 - 15 ---
+
+        // The given graph is a cograph if and only if the imaginary linked list
+        // contains only one entry. The list only contains one entry if and only
+        // if the last entry has no preceeding element.
+
+        return pre[n - 1] < 0;
     }
 }
