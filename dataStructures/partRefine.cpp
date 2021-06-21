@@ -403,6 +403,41 @@ int PartRefinement::firstInGroup(size_t grpIdx)
     return order[grp.start];
 }
 
+// Determines the nearest non-singleton groups to the left and right of the group containing the given element.
+vector<size_t> PartRefinement::findLRNonSingles(int id)
+{
+    vector<size_t> result;
+
+    size_t grpIdx = id2Grp[id];
+    const Group& grp = groups[grpIdx];
+
+    // Search on left.
+    for (int lIdx = grp.prev; lIdx < groups.size(); lIdx = groups[lIdx].prev)
+    {
+        const Group& lGrp = groups[lIdx];
+        if (lGrp.start >= lGrp.end) continue;
+
+        // Goup has more than one entry.
+
+        result.push_back(lIdx);
+        break;
+    }
+
+    // Search on right.
+    for (int rIdx = grp.next; rIdx < groups.size(); rIdx = groups[rIdx].next)
+    {
+        const Group& rGrp = groups[rIdx];
+        if (rGrp.start >= rGrp.end) continue;
+
+        // Goup has more than one entry.
+
+        result.push_back(rIdx);
+        break;
+    }
+
+    return result;
+}
+
 
 // The current number of non-empty groups.
 size_t PartRefinement::size() const

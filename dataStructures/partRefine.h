@@ -65,6 +65,9 @@ public:
     // Is used to recognise cographs.
     int firstInGroup(size_t grpIdx);
 
+    // Determines the nearest non-singleton groups to the left and right of the group containing the given element.
+    vector<size_t> findLRNonSingles(int);
+
 
     // The current number of non-empty groups.
     size_t size() const;
