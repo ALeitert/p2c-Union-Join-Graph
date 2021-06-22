@@ -266,7 +266,7 @@ namespace
             // --- Line 15 ---
 
             size_t lGrp = zGrps[0];
-            size_t rGrp = zGrps[0];
+            size_t rGrp = zGrps[1];
 
             int zL = pivot[lGrp];
             int zR = pivot[rGrp];

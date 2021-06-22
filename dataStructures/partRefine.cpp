@@ -321,7 +321,7 @@ vector<size_t> PartRefinement::r1Refine(int xId, const vector<int>& xNeigh)
 
 
     size_t cIdx = id2Grp[xId];
-    Group C = groups[cIdx];
+    Group& C = groups[cIdx];
 
     vector<int> neiList;
 
@@ -377,7 +377,7 @@ vector<size_t> PartRefinement::r2Refine(int yId, const vector<int>& yNeigh)
     size_t yGrpIdx = id2Grp[yId];
 
     // No need to check neighbours if y is alone in its group.
-    if (dropIfSingle(yGrpIdx))
+    if (dropIfSingle(yId))
     {
         return refine(yNeigh);
     }
@@ -546,8 +546,8 @@ bool PartRefinement::dropIfSingle(int id)
     size_t pIdx = grp.prev;
     size_t nIdx = grp.next;
 
-    if (pIdx >= 0) groups[pIdx].next = nIdx;
-    if (nIdx >= 0) groups[nIdx].prev = pIdx;
+    if (pIdx != -1) groups[pIdx].next = nIdx;
+    if (nIdx != -1) groups[nIdx].prev = pIdx;
 
     if (fGrpIdx == grpIdx) fGrpIdx = nIdx;
     if (lGrpIdx == grpIdx) lGrpIdx = pIdx;
