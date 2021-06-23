@@ -600,6 +600,13 @@ namespace
             localRoot[yId] = newRoot;
         }
 
+        // States if the tree is empty or not.
+        bool isEmpty()
+        {
+            return parents.size() == 0;
+        }
+
+
     private:
 
         // The parent of each node.
