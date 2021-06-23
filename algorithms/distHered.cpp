@@ -252,6 +252,24 @@ namespace
         }
 
 
+        // Determines if there are parts which are flagged as unused.
+        bool hasUnusedParts()
+        {
+            return unusedParts.size() > 0;
+        }
+
+        // Finds an unused part and picks and returns an element in it.
+        int findUnusedPivot()
+        {
+            assert(hasUnusedParts());
+
+            size_t prtIdx = unusedParts.back();
+            const Part& part = groups[prtIdx];
+
+            return order[part.start];
+        }
+
+
         // Drops the part containing the given ID if it is a singleton part.
         // Returns false if the given ID is not in a singleton.
         bool dropIfSingle(int id)
