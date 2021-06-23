@@ -97,7 +97,23 @@ namespace
     // A modifies partition refinement data structure for the recognition of cographs.
     class CographPR : public PartRefinement
     {
+        // Follow terminology from [2].
+        typedef Group Part;
 
+    public:
+
+
+    private:
+
+        // All unused parts (in no particular order).
+        vector<size_t> unusedParts;
+
+        // States the index of a part in the list of used parts.
+        // Unused parts have position -1.
+        vector<int> unusedPos;
+
+        // The pivot of each part.
+        vector<int> pivot;
     };
 
 
