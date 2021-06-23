@@ -119,6 +119,56 @@ namespace
         }
 
 
+        // Refines the part containing the given vertex x according to Rule 1
+        // for factorising permutations.
+        void r1Refine(int xId, const vector<int>& xNeigh)
+        {
+            // -- Rule 1 Refinement --
+
+            // For a given part C and vertex x in C, split C into
+            //     [ co-N(x) \cap C, { x }, N(x) \cap C ].
+
+            // Make co-N(x) \cap C and N(x) \cap C unused.
+            // Make { x } used with x as pivot.
+
+
+            // Determine part C.
+            size_t cIdx = id2Grp[xId];
+            Part& C = groups[cIdx];
+
+            // Determine neighbours of x in C.
+            vector<int> neiList;
+            for (const int& id : xNeigh)
+            {
+                size_t prtIdx = id2Grp[id];
+                if (prtIdx == cIdx) neiList.push_back(id);
+            }
+
+            // Has x neighbours in C?
+            if (neiList.size() > 0)
+            {
+                // Yes. Refine() adds them into a new part which follows C.
+                refine(neiList);
+                makeUnused(C.next);
+            }
+
+            // Is x alone in C?
+            if (C.start < C.end)
+            {
+                // No. Refine() adds it into a new part which follows C.
+                refine(vector<int> { xId });
+
+                makeUnused(cIdx);
+                makeUsed(C.next, xId);
+            }
+            else
+            {
+                // Yes. Mark C = { x } as used.
+                makeUsed(cIdx, xId);
+            }
+        }
+
+
     private:
 
         // All unused parts (in no particular order).
