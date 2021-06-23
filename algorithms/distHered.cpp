@@ -1,6 +1,8 @@
 #include "distHered.h"
 
 
+#include <cassert>
+
 #include "../dataStructures/partRefine.h"
 
 
@@ -166,6 +168,38 @@ namespace
                 // Yes. Mark C = { x } as used.
                 makeUsed(cIdx, xId);
             }
+        }
+
+
+        // Drops the part containing the given ID if it is a singleton part.
+        // Returns false if the given ID is not in a singleton.
+        bool dropIfSingle(int id)
+        {
+            assert(id >= 0 && id < id2Grp.size());
+
+            size_t prtIdx = id2Grp[id];
+            if (prtIdx == -1) return true;
+
+            const Part& part = groups[prtIdx];
+            if (part.start < part.end) return false;
+
+
+            // ID is only element in part.
+            // Remove part from list.
+
+            size_t pIdx = part.prev;
+            size_t nIdx = part.next;
+
+            if (pIdx != -1) groups[pIdx].next = nIdx;
+            if (nIdx != -1) groups[nIdx].prev = pIdx;
+
+            if (fGrpIdx == prtIdx) fGrpIdx = nIdx;
+            if (lGrpIdx == prtIdx) lGrpIdx = pIdx;
+
+            grpCount--;
+            id2Grp[id] = -1;
+
+            return true;
         }
 
 
