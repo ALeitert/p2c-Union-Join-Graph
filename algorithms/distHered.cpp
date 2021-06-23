@@ -524,6 +524,21 @@ namespace
     // Represents a cotree.
     class Cotree
     {
+    public:
+
+        // Represents the different types of nodes.
+        enum class CotreeNode
+        {
+            // A vertex of the original graph.
+            Vertex,
+
+            // Combines two subgraphs without adding edges.
+            Union,
+
+            // Combines two subgraphs and adds all possible edges from vertices
+            // int the first to vertices in the second.
+            Join
+        };
 
     };
 
