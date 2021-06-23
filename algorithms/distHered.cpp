@@ -435,21 +435,7 @@ namespace
 
         // --- Line 1 ---
 
-        PartRefinement P(n);
-
-
-        // --- Initialise management of used groups. ---
-
-        // All unused groups (in no particular order).
-        vector<size_t> unusedGrps = { 0 };
-
-        // States the index of a group in the list of used groups.
-        // Unused groups have value -1.
-        vector<int> unusedPos(n, -1);
-        unusedPos[0] = 0;
-
-        // The pivot of each group.
-        vector<int> pivot(n, -1);
+        CographPR P(n);
 
 
         // --- Line 2 ---
@@ -465,100 +451,50 @@ namespace
 
             if (!P.isDroppedOrSingle(oId))
             {
-                // --- Line 7 ---
+                // --- Line 7 + 8 ---
 
-                vector<size_t> r1Grps = P.r1Refine(oId, g[oId]);
-
-
-                // --- Line 8 ---
-
-                // According to Procedure 3 in [2], { x } is marked as used.
-                size_t xGrp = r1Grps[0];
-                int xGrpPos = unusedPos[xGrp];
-
-                if (xGrpPos >= 0)
-                {
-                    // Swap with last group.
-                    swap(unusedGrps[xGrpPos], unusedGrps.back());
-                    size_t lastGrp = unusedGrps[xGrpPos];
-                    unusedPos[lastGrp] = xGrpPos;
-
-                    unusedGrps.pop_back();
-                    unusedPos[xGrp] = -1;
-                }
-
-
-                for (size_t i = 1; i < r1Grps.size(); i++)
-                {
-                    size_t grpIdx = r1Grps[i];
-                    int& grpPos = unusedPos[grpIdx];
-                    if (grpPos >= 0) continue;
-
-                    // Add to list of unused groups.
-                    grpPos = unusedGrps.size();
-                    unusedGrps.push_back(grpIdx);
-                }
+                P.r1Refine(oId, g[oId]);
             }
 
 
             // --- Line 9 ---
 
-            while (unusedGrps.size() > 0)
+            while (P.hasUnusedParts())
             {
-                // --- Lines 10 + 11 ---
+                // --- Lines 10 - 13 ---
 
-                size_t cIdx = unusedGrps.back();
-                int yId = P.firstInGroup(cIdx);
-                pivot[cIdx] = yId;
+                int yId = P.findUnusedPivot();
 
-
-                // --- Lines 12 + 13 ---
-
-                vector<size_t> newGrps = P.r2Refine(yId, g[yId]);
-
-                // Mark C as used.
-                // Because we picked C as last group in unusedGrps, we can
-                // simply drop it from the list.
-                unusedGrps.pop_back();
-                unusedPos[cIdx] = -1;
-
-                // Mark new groups as unused.
-                for (const size_t& grpIdx : newGrps)
-                {
-                    unusedPos[grpIdx] = unusedGrps.size();
-                    unusedGrps.push_back(grpIdx);
-                }
+                P.r2Refine(yId, g[yId]);
             }
 
 
             // --- Line 14 ---
 
-            vector<size_t> zGrps = P.findLRNonSingles(oId);
+            vector<int> zPivots = P.findLRPivots(oId);
 
-            if (zGrps.size() == 0)
-            {
-                throw logic_error("Unable to find groups.");
-            }
-
-            // Remove group with old origin.
+            // Remove part with current origin.
             P.dropIfSingle(oId);
 
-            if (zGrps.size() == 1)
+
+            // --- Line 15 - 18 ---
+
+
+            // No more non-singleton parts?
+            if (zPivots.size() == 0) break;
+
+            // Only one side has a non-sigleton part?
+            if (zPivots.size() == 1)
             {
-                // Well, guess its pivot is the new origin.
-                size_t zGrp = zGrps[0];
-                oId = pivot[zGrp];
+                oId = zPivots[0];
                 continue;
             }
 
 
-            // --- Line 15 ---
+            // -- There is a non-singlton part on either side of the origin. --
 
-            size_t lGrp = zGrps[0];
-            size_t rGrp = zGrps[1];
-
-            int zL = pivot[lGrp];
-            int zR = pivot[rGrp];
+            int zL = zPivots[0];
+            int zR = zPivots[1];
 
 
             // -- Check if zL and zR are adjacent. --
