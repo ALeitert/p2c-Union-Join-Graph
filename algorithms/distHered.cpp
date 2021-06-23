@@ -102,6 +102,22 @@ namespace
 
     public:
 
+        // Default constructor.
+        // Creates an empty data structure.
+        CographPR() : PartRefinement() { }
+
+        // Constructor.
+        // Creates a partition refinement of size n.
+        CographPR(size_t n) : PartRefinement(n)
+        {
+            unusedPos.resize(n, -1);
+            pivot.resize(n, -1);
+
+            // The initial part (contining everything) is unused.
+            unusedParts.push_back(0);
+            unusedPos[0] = 0;
+        }
+
 
     private:
 
