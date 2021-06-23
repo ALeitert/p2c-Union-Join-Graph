@@ -16,6 +16,26 @@ namespace DistH
         FalseTwin,
         TrueTwin
     };
+
+    // Represents a single pruning operation.
+    struct Pruning
+    {
+        int vertex;
+        PruningType type;
+        int parent;
+
+        // Default constructor.
+        Pruning() = default;
+
+        // Constructor.
+        Pruning(int vId, PruningType pType, int pId) :
+            vertex(vId),
+            type(pType),
+            parent(pId)
+        {
+            /* Nothing to do. */
+        }
+    };
 }
 
 #endif
