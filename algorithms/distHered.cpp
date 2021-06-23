@@ -563,6 +563,47 @@ namespace
         }
 
 
+        // Combines the subrtrees of two vertices with a node of the given type.
+        void mergeSubtrees(int xId, int yId, CotreeNode rType)
+        {
+            assert(xId >= 0 && xId < localRoot.size());
+            assert(yId >= 0 && yId < localRoot.size());
+            assert(rType == CotreeNode::Join || rType == CotreeNode::Union);
+
+
+            // --- Determine old roots. ---
+
+            int xRoot = localRoot[xId];
+            int yRoot = localRoot[yId];
+
+            if (xRoot == yRoot) return;
+
+
+            // --- Create new root. ---
+
+            int newRoot = parents.size();
+
+            // Add to tree.
+            parents.push_back(-1);
+            nodeTypes.push_back(rType);
+            adjList.push_back(vector<int>());
+
+            // Make new root adjacent to old roots ...
+            adjList[xRoot].push_back(newRoot);
+            adjList[yRoot].push_back(newRoot);
+
+            adjList[newRoot].push_back(xRoot);
+            adjList[newRoot].push_back(yRoot);
+
+            // ... and make it their parent.
+            parents[xRoot] = newRoot;
+            parents[yRoot] = newRoot;
+
+            // Update x and y.
+            localRoot[xId] = newRoot;
+            localRoot[yId] = newRoot;
+        }
+
     private:
 
         // The ID of the root.
