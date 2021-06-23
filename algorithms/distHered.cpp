@@ -552,7 +552,7 @@ namespace
         {
             parents.resize(n, -1);
             nodeTypes.resize(n, CotreeNode::Vertex);
-            adjList.resize(n);
+            children.resize(n);
             localRoot.resize(n);
 
             // Each node is its own root.
@@ -586,16 +586,12 @@ namespace
             // Add to tree.
             parents.push_back(-1);
             nodeTypes.push_back(rType);
-            adjList.push_back(vector<int>());
+            children.push_back(vector<int>());
 
-            // Make new root adjacent to old roots ...
-            adjList[xRoot].push_back(newRoot);
-            adjList[yRoot].push_back(newRoot);
+            // Make new root parent of old roots.
+            children[newRoot].push_back(xRoot);
+            children[newRoot].push_back(yRoot);
 
-            adjList[newRoot].push_back(xRoot);
-            adjList[newRoot].push_back(yRoot);
-
-            // ... and make it their parent.
             parents[xRoot] = newRoot;
             parents[yRoot] = newRoot;
 
@@ -606,9 +602,6 @@ namespace
 
     private:
 
-        // The ID of the root.
-        int root = -1;
-
         // The parent of each node.
         vector<int> parents;
 
@@ -616,7 +609,7 @@ namespace
         vector<CotreeNode> nodeTypes;
 
         // The adjacency list of the tree.
-        vector<vector<int>> adjList;
+        vector<vector<int>> children;
 
 
         // States root-ID of the current subtree of a given vertex.
