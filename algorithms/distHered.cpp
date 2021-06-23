@@ -94,6 +94,12 @@ namespace
         }
     }
 
+    // A modifies partition refinement data structure for the recognition of cographs.
+    class CographPR : public PartRefinement
+    {
+
+    };
+
 
     // Determines a factorising permutation if the given graph is a cograph.
     vector<int> factPermutation(const Graph& g)
