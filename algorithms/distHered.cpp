@@ -102,6 +102,7 @@ namespace
         // Follow terminology from [2].
         typedef Group Part;
 
+
     public:
 
         // Default constructor.
@@ -252,21 +253,19 @@ namespace
         }
 
 
-        // Determines if there are parts which are flagged as unused.
-        bool hasUnusedParts()
+        // Determines if the data structure contains unused parts.
+        // If so, picks an element from an unused part, writes it in the given
+        // ID, and returns true.
+        // Otherwise, returns false and does not change the given ID.
+        bool findUnusedPivot(int& id)
         {
-            return unusedParts.size() > 0;
-        }
-
-        // Finds an unused part and picks and returns an element in it.
-        int findUnusedPivot()
-        {
-            assert(hasUnusedParts());
+            if (unusedParts.size() == 0) return false;
 
             size_t prtIdx = unusedParts.back();
             const Part& part = groups[prtIdx];
 
-            return order[part.start];
+            id = order[part.start];
+            return true;
         }
 
         // Determines the nearest non-singleton parts to the left and right of
@@ -457,14 +456,10 @@ namespace
             }
 
 
-            // --- Line 9 ---
+            // --- Line 9 - 13 ---
 
-            while (P.hasUnusedParts())
+            for (int yId = -1; P.findUnusedPivot(yId);)
             {
-                // --- Lines 10 - 13 ---
-
-                int yId = P.findUnusedPivot();
-
                 P.r2Refine(yId, g[yId]);
             }
 
