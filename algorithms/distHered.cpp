@@ -114,6 +114,35 @@ namespace
 
         // The pivot of each part.
         vector<int> pivot;
+
+        // Marks the given part as used and assigns it the given pivot.
+        void makeUsed(size_t prtIdx, int piv)
+        {
+            int pos = unusedPos[prtIdx];
+            if (pos >= 0)
+            {
+                // Swap with last entry.
+                swap(unusedParts[pos], unusedParts.back());
+                size_t lastGrp = unusedParts[pos];
+                unusedPos[lastGrp] = pos;
+
+                unusedParts.pop_back();
+                unusedPos[prtIdx] = -1;
+            }
+
+            pivot[prtIdx] = piv;
+        }
+
+        // Marks the given part as unused.
+        void makeUnused(size_t prtIdx)
+        {
+            pivot[prtIdx] = -1;
+            int pos = unusedPos[prtIdx];
+            if (pos >= 0) return;
+
+            unusedPos[prtIdx] = unusedParts.size();
+            unusedParts.push_back(prtIdx);
+        }
     };
 
 
