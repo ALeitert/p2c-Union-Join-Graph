@@ -170,6 +170,87 @@ namespace
             }
         }
 
+        // Refines the current parts which do not contain the given vertex y
+        // according to Rule 2 for factorising permutations.
+        void r2Refine(int yId, const vector<int>& yNeigh)
+        {
+            // -- Rule 2 Refinement --
+            // See Procedure 4 in [2].
+
+            // For a given vertex y, split all parts X not containing y into
+            //     [ co-N(y) \cap X, N(y) \cap X ].
+
+            // If X was unused, then mark both parts as unused too.
+            // If X was used, mark the part containing its pivot as used and
+            // the other part as unused.
+
+            // Mark the part C containing y as used.
+            // If C is a singleton part, drop it.
+
+
+            // --- Process C. ---
+
+            size_t cIdx = id2Grp[yId];
+            makeUsed(cIdx, yId);
+
+            bool isSingle = dropIfSingle(yId);
+
+
+            // --- Determine neighbours of y not in C and refine them. ---
+
+            vector<int> newNeigh;
+
+            if (!isSingle)
+            {
+                for (const int& id : yNeigh)
+                {
+                    size_t prtIdx = id2Grp[id];
+                    if (prtIdx != cIdx) newNeigh.push_back(id);
+                }
+            }
+
+            vector<size_t> newParts = refine(isSingle ? yNeigh : newNeigh);
+
+
+            // --- Mark new and refined parts according to Rule 2. ---
+
+            // If a part X is a subset of yNeigh, then Refine() did not change
+            // it and did not create a new part after it. Subsequently, X is not
+            // listed in newParts[].
+
+            for (size_t xaIdx : newParts)
+            {
+                // Part X was split into X and Xa.
+                // Xa contains the neighbours of y and succeds X.
+
+                size_t xIdx = groups[xaIdx].prev;
+
+                // Was X unused before Refine()?
+                if (unusedPos[xIdx] >= 0)
+                {
+                    // Yes. Mark Xa as unused too.
+                    makeUnused(xaIdx);
+                }
+                else
+                {
+                    // No. Determine pivot and which part it contains.
+
+                    int xPiv = pivot[xIdx];
+
+                    if (id2Grp[xPiv] == xIdx)
+                    {
+                        // X remains used with pivot x.
+                        makeUnused(xaIdx);
+                    }
+                    else
+                    {
+                        makeUnused(xIdx);
+                        makeUsed(xaIdx, xPiv);
+                    }
+                }
+            }
+        }
+
 
         // Drops the part containing the given ID if it is a singleton part.
         // Returns false if the given ID is not in a singleton.
