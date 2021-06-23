@@ -36,6 +36,11 @@ namespace DistH
             /* Nothing to do. */
         }
     };
+
+
+    // Computes a pruning sequence for a given cograph.
+    // Returns an empty list if the given graph is not a cograph.
+    vector<Pruning> pruneCograph(const Graph& g);
 }
 
 #endif

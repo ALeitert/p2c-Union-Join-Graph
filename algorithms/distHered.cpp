@@ -17,7 +17,8 @@
 //     Discrete Applied Mathematics 145, 183 - 197, 2005.
 
 
-// Anonymous namespace for helper functions.
+// Anonymous namespace for "helper" functions.
+// Implements recognition of cographs according to [2].
 namespace
 {
     // Types of twins.
@@ -726,4 +727,12 @@ namespace
 
         return pre[n - 1] >= n - 1 ? coT : Cotree();
     }
+}
+
+
+// Computes a pruning sequence for a given cograph.
+// Returns an empty list if the given graph is not a cograph.
+vector<DistH::Pruning> DistH::pruneCograph(const Graph& g)
+{
+    throw runtime_error("Not implemented.");
 }
