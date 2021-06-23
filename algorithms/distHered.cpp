@@ -541,6 +541,21 @@ namespace
         };
 
 
+        // Default constructor.
+        // Creates an empty tree.
+        Cotree() { /* Nothing to do. */ }
+
+        // Constructor.
+        // Creates a "tree" with n vertex-nodes.
+        // Does not create any edgesl
+        Cotree(size_t n)
+        {
+            parents.resize(n, -1);
+            nodeTypes.resize(n, CotreeNode::Vertex);
+            adjList.resize(n);
+        }
+
+
     private:
 
         // The ID of the root.
