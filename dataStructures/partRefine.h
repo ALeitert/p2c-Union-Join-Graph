@@ -12,24 +12,6 @@ using namespace std;
 
 class PartRefinement
 {
-    // Represents a group within the partition refinement.
-    struct Group
-    {
-        // The index of the first element in the group (inclusive).
-        size_t start = 0;
-
-        // The index of the last element in the group (inclusive).
-        size_t end = 0;
-
-        // The indices previous and next group.
-        size_t prev = 0;
-        size_t next = 0;
-
-        // A temporary counter how many elements will be removed from the group.
-        size_t count = 0;
-    };
-
-
 public:
 
     // Default constructor.
@@ -95,8 +77,25 @@ public:
     // Returns false if the given ID is not in a singleton group.
     bool dropIfSingle(int id);
 
+protected:
 
-private:
+    // Represents a group within the partition refinement.
+    struct Group
+    {
+        // The index of the first element in the group (inclusive).
+        size_t start = 0;
+
+        // The index of the last element in the group (inclusive).
+        size_t end = 0;
+
+        // The indices previous and next group.
+        size_t prev = 0;
+        size_t next = 0;
+
+        // A temporary counter how many elements will be removed from the group.
+        size_t count = 0;
+    };
+
 
     // All groups (not in order).
     vector<Group> groups;
