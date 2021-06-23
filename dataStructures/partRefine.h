@@ -12,24 +12,6 @@ using namespace std;
 
 class PartRefinement
 {
-    // Represents a group within the partition refinement.
-    struct Group
-    {
-        // The index of the first element in the group (inclusive).
-        size_t start = 0;
-
-        // The index of the last element in the group (inclusive).
-        size_t end = 0;
-
-        // The indices previous and next group.
-        size_t prev = 0;
-        size_t next = 0;
-
-        // A temporary counter how many elements will be removed from the group.
-        size_t count = 0;
-    };
-
-
 public:
 
     // Default constructor.
@@ -42,7 +24,8 @@ public:
 
 
     // Refines the current groups based on the given list of IDs.
-    void refine(const vector<int>& idList);
+    // Returns the indices of the newly created groups.
+    vector<size_t> refine(const vector<int>& idList);
 
     // Refines the the first and last group that contain any of the given IDs.
     // Refinement happens towards each other instead of towards the end.
@@ -71,7 +54,25 @@ public:
     bool isDroppedOrSingle(int id) const;
 
 
-private:
+protected:
+
+    // Represents a group within the partition refinement.
+    struct Group
+    {
+        // The index of the first element in the group (inclusive).
+        size_t start = 0;
+
+        // The index of the last element in the group (inclusive).
+        size_t end = 0;
+
+        // The indices previous and next group.
+        size_t prev = 0;
+        size_t next = 0;
+
+        // A temporary counter how many elements will be removed from the group.
+        size_t count = 0;
+    };
+
 
     // All groups (not in order).
     vector<Group> groups;
