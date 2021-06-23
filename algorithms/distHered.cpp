@@ -625,11 +625,8 @@ namespace
 
     // Computes a cotree for the given graph if it is a cograph.
     // Otherwise nothing is returned.
-    bool cotree(const Graph& g)
+    Cotree cotree(const Graph& g)
     {
-        // ToDo: Return prper cotree.
-
-
         // --- Algorithm 5 from [2] ---
 
         //  0  Compute a factorising permutation sigma = < v_1, v_2, ..., v_n >.
@@ -656,6 +653,7 @@ namespace
 
 
         size_t n = g.size();
+        Cotree coT(n);
 
 
         // --- Line 0 ---
@@ -666,10 +664,9 @@ namespace
         // --- Line 3 ---
 
         // Index of the preceeding element in sigma.
-        // We use int instead of size_t, to have -1 as null-pointer.
-        vector<int> pre(n);
+        vector<size_t> pre(n);
 
-        for (int i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
         {
             pre[i] = i - 1;
         }
@@ -687,13 +684,13 @@ namespace
         //     While z and pre(z) are twins (true or false) in G(sigma)
         //         Remove pre(z) from sigma.
 
-        for (int z = 1; z < n; z++)
+        for (size_t z = 1; z < n; z++)
         {
             // --- Lines 5 - 11 (modified) ---
 
             int zId = sigma[z];
 
-            for (int& p = pre[z]; p >= 0;)
+            for (size_t& p = pre[z]; p < z;)
             {
                 int pId = sigma[p];
 
@@ -701,6 +698,18 @@ namespace
                 if (tt == TwinType::None) break;
 
                 // z and pre(z) are twins.
+
+                // Update cotree.
+                coT.mergeSubtrees
+                (
+                    zId,
+                    pId,
+                    tt == TwinType::FalseTwin
+                    ?
+                        Cotree::CotreeNode::Union
+                    :
+                        Cotree::CotreeNode::Join
+                );
 
                 // "Remove" pre(z) from sigma.
                 removed[pId] = true;
@@ -715,6 +724,6 @@ namespace
         // contains only one entry. The list only contains one entry if and only
         // if the last entry has no preceeding element.
 
-        return pre[n - 1] < 0;
+        return pre[n - 1] >= n - 1 ? coT : Cotree();
     }
 }
