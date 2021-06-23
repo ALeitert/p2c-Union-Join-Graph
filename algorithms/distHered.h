@@ -9,7 +9,13 @@
 
 namespace DistH
 {
-
+    // Represents the different types of pruning operations.
+    enum class PruningType
+    {
+        Pendant,
+        FalseTwin,
+        TrueTwin
+    };
 }
 
 #endif
