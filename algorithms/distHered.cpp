@@ -553,6 +553,13 @@ namespace
             parents.resize(n, -1);
             nodeTypes.resize(n, CotreeNode::Vertex);
             adjList.resize(n);
+            localRoot.resize(n);
+
+            // Each node is its own root.
+            for (int id = 0; id < n; id++)
+            {
+                localRoot[id] = id;
+            }
         }
 
 
@@ -569,6 +576,10 @@ namespace
 
         // The adjacency list of the tree.
         vector<vector<int>> adjList;
+
+
+        // States root-ID of the current subtree of a given vertex.
+        vector<int> localRoot;
     };
 
     // Computes a cotree for the given graph if it is a cograph.
