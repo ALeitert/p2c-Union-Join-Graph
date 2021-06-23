@@ -269,6 +269,45 @@ namespace
             return order[part.start];
         }
 
+        // Determines the nearest non-singleton parts to the left and right of
+        // the part containing the given element.
+        // Returns the pivots of these parts.
+        vector<int> findLRPivots(int id)
+        {
+            vector<int> result;
+
+            size_t prtIdx = id2Grp[id];
+            const Part& part = groups[prtIdx];
+
+            // Search on left.
+            for (size_t lIdx = part.prev; lIdx < groups.size(); lIdx = groups[lIdx].prev)
+            {
+                const Part& lPart = groups[lIdx];
+
+                if (lPart.start < lPart.end)
+                {
+                    // Part has more than one entry.
+                    result.push_back(pivot[lIdx]);
+                    break;
+                }
+            }
+
+            // Search on right.
+            for (size_t rIdx = part.next; rIdx < groups.size(); rIdx = groups[rIdx].next)
+            {
+                const Part& rPart = groups[rIdx];
+
+                if (rPart.start < rPart.end)
+                {
+                    // Part has more than one entry.
+                    result.push_back(pivot[rIdx]);
+                    break;
+                }
+            }
+
+            return result;
+        }
+
 
         // Drops the part containing the given ID if it is a singleton part.
         // Returns false if the given ID is not in a singleton.
