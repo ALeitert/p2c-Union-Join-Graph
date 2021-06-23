@@ -32,25 +32,6 @@ public:
     void flRefine(const vector<int>& idList);
 
 
-    // Refines the group (part) containing the given vertex x according to
-    // Rule 1 for factorising permutations.
-    // Is used to recognise cographs.
-    vector<size_t> r1Refine(int xId, const vector<int>& xNeigh);
-
-    // Refines the current groups (parts) which do not contain the given vertex
-    // y according to Rule 2 for factorising permutations.
-    // Returns the indices of the newly created groups.
-    // Is used to recognise cographs.
-    vector<size_t> r2Refine(int yId, const vector<int>& yNeigh);
-
-    // Determines the first element in the group with the given index.
-    // Is used to recognise cographs.
-    int firstInGroup(size_t grpIdx);
-
-    // Determines the nearest non-singleton groups to the left and right of the group containing the given element.
-    vector<size_t> findLRNonSingles(int);
-
-
     // The current number of non-empty groups.
     size_t size() const;
 
@@ -72,10 +53,6 @@ public:
     // Determines if the given ID is either dropped or allone in its group.
     bool isDroppedOrSingle(int id) const;
 
-
-    // Drops the group containing the given ID if it is a singleton group.
-    // Returns false if the given ID is not in a singleton group.
-    bool dropIfSingle(int id);
 
 protected:
 
