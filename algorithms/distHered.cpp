@@ -540,6 +540,20 @@ namespace
             Join
         };
 
+
+    private:
+
+        // The ID of the root.
+        int root = -1;
+
+        // The parent of each node.
+        vector<int> parents;
+
+        // The type of each node.
+        vector<CotreeNode> nodeTypes;
+
+        // The adjacency list of the tree.
+        vector<vector<int>> adjList;
     };
 
     // Computes a cotree for the given graph if it is a cograph.
