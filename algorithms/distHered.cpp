@@ -735,4 +735,19 @@ namespace
 vector<DistH::Pruning> DistH::pruneCograph(const Graph& g)
 {
     throw runtime_error("Not implemented.");
+
+    // --- Algorithm 2 from [1] ---
+
+    //  1  Compute a cotree T of G.
+    //  2  Let A be the nodes of T having only leaves as descendant.
+    //  3  While A is non-empty
+    //  4      Pick an arbitrary node N in A.
+    //  5      Pick an arbitrary child x of N.
+    //  6      For Each child y != x of N
+    //  7          If N is a 1-node, set s_j := (yTx). Otherwise, set s_j := (yFx).
+    //  8          Set j := j + 1.
+    //  9      Replace N by x in T.
+    // 10  If x is the root of T Then
+    // 11      Stop: x is the last vertex of the pruning sequence.
+    // 12  If parent(x) has only leaves as descendant, add parent(x) into A.
 }
