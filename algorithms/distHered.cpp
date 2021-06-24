@@ -926,3 +926,78 @@ vector<DistH::Pruning> DistH::pruneCograph(const Graph& g)
 
     return result;
 }
+
+// Computes a pruning sequence for a given cograph.
+// Returns an empty list if the given graph is not a cograph.
+vector<DistH::Pruning> DistH::pruneCograph_noTree(const Graph& g)
+{
+    // The algorithm from [1] is based on a cotree. We can skip that step and
+    // combine the algorithm to build a cotree with the algrithm to compute a
+    // pruning sequence from such a tree.
+
+
+    size_t n = g.size();
+
+    vector<int> sigma = factPermutation(g);
+
+    // Index of the preceeding element in sigma.
+    vector<size_t> pre(n);
+    for (size_t i = 0; i < n; i++)
+    {
+        pre[i] = i - 1;
+    }
+
+    // States if a vertex was removed from sigma.
+    vector<bool> removed(n, false);
+
+
+    // --- Process permutation. ---
+
+    vector<DistH::Pruning> result;
+
+    for (size_t z = 1; z < n; z++)
+    {
+        int zId = sigma[z];
+
+        for (size_t& p = pre[z]; p < z;)
+        {
+            int pId = sigma[p];
+
+            TwinType tt = checkTwins(g, zId, pId, removed);
+            if (tt == TwinType::None) break;
+
+            // z and pre(z) are twins.
+
+            DistH::PruningType pType =
+            (
+                tt == TwinType::TrueTwin
+                ?
+                    // 1-Node
+                    DistH::PruningType::TrueTwin
+                :
+                    // 0-Node
+                    DistH::PruningType::FalseTwin
+            );
+
+            result.push_back(DistH::Pruning(pId, pType, zId));
+
+
+            // "Remove" pre(z) from sigma.
+            removed[pId] = true;
+            p = pre[p]; // Also updates pre[z].
+        }
+    }
+
+
+    // --- Add "last" vertex. ---
+
+    int vId = sigma.back();
+    result.push_back(Pruning(vId, PruningType::Pendant, -1));
+
+
+    // The given graph is a cograph if and only if the imaginary linked list
+    // contains only one entry. The list only contains one entry if and only
+    // if the last entry has no preceeding element.
+
+    return pre[n - 1] >= n - 1 ? result : vector<DistH::Pruning>();
+}
