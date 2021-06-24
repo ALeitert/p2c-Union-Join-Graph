@@ -646,7 +646,9 @@ namespace
             {
                 if (used[nodeId]) continue;
 
-                int root = localRoot[nodeId];
+                int root = nodeId;
+                while (parents[root] >= 0) root = parents[root];
+
                 stack.push_back(root);
 
                 while (stack.size() > 0)
@@ -657,7 +659,7 @@ namespace
                     if (cIdx == 0)
                     {
                         // *** Pre-order for nId ***
-                        used[nId];
+                        used[nId] = true;
                     }
 
                     if (cIdx < children[nId].size())
@@ -681,6 +683,8 @@ namespace
                     }
                 }
             }
+
+            return postOrder;
         }
 
 
@@ -694,7 +698,6 @@ namespace
 
         // The adjacency list of the tree.
         vector<vector<int>> children;
-
 
         // States root-ID of the current subtree of a given vertex.
         vector<int> localRoot;
@@ -885,7 +888,7 @@ vector<DistH::Pruning> DistH::pruneCograph(const Graph& g)
                     PruningType::FalseTwin
                 :
                     // 1-Node
-                    PruningType::FalseTwin
+                    PruningType::TrueTwin
             );
 
 
@@ -913,6 +916,13 @@ vector<DistH::Pruning> DistH::pruneCograph(const Graph& g)
             stack.push_back(xId);
         }
     }
+
+
+    // --- Add "last" vertex. ---
+
+    int vId = postOrder.back();
+    result.push_back(Pruning(vId, PruningType::Pendant, -1));
+
 
     return result;
 }
