@@ -1003,6 +1003,58 @@ vector<DistH::Pruning> DistH::pruneCograph_noTree(const Graph& g)
 }
 
 
+// Anonymous namespace with helper functions for pruneDistHered().
+namespace
+{
+    // Computes distance layers of a given graph.
+    vector<vector<int>> bfs(const Graph& g, int sId)
+    {
+        size_t n = g.size();
+
+
+        // --- Initialise search. ---
+
+        vector<vector<int>> Q;
+        vector<bool> inQueue(n, false);
+
+        // Set start vertex
+        Q.push_back(vector<int> { sId });
+        inQueue[sId] = true;
+
+
+        // --- Run BFS. ---
+
+        for (size_t dist = 0; dist < Q.size(); dist++)
+        {
+            vector<int>& currQ = Q.back();
+
+            // Ensure there is a queue for the next layer.
+            Q.push_back(vector<int>());
+            vector<int>& nextQ = Q.back();
+
+            for (size_t qIdx = 0; qIdx < currQ.size(); qIdx++)
+            {
+                int vId = currQ[qIdx];
+                const vector<int>& vNeighs = g[vId];
+
+                for (const int& uId : vNeighs)
+                {
+                    if (inQueue[uId]) continue;
+
+                    nextQ.push_back(uId);
+                    inQueue[uId] = true;
+                }
+            }
+        }
+
+        // Remove last empty queue.
+        Q.pop_back();
+
+        return Q;
+    }
+}
+
+
 // Computes a pruning sequence for a given distance-hereditary graph.
 // Returns an empty list if the given graph is not distance-hereditary.
 vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
