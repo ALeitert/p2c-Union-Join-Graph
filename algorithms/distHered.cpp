@@ -1008,4 +1008,29 @@ vector<DistH::Pruning> DistH::pruneCograph_noTree(const Graph& g)
 vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
 {
     throw runtime_error("Not implemented.");
+
+
+    // --- Algorithm 3 from [1] ---
+
+    //  1  Set j := 1.
+    //  2  Compute the distance layout < L_1, ..., L_k > from an arbitrary
+    //     vertex v.
+    //  3  For i := k DownTo 1
+    //  4      For Each connected component CC of G[L_i]
+    //  5          Set z := PruneCograph(G[CC], j).
+    //  6          Contract CC into z.
+    //  7          Set j := j + |CC| - 1.
+    //  8      Sort the vertices of G[L_i] by increasing inner degree.
+    //  9      For Each vertex x of L_i with inner degree 1
+    // 10          Let y be the only neighbour of x.
+    // 11          Set sigma(j) := x, s_j := (xPy), and j := j + 1.
+    // 12      If i == 1, stop.
+    // 13      For Each x in L_i taken in increasing inner degree order
+    // 14          Set y := PruneCograph(G[N_{i - 1}(x)], j).
+    // 15          Contract N_{i - 1}(x) into y.
+    // 16          Set j := j + |N_{i - 1}(x)| - 1
+    // 17          Set sigma(j) := x, s_j := (xPy), and j := j + 1.
+
+    // Note on lines 8, 9, and 13: The "inner degree" of a vertex is the number
+    // of neighbours the vertex has in the layer below in the original graph.
 }
