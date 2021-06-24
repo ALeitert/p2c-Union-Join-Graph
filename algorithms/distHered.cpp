@@ -564,6 +564,20 @@ namespace
         }
 
 
+        // Returns the parents of all nodes.
+        const vector<int>& getParents() const
+        {
+            return parents;
+        }
+
+        // Returns what type a given node is.
+        CotreeNode operator()(int nodeId)
+        {
+            assert(nodeId >= 0 && nodeId < nodeTypes.size());
+            return nodeTypes[nodeId];
+        }
+
+
         // Combines the subrtrees of two vertices with a node of the given type.
         void mergeSubtrees(int xId, int yId, CotreeNode rType)
         {
@@ -602,7 +616,7 @@ namespace
         }
 
         // States if the tree is empty or not.
-        bool isEmpty()
+        bool isEmpty() const
         {
             return parents.size() == 0;
         }
