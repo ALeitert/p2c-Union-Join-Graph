@@ -621,6 +621,68 @@ namespace
             return parents.size() == 0;
         }
 
+        // Computes a post-order of the nodes in the tree.
+        vector<int> getPostOrder() const
+        {
+            size_t n = parents.size();
+            vector<bool> used(n, false);
+
+
+            // --- Prepare DFS. ---
+
+            vector<int> postOrder(n);
+            size_t postIdx = 0;
+
+            // Helpers to compute DFS.
+            vector<size_t> childIndex;
+            childIndex.resize(n, 0);
+
+            vector<int> stack;
+
+
+            // --- Run DFS. ---
+
+            for (int nodeId = 0; nodeId < n; nodeId++)
+            {
+                if (used[nodeId]) continue;
+
+                int root = localRoot[nodeId];
+                stack.push_back(root);
+
+                while (stack.size() > 0)
+                {
+                    int nId = stack.back();
+                    size_t cIdx = childIndex[nId];
+
+                    if (cIdx == 0)
+                    {
+                        // *** Pre-order for nId ***
+                        used[nId];
+                    }
+
+                    if (cIdx < children[nId].size())
+                    {
+                        int cId = children[nId][cIdx];
+
+                        // No need to check if child was visited before,
+                        // since we only have edges to children.
+
+                        stack.push_back(cId);
+                        childIndex[nId]++;
+                    }
+                    else
+                    {
+                        // All neighbours checked, backtrack.
+                        stack.pop_back();
+
+                        // *** Post-order for vId ***
+                        postOrder[postIdx] = nId;
+                        postIdx++;
+                    }
+                }
+            }
+        }
+
 
     private:
 
