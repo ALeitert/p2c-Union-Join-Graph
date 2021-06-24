@@ -810,8 +810,6 @@ namespace
 // Returns an empty list if the given graph is not a cograph.
 vector<DistH::Pruning> DistH::pruneCograph(const Graph& g)
 {
-    throw runtime_error("Not implemented.");
-
     // --- Algorithm 2 from [1] ---
 
     // Note that the algorithm produces an elimination order.
@@ -844,4 +842,77 @@ vector<DistH::Pruning> DistH::pruneCograph(const Graph& g)
     // 10              Set parent(x_i) := parent(x_{i + 1}) and x_{i + 1} := x_i.
     // 11      Else
     // 12          Push x_i onto S.
+
+
+    // --- Line 1 ---
+
+    Cotree coT = cotree(g);
+    if (coT.isEmpty()) return vector<Pruning>();
+
+
+    // --- Lines 2 + 3 ---
+
+    vector<int> postOrder = coT.getPostOrder();
+    vector<int> parents = coT.getParents();
+
+    vector<int> stack;
+
+    vector<Pruning> result;
+
+
+    // --- Line 4 ---
+
+    for (size_t i = 0; i < postOrder.size() - 1; i++)
+    {
+        // --- Line 5 ---
+
+        int xId = postOrder[i];
+        int& xPar = parents[xId];
+        int& next = postOrder[i + 1];
+
+
+        // --- Line 6 ---
+
+        if (next == xPar)
+        {
+            // x is last child of parent.
+
+            PruningType pType =
+            (
+                coT(xPar) == Cotree::CotreeNode::Union
+                ?
+                    // 0-Node
+                    PruningType::FalseTwin
+                :
+                    // 1-Node
+                    PruningType::FalseTwin
+            );
+
+
+            // --- Lines 7 - 9---
+
+            for (; stack.size() > 0; stack.pop_back())
+            {
+                int yId = stack.back();
+                if (parents[yId] != xPar) break;
+
+                result.push_back(Pruning(yId, pType, xId));
+            }
+
+
+            // --- Line 10 ---
+
+            // xPar and next are reference.
+            xPar = parents[xPar];
+            next = xId;
+        }
+        else
+        {
+            // --- Line 12 ---
+
+            stack.push_back(xId);
+        }
+    }
+
+    return result;
 }
