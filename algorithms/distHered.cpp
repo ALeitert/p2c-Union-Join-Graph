@@ -1001,3 +1001,11 @@ vector<DistH::Pruning> DistH::pruneCograph_noTree(const Graph& g)
 
     return pre[n - 1] >= n - 1 ? result : vector<DistH::Pruning>();
 }
+
+
+// Computes a pruning sequence for a given distance-hereditary graph.
+// Returns an empty list if the given graph is not distance-hereditary.
+vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
+{
+    throw runtime_error("Not implemented.");
+}
