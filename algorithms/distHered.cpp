@@ -1168,4 +1168,32 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
 
     // Note on lines 8, 9, and 13: The "inner degree" of a vertex is the number
     // of neighbours the vertex has in the layer below in the original graph.
+
+
+    const size_t n = g.size();
+
+
+    // --- Line 2 ---
+
+    vector<vector<int>> layers = bfs(g, 0);
+    const size_t k = layers.size();
+
+    // Determine the layer of each vertex.
+    vector<size_t> id2Layer(n);
+    for (size_t i = 0; i < k; i++)
+    {
+        for (const int& vId : layers[i])
+        {
+            id2Layer[vId] = i;
+        }
+    }
+
+
+    // --- Preprocessing for later. ---
+
+    // Determine the inner degree of all vertices.
+    vector<size_t> inDegree = getInnerDegree(g, id2Layer);
+
+    // Sort vertices in layers by their number of neighbours below.
+    vector<vector<int>> sortedLayers = sortByDegree(g, id2Layer, inDegree, k);
 }
