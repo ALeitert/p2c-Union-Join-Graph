@@ -1291,5 +1291,16 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
             id2ccIdx[vId] = iCCList[ccIdx].size();
             iCCList[ccIdx].push_back(vId);
         }
+
+
+        // --- Line 4 ---
+
+        for (const vector<int>& cc : iCCList)
+        {
+            // --- Line 5 ---
+
+            Graph sg = createCCSubgraph(g, ignore, id2Layer, i, cc, id2ccIdx);
+            vector<Pruning> sgPrune = pruneCograph_noTree(sg);
+        }
     }
 }
