@@ -1137,23 +1137,20 @@ namespace
         return layers;
     }
 
-    // Creates the subgraph for a given connected component.
-    Graph createCCSubgraph
+    // Creates the subgraph from a given list of vertices.
+    Graph createSubgraph
     (
         const Graph& g,
-        const vector<bool>& ignore,
-        const vector<size_t>& id2Layer,
-        const size_t& layer,
-        const vector<int>& cc,
-        const vector<size_t>& id2ccIdx
+        const vector<int>& vList,
+        const vector<int>& sgIds
     )
     {
         vector<intPair> edgeList;
 
         // Determine edges of subgraph.
-        for (size_t vIdx = 1; vIdx < cc.size(); vIdx++)
+        for (size_t vIdx = 1; vIdx < vList.size(); vIdx++)
         {
-            int vId = cc[vIdx];
+            int vId = vList[vIdx];
             const vector<int>& vNeighs = g[vId];
 
             for (size_t uIdx = 0; uIdx < vNeighs.size(); uIdx++)
@@ -1163,9 +1160,10 @@ namespace
                 // The edges need to go from larger to smaller vertex.
                 if (uId > vId) break;
 
-                if (ignore[uId] || id2Layer[uId] != layer) continue;
-
-                edgeList.push_back(intPair(vIdx, id2ccIdx[uId]));
+                if (sgIds[uId] >= 0)
+                {
+                    edgeList.push_back(intPair(vIdx, sgIds[uId]));
+                }
             }
         }
 
@@ -1237,8 +1235,8 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
     // Determines for the representetive of a CC the index of that component.
     vector<size_t> ccRep2Idx(n, -1);
 
-    // States for a given vertex the index it has in its connected component.
-    vector<size_t> id2ccIdx(n, -1);
+    // Used to construct subgraphs.
+    vector<int> sgIds(n, -1);
 
 
     // Determine the inner degree of all vertices.
@@ -1292,7 +1290,6 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
                 iCCList.push_back(vector<int>());
             }
 
-            id2ccIdx[vId] = iCCList[ccIdx].size();
             iCCList[ccIdx].push_back(vId);
         }
 
@@ -1303,8 +1300,21 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
         {
             // --- Line 5 ---
 
-            Graph sg = createCCSubgraph(g, ignore, id2Layer, i, cc, id2ccIdx);
+            // Set IDs for subgraph.
+            for (int id = 0; id < cc.size(); id++)
+            {
+                int vId = cc[id];
+                sgIds[vId] = id;
+            }
+
+            Graph sg = createSubgraph(g, cc, sgIds);
             const vector<Pruning> sgPrune = pruneCograph_noTree(sg);
+
+            // Reset IDs for subgraph.
+            for (const int& vId : cc)
+            {
+                sgIds[vId] = -1;
+            }
 
 
             // --- Lines 6 and 7 ---
