@@ -1073,6 +1073,68 @@ namespace
 
         return innerDegree;
     }
+
+    // Sorts vertices within layers by inner degree of vertices.
+    // Does not change the given layers and returns a new list of layers instead.
+    vector<vector<int>> sortByDegree
+    (
+        const Graph& g,
+        const vector<size_t>& id2Layer,
+        const vector<size_t>& innerDegree,
+        const size_t k /* the total number of layers */
+    )
+    {
+        const size_t n = g.size();
+
+
+        // --- Counting sort. ---
+
+        // Result of sorting.
+        vector<int> byDegree(n);
+
+        // Counter for counting sort.
+        vector<size_t> counter(n, 0);
+
+
+        // Count.
+        for (int vId = 0; vId < n; vId++)
+        {
+            size_t key = innerDegree[vId];
+            counter[key]++;
+        }
+
+        // Pre-fix sums.
+        for (size_t i = 1; i < n; i++)
+        {
+            counter[i] += counter[i + 1];
+        }
+
+        // Sort.
+        for (int vId = n - 1; vId >= 0; vId--)
+        {
+            size_t key = innerDegree[vId];
+
+            counter[key]--;
+            size_t idx = counter[key];
+
+            byDegree[idx] = vId;
+        }
+
+
+        // -- Rebuild layers. --
+
+        vector<vector<int>> layers(k);
+
+        // Add vertices into layers again.
+        for (size_t idx = 0; idx < n; idx++)
+        {
+            int vId = byDegree[idx];
+            size_t vLayer = id2Layer[vId];
+            layers[vLayer].push_back(vId);
+        }
+
+        return layers;
+    }
 }
 
 
