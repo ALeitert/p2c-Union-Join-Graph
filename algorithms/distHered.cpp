@@ -4,6 +4,7 @@
 #include <cassert>
 
 #include "../dataStructures/partRefine.h"
+#include "../dataStructures/unionFind.h"
 
 
 // --- Papers ---
@@ -1191,9 +1192,69 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
 
     // --- Preprocessing for later. ---
 
+    // States if a vertex was "removed" by contracting vertices.
+    vector<bool> ignore(n, false);
+
+
+    // Union find to determine connected components.
+    UnionFind uf(n);
+
+    // Determines for the representetive of a CC the index of that component.
+    vector<size_t> ccRep2Idx(n, -1);
+
+    // States for a given vertex the index it has in its connected component.
+    vector<size_t> id2ccIdx(n, -1);
+
+
     // Determine the inner degree of all vertices.
     vector<size_t> inDegree = getInnerDegree(g, id2Layer);
 
     // Sort vertices in layers by their number of neighbours below.
     vector<vector<int>> sortedLayers = sortByDegree(g, id2Layer, inDegree, k);
+
+
+    // --- Line 3 ---
+
+    // We skip layer 0 and treat it later as special case.
+    for (size_t i = k - 1, ccIdx; i > 0; i--)
+    {
+        const vector<int>& iLayer = layers[i];
+
+
+        // --- Determine connected components for lines 4 and 5. ---
+
+        // The connected components of layer i.
+        vector<vector<int>> iCCList;
+
+        for (const int& vId : iLayer)
+        {
+            if (ignore[vId]) continue;
+
+            for (const int& uId : g[vId])
+            {
+                if (id2Layer[uId] != i) continue;
+                uf.unionSets(uId, vId);
+            }
+        }
+
+        // Processed in order to ensure CC is in order too.
+        for (size_t idx = 0; idx < iLayer.size(); idx++)
+        {
+            const int& vId = iLayer[idx];
+            if (ignore[vId]) continue;
+
+            size_t ccRep = uf.findSet(vId);
+            size_t& ccIdx = ccRep2Idx[ccRep];
+
+            if (ccIdx >= n)
+            {
+                // Create new component.
+                ccIdx = iCCList.size();
+                iCCList.push_back(vector<int>());
+            }
+
+            id2ccIdx[vId] = iCCList[ccIdx].size();
+            iCCList[ccIdx].push_back(vId);
+        }
+    }
 }
