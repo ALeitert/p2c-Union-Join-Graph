@@ -1052,6 +1052,27 @@ namespace
 
         return Q;
     }
+
+    // Determine the number of lower neighbours for each vertex.
+    vector<size_t> getInnerDegree(const Graph& g, const vector<size_t>& id2Layer)
+    {
+        const size_t n = g.size();
+        vector<size_t> innerDegree(n, 0);
+
+        for (int vId = 0; vId < n; vId++)
+        {
+            size_t vLayer = id2Layer[vId];
+            size_t& vCount = innerDegree[vId];
+
+            for (const int& uId : g[vId])
+            {
+                // Neighbour is in a lower layer?
+                if (id2Layer[uId] < vLayer) vCount++;
+            }
+        }
+
+        return innerDegree;
+    }
 }
 
 
