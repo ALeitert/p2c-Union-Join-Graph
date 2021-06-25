@@ -1248,6 +1248,10 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
     vector<vector<int>> sortedLayers = sortByDegree(g, id2Layer, inDegree, k);
 
 
+    // The resulting sequence.
+    vector<Pruning> result;
+
+
     // --- Line 3 ---
 
     // We skip layer 0 and treat it later as special case.
@@ -1300,7 +1304,21 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
             // --- Line 5 ---
 
             Graph sg = createCCSubgraph(g, ignore, id2Layer, i, cc, id2ccIdx);
-            vector<Pruning> sgPrune = pruneCograph_noTree(sg);
+            const vector<Pruning> sgPrune = pruneCograph_noTree(sg);
+
+
+            // --- Lines 6 and 7 ---
+
+            // Add all but last to overall result ...
+            for (size_t idx = 0; idx < sgPrune.size() - 1; idx++)
+            {
+                const Pruning& prun = sgPrune[idx];
+                result.push_back(prun);
+
+                // ... and "remove" vertices from graph.
+                ignore[prun.vertex] = true;
+            }
+
         }
     }
 }
