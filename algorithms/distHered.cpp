@@ -1318,7 +1318,45 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
                 // ... and "remove" vertices from graph.
                 ignore[prun.vertex] = true;
             }
+        }
 
+
+        // --- Line 8 ---
+
+        // Vertices in layers are already sorted by degree.
+
+
+        // --- Line 9 ---
+
+        const vector<int>& iLaySorted = sortedLayers[i];
+
+        // Iterate over all verties with inner degree 1.
+        size_t degIdx;
+        for (degIdx = 0; degIdx < iLaySorted.size(); degIdx++)
+        {
+            int vId = iLaySorted[degIdx];
+
+            if (ignore[vId]) continue;
+            if (inDegree[vId] > 1) break;
+
+
+            // --- Line 10 ---
+
+            int yId = -1;
+            for (const int& uId : g[vId])
+            {
+                if (id2Layer[uId] < i)
+                {
+                    yId = uId;
+                    break;
+                }
+            }
+
+
+            // --- Line 11 ---
+
+            result.push_back(Pruning(vId, PruningType::Pendant, yId));
+            ignore[vId] = true; // No real need for it, but we do it just to be safe.
         }
     }
 }
