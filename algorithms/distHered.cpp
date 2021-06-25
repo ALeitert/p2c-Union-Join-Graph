@@ -1136,6 +1136,41 @@ namespace
 
         return layers;
     }
+
+    // Creates the subgraph for a given connected component.
+    Graph createCCSubgraph
+    (
+        const Graph& g,
+        const vector<bool>& ignore,
+        const vector<size_t>& id2Layer,
+        const size_t& layer,
+        const vector<int>& cc,
+        const vector<size_t>& id2ccIdx
+    )
+    {
+        vector<intPair> edgeList;
+
+        // Determine edges of subgraph.
+        for (size_t vIdx = 1; vIdx < cc.size(); vIdx++)
+        {
+            int vId = cc[vIdx];
+            const vector<int>& vNeighs = g[vId];
+
+            for (size_t uIdx = 0; uIdx < vNeighs.size(); uIdx++)
+            {
+                int uId = vNeighs[uIdx];
+
+                // The edges need to go from larger to smaller vertex.
+                if (uId > vId) break;
+
+                if (ignore[uId] || id2Layer[uId] != layer) continue;
+
+                edgeList.push_back(intPair(vIdx, id2ccIdx[uId]));
+            }
+        }
+
+        return Graph(edgeList, vector<int>(edgeList.size()));
+    }
 }
 
 
