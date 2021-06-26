@@ -1176,9 +1176,6 @@ namespace
 // Returns an empty list if the given graph is not distance-hereditary.
 vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
 {
-    throw runtime_error("Not implemented.");
-
-
     // --- Algorithm 3 from [1] ---
 
     //  1  Set j := 1.
@@ -1209,7 +1206,8 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
 
     // --- Line 2 ---
 
-    vector<vector<int>> layers = bfs(g, 0);
+    const int startId = 0;
+    vector<vector<int>> layers = bfs(g, startId);
     const size_t k = layers.size();
 
     // Determine the layer of each vertex.
@@ -1336,37 +1334,122 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
         // Vertices in layers are already sorted by degree.
 
 
-        // --- Line 9 ---
+        // --- Lines 9 and 13 ---
 
         const vector<int>& iLaySorted = sortedLayers[i];
 
-        // Iterate over all verties with inner degree 1.
-        size_t degIdx;
-        for (degIdx = 0; degIdx < iLaySorted.size(); degIdx++)
+        for (size_t degIdx = 0; degIdx < iLaySorted.size(); degIdx++)
         {
             int vId = iLaySorted[degIdx];
-
             if (ignore[vId]) continue;
-            if (inDegree[vId] > 1) break;
 
 
-            // --- Line 10 ---
+            // --- Determine downwards neighbourhood. ---
 
-            int yId = -1;
-            for (const int& uId : g[vId])
+            const vector<int>& vNeighs = g[vId];
+
+            vector<int> vDownN;
+            for (size_t uIdx = 0, id = 0; uIdx < vNeighs.size(); uIdx++)
             {
-                if (id2Layer[uId] < i)
-                {
-                    yId = uId;
-                    break;
-                }
+                int uId = vNeighs[uIdx];
+                if (ignore[uId] || id2Layer[uId] >= i) continue;
+
+                vDownN.push_back(uId);
+                sgIds[uId] = id;
+                id++;
             }
 
 
-            // --- Line 11 ---
+            // The vertex that remains after contracting the downwards neighbourhood.
+            int yId = -1;
+
+            if (vDownN.size() == 1)
+            {
+                yId = vDownN[0];
+            }
+            else
+            {
+                // --- Line 14 ---
+
+                Graph sg = createSubgraph(g, vDownN, sgIds);
+                const vector<Pruning> sgPrune = pruneCograph_noTree(sg);
+
+
+                // --- Lines 15 ---
+
+                // Add all but last two to overall result ...
+                for (size_t idx = 0; idx < sgPrune.size() - 1; idx++)
+                {
+                    const Pruning& prun = sgPrune[idx];
+                    result.push_back(prun);
+
+                    // ... and "remove" vertices from graph.
+                    ignore[prun.vertex] = true;
+                }
+
+                // Last two vertices are special.
+                {
+                    // When creating a subgraph G[X] (with X = N_{i - 1}(u)), we
+                    // process the full neighbourhood of each x in X with
+                    // respect to G, not just G[X]. X might contain a vertex y
+                    // with a particular high number of neighbours. If y is the
+                    // vertex we contract X into, it can happen that we use y
+                    // over and over again to construct subgraphs. To ensure
+                    // linear runtime, we want to use each vertex at most once
+                    // as result of a contraction.
+
+                    // Note that in a pruning sequence, on can alway swap the
+                    // last two vertices. That allows us to decide which vertex
+                    // we contract into and, thereby, avoiding to have the same
+                    // vertex twice.
+
+                    // That beeing said, we do slightly divert from that
+                    // approach. Instead, we pick the vertex with the smaller
+                    // neighbourhood in G.
+
+                    Pruning prun = sgPrune[sgPrune.size() - 2];
+
+                    int& xId = prun.vertex;
+                    int& pId = prun.parent;
+
+                    if (g[xId].size() < g[pId].size())
+                    {
+                        swap(xId, pId);
+                    }
+
+                    result.push_back(prun);
+                    ignore[xId] = true;
+
+                    yId = pId;
+                }
+
+                // For distance-hereditary graphs, if x, y ∈ N_{i - 1}(u) are in
+                // different connected components X and Y of L_{i - 1}, then
+                // X ∪ Y ⊆ N(u)  [Bandelt, Mulder 1986].
+
+                // It follows from the above that we contracted N_{i - 1}(u)
+                // into a single vertex which has no neighbours in L_{i - 1}.
+                // Therefore, we do not need to update connected components
+                // before processing the next layer.
+            }
+
+            // Reset IDs for subgraph.
+            for (const int& uId : vDownN)
+            {
+                sgIds[uId] = -1;
+            }
+
+
+            // --- Lines 10, 11, 16, and 17 ---
 
             result.push_back(Pruning(vId, PruningType::Pendant, yId));
             ignore[vId] = true; // No real need for it, but we do it just to be safe.
         }
     }
+
+
+    // Layer 0: start vertex of BFS
+    result.push_back(Pruning(startId, PruningType::Pendant, -1));
+
+    return result;
 }
