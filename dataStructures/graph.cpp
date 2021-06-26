@@ -35,16 +35,17 @@ Graph::Graph(const vector<intPair>& eList, const vector<int>& wList)
         //     preF >= curF && (preF != curF || preT >= curT)
         if (preF >= curF && (preF != curF || preT >= curT))
         {
-            throw logic_error("List not sorted or contain duplicates.");
+            throw logic_error("List not sorted or contains duplicates.");
         }
     }
 
     // from-ID > to-ID?
     for (size_t i = 0; i < eList.size(); i++)
     {
-        if (eList[i].first <= eList[i].second)
+        // We allow from-ID == to-ID. That way, we can have isolated vertices.
+        if (eList[i].first < eList[i].second)
         {
-            throw logic_error("From-ID <= to-ID.");
+            throw logic_error("From-ID < to-ID.");
         }
     }
 
@@ -63,6 +64,8 @@ Graph::Graph(const vector<intPair>& eList, const vector<int>& wList)
         int fId = eList[i].first;
         int tId = eList[i].second;
         int wei = wList[i];
+
+        if (fId == tId) continue;
 
         edges[fId].push_back(tId);
         edges[tId].push_back(fId);

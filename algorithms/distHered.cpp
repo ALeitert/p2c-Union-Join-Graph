@@ -1022,16 +1022,15 @@ namespace
         Q.push_back(vector<int> { sId });
         inQueue[sId] = true;
 
-
         // --- Run BFS. ---
 
-        for (size_t dist = 0; dist < Q.size(); dist++)
+        for (size_t dist = 0; Q.back().size() > 0; dist++)
         {
-            vector<int>& currQ = Q.back();
-
             // Ensure there is a queue for the next layer.
             Q.push_back(vector<int>());
-            vector<int>& nextQ = Q.back();
+
+            vector<int>& currQ = Q[dist];
+            vector<int>& nextQ = Q[dist + 1];
 
             for (size_t qIdx = 0; qIdx < currQ.size(); qIdx++)
             {
@@ -1107,7 +1106,7 @@ namespace
         // Pre-fix sums.
         for (size_t i = 1; i < n; i++)
         {
-            counter[i] += counter[i + 1];
+            counter[i] += counter[i - 1];
         }
 
         // Sort.
@@ -1166,6 +1165,11 @@ namespace
                 }
             }
         }
+
+        // Add last vertex with "edge" to itself. That ensures that the graph
+        // has the correct number of vertices even if they are isolated.
+        int lastSgId = vList.size() - 1;
+        edgeList.push_back(intPair(lastSgId, lastSgId));
 
         return Graph(edgeList, vector<int>(edgeList.size()));
     }
@@ -1306,7 +1310,7 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
             }
 
             Graph sg = createSubgraph(g, cc, sgIds);
-            const vector<Pruning> sgPrune = pruneCograph_noTree(sg);
+            vector<Pruning> sgPrune = pruneCograph_noTree(sg);
 
             // Reset IDs for subgraph.
             for (const int& vId : cc)
@@ -1317,14 +1321,22 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
 
             // --- Lines 6 and 7 ---
 
-            // Add all but last to overall result ...
+            // Add all but last to overall result.
             for (size_t idx = 0; idx < sgPrune.size() - 1; idx++)
             {
-                const Pruning& prun = sgPrune[idx];
+                Pruning& prun = sgPrune[idx];
+
+                int& xId = prun.vertex;
+                int& pId = prun.parent;
+
+                // Restore original IDs.
+                xId = cc[xId];
+                pId = cc[pId];
+
                 result.push_back(prun);
 
-                // ... and "remove" vertices from graph.
-                ignore[prun.vertex] = true;
+                // "Remove" vertices from graph.
+                ignore[xId] = true;
             }
         }
 
@@ -1372,19 +1384,27 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
                 // --- Line 14 ---
 
                 Graph sg = createSubgraph(g, vDownN, sgIds);
-                const vector<Pruning> sgPrune = pruneCograph_noTree(sg);
+                vector<Pruning> sgPrune = pruneCograph_noTree(sg);
 
 
                 // --- Lines 15 ---
 
-                // Add all but last two to overall result ...
-                for (size_t idx = 0; idx < sgPrune.size() - 1; idx++)
+                // Add all but last two to overall result.
+                for (size_t idx = 0; idx < sgPrune.size() - 2; idx++)
                 {
-                    const Pruning& prun = sgPrune[idx];
+                    Pruning& prun = sgPrune[idx];
+
+                    int& xId = prun.vertex;
+                    int& pId = prun.parent;
+
+                    // Restore original IDs.
+                    xId = vDownN[xId];
+                    pId = vDownN[pId];
+
                     result.push_back(prun);
 
-                    // ... and "remove" vertices from graph.
-                    ignore[prun.vertex] = true;
+                    // "Remove" vertices from graph.
+                    ignore[xId] = true;
                 }
 
                 // Last two vertices are special.
@@ -1411,6 +1431,10 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
 
                     int& xId = prun.vertex;
                     int& pId = prun.parent;
+
+                    // Restore original IDs.
+                    xId = vDownN[xId];
+                    pId = vDownN[pId];
 
                     if (g[xId].size() < g[pId].size())
                     {
