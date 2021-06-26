@@ -1173,6 +1173,94 @@ namespace
 
         return Graph(edgeList, vector<int>(edgeList.size()));
     }
+
+    // Contracts a subgraph defined by the given vertices and add its pruning
+    // sequence to the given list.
+    // Return the ID into which the subgraph is contracted.
+    int contractSG
+    (
+        const Graph& g,
+        const vector<int> vList,
+        vector<int>& sgIds,
+        vector<DistH::Pruning>& result
+    )
+    {
+        // Ignore trival case.
+        // Needed to avoid errors.
+        if (vList.size() == 1) return vList[0];
+
+
+        // --- Create subgraph and pruning sequence. ---
+
+        // Set IDs for subgraph.
+        for (int id = 0; id < vList.size(); id++)
+        {
+            int vId = vList[id];
+            sgIds[vId] = id;
+        }
+
+        Graph sg = createSubgraph(g, vList, sgIds);
+        vector<DistH::Pruning> sgPrune = DistH::pruneCograph_noTree(sg);
+
+        // Reset IDs for subgraph.
+        for (const int& vId : vList)
+        {
+            sgIds[vId] = -1;
+        }
+
+
+        // --- Process sequence (except last two). ---
+
+        // Ignore last entry.
+        sgPrune.pop_back();
+
+        // Restore IDs of G.
+        for (DistH::Pruning& prun : sgPrune)
+        {
+            prun.vertex = vList[prun.vertex];
+            prun.parent = vList[prun.parent];
+        }
+
+        // Add all but last to overall result.
+        for (size_t idx = 0; idx + 1 < sgPrune.size(); idx++)
+        {
+            DistH::Pruning& prun = sgPrune[idx];
+            result.push_back(prun);
+        }
+
+
+        // --- Process last entry. ---
+
+        // When creating a subgraph G[X] (with X = N_{i - 1}(u)), we process the
+        // full neighbourhood of each x in X with respect to G, not just G[X].
+        // X might contain a vertex y with a particular high number of
+        // neighbours. If y is the vertex we contract X into, it can happen that
+        // we use y over and over again to construct subgraphs. To ensure linear
+        // runtime, we want to use each vertex at most once as result of a
+        // contraction.
+
+        // Note that in a pruning sequence, on can alway swap the last two
+        // vertices. That allows us to decide which vertex we contract into and,
+        // thereby, avoiding to have the same vertex twice.
+
+        // That beeing said, we do slightly divert from that approach. Instead,
+        // we pick the vertex with the smaller neighbourhood in G.
+
+        DistH::Pruning& prun = sgPrune.back();
+
+        int& xId = prun.vertex;
+        int& pId = prun.parent;
+
+        if (g[xId].size() < g[pId].size())
+        {
+            swap(xId, pId);
+        }
+
+        result.push_back(prun);
+
+
+        return pId;
+    }
 }
 
 
@@ -1300,43 +1388,14 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
 
         for (const vector<int>& cc : iCCList)
         {
-            // --- Line 5 ---
+            // --- Lines 5 - 7 ---
 
-            // Set IDs for subgraph.
-            for (int id = 0; id < cc.size(); id++)
-            {
-                int vId = cc[id];
-                sgIds[vId] = id;
-            }
+            int zId = contractSG(g, cc, sgIds, result);
 
-            Graph sg = createSubgraph(g, cc, sgIds);
-            vector<Pruning> sgPrune = pruneCograph_noTree(sg);
-
-            // Reset IDs for subgraph.
+            // "Remove" vertices from graph.
             for (const int& vId : cc)
             {
-                sgIds[vId] = -1;
-            }
-
-
-            // --- Lines 6 and 7 ---
-
-            // Add all but last to overall result.
-            for (size_t idx = 0; idx < sgPrune.size() - 1; idx++)
-            {
-                Pruning& prun = sgPrune[idx];
-
-                int& xId = prun.vertex;
-                int& pId = prun.parent;
-
-                // Restore original IDs.
-                xId = cc[xId];
-                pId = cc[pId];
-
-                result.push_back(prun);
-
-                // "Remove" vertices from graph.
-                ignore[xId] = true;
+                ignore[vId] = vId != zId;
             }
         }
 
@@ -1367,104 +1426,30 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
                 if (ignore[uId] || id2Layer[uId] >= i) continue;
 
                 vDownN.push_back(uId);
-                sgIds[uId] = id;
-                id++;
             }
 
 
-            // The vertex that remains after contracting the downwards neighbourhood.
-            int yId = -1;
+            // --- Lines 14 - 16 ---
 
-            if (vDownN.size() == 1)
-            {
-                yId = vDownN[0];
-            }
-            else
-            {
-                // --- Line 14 ---
+            int yId = contractSG(g, vDownN, sgIds, result);
 
-                Graph sg = createSubgraph(g, vDownN, sgIds);
-                vector<Pruning> sgPrune = pruneCograph_noTree(sg);
-
-
-                // --- Lines 15 ---
-
-                // Add all but last two to overall result.
-                for (size_t idx = 0; idx < sgPrune.size() - 2; idx++)
-                {
-                    Pruning& prun = sgPrune[idx];
-
-                    int& xId = prun.vertex;
-                    int& pId = prun.parent;
-
-                    // Restore original IDs.
-                    xId = vDownN[xId];
-                    pId = vDownN[pId];
-
-                    result.push_back(prun);
-
-                    // "Remove" vertices from graph.
-                    ignore[xId] = true;
-                }
-
-                // Last two vertices are special.
-                {
-                    // When creating a subgraph G[X] (with X = N_{i - 1}(u)), we
-                    // process the full neighbourhood of each x in X with
-                    // respect to G, not just G[X]. X might contain a vertex y
-                    // with a particular high number of neighbours. If y is the
-                    // vertex we contract X into, it can happen that we use y
-                    // over and over again to construct subgraphs. To ensure
-                    // linear runtime, we want to use each vertex at most once
-                    // as result of a contraction.
-
-                    // Note that in a pruning sequence, on can alway swap the
-                    // last two vertices. That allows us to decide which vertex
-                    // we contract into and, thereby, avoiding to have the same
-                    // vertex twice.
-
-                    // That beeing said, we do slightly divert from that
-                    // approach. Instead, we pick the vertex with the smaller
-                    // neighbourhood in G.
-
-                    Pruning prun = sgPrune[sgPrune.size() - 2];
-
-                    int& xId = prun.vertex;
-                    int& pId = prun.parent;
-
-                    // Restore original IDs.
-                    xId = vDownN[xId];
-                    pId = vDownN[pId];
-
-                    if (g[xId].size() < g[pId].size())
-                    {
-                        swap(xId, pId);
-                    }
-
-                    result.push_back(prun);
-                    ignore[xId] = true;
-
-                    yId = pId;
-                }
-
-                // For distance-hereditary graphs, if x, y ∈ N_{i - 1}(u) are in
-                // different connected components X and Y of L_{i - 1}, then
-                // X ∪ Y ⊆ N(u)  [Bandelt, Mulder 1986].
-
-                // It follows from the above that we contracted N_{i - 1}(u)
-                // into a single vertex which has no neighbours in L_{i - 1}.
-                // Therefore, we do not need to update connected components
-                // before processing the next layer.
-            }
-
-            // Reset IDs for subgraph.
+            // "Remove" vertices from graph.
             for (const int& uId : vDownN)
             {
-                sgIds[uId] = -1;
+                ignore[uId] = uId != yId;
             }
 
+            // For distance-hereditary graphs, if x, y ∈ N_{i - 1}(u) are in
+            // different connected components X and Y of L_{i - 1}, then
+            // X ∪ Y ⊆ N(u)  [Bandelt, Mulder 1986].
 
-            // --- Lines 10, 11, 16, and 17 ---
+            // It follows from the above that we contracted N_{i - 1}(u) into a
+            // single vertex which has no neighbours in L_{i - 1}. Therefore, we
+            // do not need to update connected components before processing the
+            // next layer.
+
+
+            // --- Lines 10, 11, and 17 ---
 
             result.push_back(Pruning(vId, PruningType::Pendant, yId));
             ignore[vId] = true; // No real need for it, but we do it just to be safe.
