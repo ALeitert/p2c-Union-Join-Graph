@@ -1185,8 +1185,9 @@ namespace
         vector<DistH::Pruning>& result
     )
     {
-        // Ignore trival case.
+        // Check trival cases.
         // Needed to avoid errors.
+        if (vList.size() == 0) return -1;
         if (vList.size() == 1) return vList[0];
 
 
@@ -1210,6 +1211,9 @@ namespace
 
 
         // --- Process sequence (except last two). ---
+
+        // Subgraph is cograph?
+        if (sgPrune.size() < vList.size()) return -1;
 
         // Ignore last entry.
         sgPrune.pop_back();
@@ -1310,6 +1314,16 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
         {
             id2Layer[vId] = i;
         }
+
+        // Clear layer so we can rebuild it later.
+        layers[i].clear();
+    }
+
+    // Rebuild layers to sort them.
+    for (int vId = 0; vId < n; vId++)
+    {
+        size_t l = id2Layer[vId];
+        layers[l].push_back(vId);
     }
 
 
@@ -1391,6 +1405,7 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
             // --- Lines 5 - 7 ---
 
             int zId = contractSG(g, cc, sgIds, result);
+            if (zId < 0) return vector<Pruning>();
 
             // "Remove" vertices from graph.
             for (const int& vId : cc)
@@ -1432,6 +1447,7 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
             // --- Lines 14 - 16 ---
 
             int yId = contractSG(g, vDownN, sgIds, result);
+            if (yId < 0) return vector<Pruning>();
 
             // "Remove" vertices from graph.
             for (const int& uId : vDownN)
