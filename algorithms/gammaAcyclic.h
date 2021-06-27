@@ -5,6 +5,7 @@
 
 
 #include "../dataStructures/hypergraph.h"
+#include "distHered.h"
 
 
 namespace GammaAcyclic
@@ -14,6 +15,11 @@ namespace GammaAcyclic
 
     // Computes the union join graph for a given gamma-acyclic hypergraph.
     Graph unionJoinGraph(const Hypergraph& hg);
+
+
+    // Computes a pruning sequence for a given gamma-acyclic hypergraph.
+    // Returns an empty list if the given hypergraph is not gamma-acyclic.
+    vector<DistH::Pruning> pruningSequence(const Hypergraph& h);
 }
 
 #endif

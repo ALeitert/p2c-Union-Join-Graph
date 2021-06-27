@@ -3,8 +3,6 @@
 #include "sorting.h"
 
 
-#include <iostream>
-
 // Genrates a gamma-acyclic hypergraph with n vertices and m hyperedges.
 Hypergraph GammaAcyclic::genrate(size_t m, size_t n)
 {
@@ -237,4 +235,12 @@ Graph GammaAcyclic::unionJoinGraph(const Hypergraph& hg)
 
     Sorting::radixSort(edgeList);
     return Graph(edgeList, vector<int>(edgeList.size(), 0) /* weights */);
+}
+
+
+// Computes a pruning sequence for a given gamma-acyclic hypergraph.
+// Returns an empty list if the given hypergraph is not gamma-acyclic.
+vector<DistH::Pruning> GammaAcyclic::pruningSequence(const Hypergraph& h)
+{
+    throw runtime_error("Not implemented.");
 }
