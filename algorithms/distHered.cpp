@@ -31,45 +31,103 @@ namespace
     };
 
     // Determines if two vertices are twins by comparing their neighbourhoods.
-    TwinType checkTwins(const Graph& g, int uId, int vId, const vector<bool> ignore)
+    TwinType checkTwins
+    (
+        const Graph& g,
+        int uId, int vId,
+        const vector<bool>& ignore,
+        vector<vector<size_t>>& nextLst
+    )
     {
         const vector<int>& uNei = g[uId];
         const vector<int>& vNei = g[vId];
 
+        vector<size_t>& uNext = nextLst[uId];
+        vector<size_t>& vNext = nextLst[vId];
+
         bool trueTwins = false;
 
-        for (size_t i = 0, j = 0;; i++, j++)
+        for
+        (
+            size_t
+
+            // Pointer to (pointer to) nodes.
+            pI = 0, pJ = 0,
+
+            // First nodes.
+            // cur := pre.next
+            i = uNext[pI], j = vNext[pJ];
+
+            /* no break condition */;
+
+            // pre := cur
+            pI = i + 1, pJ = j + 1,
+
+            // cur := cur.next
+            i = uNext[i + 1],
+            j = vNext[j + 1]
+        )
         {
-            // --- Skip ignored vertices and check adjacency. ---
+            // --- Skip ignored nodes and "delete" them. ---
 
             int niId = -1;
             int njId = -1;
 
-            for (; i < uNei.size(); i++)
+            for
+            (
+                ;
+                i < uNei.size();
+                i = uNext[i + 1] /* cur := cur.next */
+            )
             {
                 niId = uNei[i];
 
-                if (ignore[niId]) continue;
-
                 if (niId == vId)
                 {
+                    // Found the other vertex.
                     trueTwins = true;
+
+                    // Skip it, but do not delete it.
+                    // Hence, we need to update what was the previous node.
+
+                    pI = i + 1; // pre := cur
+                    continue;
                 }
-                else
-                {
-                    break;
-                }
+
+                if (!ignore[niId]) break;
+
+                // "Delete" current node.
+                // pre.next = cur.next
+                uNext[pI] = uNext[i + 1];
             }
 
-            for (; j < vNei.size(); j++)
+            for
+            (
+                ;
+                j < vNei.size();
+                j = vNext[j + 1] // cur := cur.next
+            )
             {
-                // Simpler loop since we do not need to check for adjacency.
                 njId = vNei[j];
 
-                if (ignore[njId]) continue;
-                if (njId == uId) continue;
+                if (njId == uId)
+                {
+                    // Found the other vertex.
+                    trueTwins = true;
 
-                break;
+                    // Skip it, but do not delete it.
+                    // Hence, we need to update what was the previous node.
+
+                    // pre := cur
+                    pJ = j + 1;
+                    continue;
+                }
+
+                if (!ignore[njId]) break;
+
+                // "Delete" current node.
+                // pre.next = cur.next
+                vNext[pJ] = vNext[j + 1]; 
             }
 
 
@@ -752,8 +810,24 @@ namespace
             pre[i] = i - 1;
         }
 
+
         // States if a vertex was removed from sigma.
         vector<bool> removed(n, false);
+
+        // States for each entry in a neighbourhodd which is the next entry that
+        // has not been removed. Allows to efficiently skip these vertices.
+        // The first entry in the list states the index of the starting neighbour.
+        vector<vector<size_t>> nextLst(n);
+        for (int vId = 0; vId < n; vId++)
+        {
+            vector<size_t>& vList = nextLst[vId];
+            vList.resize(g[vId].size() + 1, 0);
+            
+            for (size_t idx = 0; idx < vList.size(); idx++)
+            {
+                vList[idx] = idx;
+            }
+        }
 
 
         // --- Line 4 ---
@@ -775,7 +849,7 @@ namespace
             {
                 int pId = sigma[p];
 
-                TwinType tt = checkTwins(g, zId, pId, removed);
+                TwinType tt = checkTwins(g, zId, pId, removed, nextLst);
                 if (tt == TwinType::None) break;
 
                 // z and pre(z) are twins.
@@ -948,8 +1022,24 @@ vector<DistH::Pruning> DistH::pruneCograph_noTree(const Graph& g)
         pre[i] = i - 1;
     }
 
+
     // States if a vertex was removed from sigma.
     vector<bool> removed(n, false);
+
+    // States for each entry in a neighbourhodd which is the next entry that has
+    // not been removed. Allows to efficiently skip these vertices.
+    // The first entry in the list states the index of the starting neighbour.
+    vector<vector<size_t>> nextLst(n);
+    for (int vId = 0; vId < n; vId++)
+    {
+        vector<size_t>& vList = nextLst[vId];
+        vList.resize(g[vId].size() + 1, 0);
+        
+        for (size_t idx = 0; idx < vList.size(); idx++)
+        {
+            vList[idx] = idx;
+        }
+    }
 
 
     // --- Process permutation. ---
@@ -964,7 +1054,7 @@ vector<DistH::Pruning> DistH::pruneCograph_noTree(const Graph& g)
         {
             int pId = sigma[p];
 
-            TwinType tt = checkTwins(g, zId, pId, removed);
+            TwinType tt = checkTwins(g, zId, pId, removed, nextLst);
             if (tt == TwinType::None) break;
 
             // z and pre(z) are twins.
