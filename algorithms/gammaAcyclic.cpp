@@ -241,8 +241,10 @@ Graph GammaAcyclic::unionJoinGraph(const Hypergraph& hg)
 // Anonymous namespace with helper functions for prune().
 namespace
 {
+    typedef pair<vector<size_t>, vector<size_t>> listPair;
+
     // Computes distances in the incidence graph of a given hypergraph.
-    pair<vector<size_t>, vector<size_t>> bfs(const Hypergraph& h, int sId, bool onVertex)
+    listPair bfs(const Hypergraph& h, int sId, bool onVertex)
     {
         const size_t n = h.getVSize();
         const size_t m = h.getESize();
@@ -307,6 +309,55 @@ namespace
         }
 
         return result;
+    }
+
+    // Determine the number of lower neighbours for each vertex of the incidence graph.
+    listPair getInnerDegrees
+    (
+        const Hypergraph& h,
+        const listPair& id2Layer
+    )
+    {
+        const size_t n = h.getVSize();
+        const size_t m = h.getESize();
+
+        const vector<size_t>& v2Layer = id2Layer.first;
+        const vector<size_t>& e2Layer = id2Layer.second;
+
+        listPair innerDegrees;
+        vector<size_t>& vDegrees = innerDegrees.first;
+        vector<size_t>& eDegrees = innerDegrees.second;
+
+        vDegrees.resize(n, 0);
+        eDegrees.resize(m, 0);
+
+        // Degrees of vertices.
+        for (int vId = 0; vId < n; vId++)
+        {
+            size_t vLayer = v2Layer[vId];
+            size_t& vCount = vDegrees[vId];
+
+            for (const int& eId : h(vId))
+            {
+                // Neighbour is in a lower layer?
+                if (e2Layer[eId] < vLayer) vCount++;
+            }
+        }
+
+        // Degrees of hyperedges.
+        for (int eId = 0; eId < n; eId++)
+        {
+            size_t eLayer = e2Layer[eId];
+            size_t& eCount = eDegrees[eId];
+
+            for (const int& vId : h[eId])
+            {
+                // Neighbour is in a lower layer?
+                if (v2Layer[vId] < eLayer) eCount++;
+            }
+        }
+
+        return innerDegrees;
     }
 }
 
