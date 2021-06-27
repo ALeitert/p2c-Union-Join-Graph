@@ -1265,6 +1265,23 @@ namespace
 
         return pId;
     }
+
+    // Verifies if a given pruning sequence fits the given graph.
+    bool verifySequence(const Graph& g, const vector<DistH::Pruning>& seq)
+    {
+        throw runtime_error("Not implemented.");
+
+        // --- Algorithm 4 from [1] ---
+
+        //  1  For j := n - 1 DownTo 1
+        //  2      Let xQy = S_j.
+        //  3      If Q = P Then
+        //  4          If |N(x)| != 1 or xy not in E, Return False.
+        //  5      Else
+        //  6          If N(x) \cap { x1, ..., x_{j - 1} } !=
+        //             N(y) \cap { x1, ..., x_{j - 1} }, Return False.
+        //  7  Return True.
+    }
 }
 
 
