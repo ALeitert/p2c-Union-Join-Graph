@@ -811,7 +811,7 @@ namespace
         {
             vector<size_t>& vList = nextLst[vId];
             vList.resize(g[vId].size() + 1, 0);
-            
+
             for (size_t idx = 0; idx < vList.size(); idx++)
             {
                 vList[idx] = idx;
@@ -1023,7 +1023,7 @@ vector<DistH::Pruning> DistH::pruneCograph_noTree(const Graph& g)
     {
         vector<size_t>& vList = nextLst[vId];
         vList.resize(g[vId].size() + 1, 0);
-        
+
         for (size_t idx = 0; idx < vList.size(); idx++)
         {
             vList[idx] = idx;
@@ -1348,8 +1348,6 @@ namespace
     // Verifies if a given pruning sequence fits the given graph.
     bool verifySequence(const Graph& g, const vector<DistH::Pruning>& seq)
     {
-        throw runtime_error("Not implemented.");
-
         // --- Algorithm 4 from [1] ---
 
         //  1  For j := n - 1 DownTo 1
@@ -1360,6 +1358,110 @@ namespace
         //  6          If N(x) \cap { x1, ..., x_{j - 1} } !=
         //             N(y) \cap { x1, ..., x_{j - 1} }, Return False.
         //  7  Return True.
+
+        // The approach above verifies the sequence as constructing sequence.
+        // We do it the other was as eliminating sequence.
+
+
+        const size_t n = g.size();
+
+
+        // --- Preprocessing ---
+
+        // Trivally false?
+        if (seq.size() != n) return false;
+
+        // States if a vertex was removed from sigma.
+        vector<bool> removed(n, false);
+
+        // States for each entry in a neighbourhodd which is the next entry that has
+        // not been removed. Allows to efficiently skip these vertices.
+        // The first entry in the list states the index of the starting neighbour.
+        vector<vector<size_t>> nextLst(n);
+        for (int vId = 0; vId < n; vId++)
+        {
+            vector<size_t>& vList = nextLst[vId];
+            vList.resize(g[vId].size() + 1, 0);
+
+            for (size_t idx = 0; idx < vList.size(); idx++)
+            {
+                vList[idx] = idx;
+            }
+        }
+
+
+        // --- Verify sequence. ---
+
+        for (size_t i = 0; i < n - 1 /* ignore last */; i++)
+        {
+            // --- Line 2 ---
+
+            const DistH::Pruning prun = seq[i];
+
+            int xId = prun.vertex;
+            int yId = prun.parent;
+            DistH::PruningType Q = prun.type;
+
+
+            // --- Line 3 ---
+
+            if (Q == DistH::PruningType::Pendant)
+            {
+                // --- Line 4 ---
+
+                // Check if x has only y as neighbour.
+
+                bool adjToY = false;
+                size_t nCount = 0;
+
+                const vector<int>& xNeigh = g[xId];
+                const vector<size_t>& xNext = nextLst[xId];
+
+                for
+                (
+                    size_t idx = xNext[0]; // cur := first
+                    idx < xNeigh.size();
+                    idx = xNext[idx + 1] // cur := cur.next
+                )
+                {
+                    int nId = xNeigh[idx];
+                    if (removed[nId]) continue;
+
+                    // Neighbour found.
+                    nCount++;
+                    adjToY |= nId == yId;
+                }
+
+                if (nCount != 1 || !adjToY) return false;
+            }
+            else
+            {
+                // --- Line 6 ---
+
+                TwinType tt = checkTwins(g, xId, yId, removed, nextLst);
+
+                if
+                (
+                    tt == TwinType::None
+                    ||
+                    (
+                        tt == TwinType::FalseTwin &&
+                        Q != DistH::PruningType::FalseTwin
+                    )
+                    ||
+                    (
+                        tt == TwinType::TrueTwin &&
+                        Q != DistH::PruningType::TrueTwin
+                    )
+                ) return false;
+            }
+
+            // xQy is correct. Remove x from graph.
+            removed[xId] = true;
+        }
+
+        // All operations in sequence correct.
+        return true;
     }
 }
 
@@ -1572,5 +1674,7 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
     // Layer 0: start vertex of BFS
     result.push_back(Pruning(startId, PruningType::Pendant, -1));
 
-    return result;
+
+    // Verification of produced sequence
+    return verifySequence(g, result) ? result : vector<Pruning>();
 }
