@@ -359,6 +359,67 @@ namespace
 
         return innerDegrees;
     }
+
+    // Sorts vertices within layers by inner degree of vertices.
+    // Does not change the given layers and returns a new list of layers instead.
+    vector<vector<int>> sortByDegree
+    (
+        const vector<size_t>& id2Layer,
+        const vector<size_t>& innerDegree
+    )
+    {
+        const size_t k = id2Layer.size();
+
+
+        // --- Counting sort. ---
+
+        // Result of sorting.
+        vector<int> byDegree(k);
+
+        // Counter for counting sort.
+        vector<size_t> counter;
+
+
+        // Count.
+        for (int xId = 0; xId < k; xId++)
+        {
+            size_t key = innerDegree[xId] >> 1;
+            if (key >= counter.size()) counter.resize(key + 1);
+            counter[key]++;
+        }
+
+        // Pre-fix sums.
+        for (size_t i = 1; i < counter.size(); i++)
+        {
+            counter[i] += counter[i - 1];
+        }
+
+        // Sort.
+        for (int xId = k - 1; xId >= 0; xId--)
+        {
+            size_t key = innerDegree[xId] >> 1;
+
+            counter[key]--;
+            size_t idx = counter[key];
+
+            byDegree[idx] = xId;
+        }
+
+
+        // -- Rebuild layers. --
+
+        vector<vector<int>> layers(counter.size());
+
+        // Add vertices into layers again.
+        for (size_t idx = 0; idx < k; idx++)
+        {
+            int xId = byDegree[idx];
+            size_t xLayer = id2Layer[xId] >> 1;
+            layers[xLayer].push_back(xId);
+        }
+
+        return layers;
+    }
 }
 
 // Computes a pruning sequence for a given gamma-acyclic hypergraph.
