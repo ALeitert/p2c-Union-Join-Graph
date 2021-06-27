@@ -420,6 +420,32 @@ namespace
 
         return layers;
     }
+
+    // Contracts a subgraph induced by the given vertices and adds its pruning
+    // sequence to the given list.
+    // Return the ID into which the subgraph is contracted.
+    int contractSG(const vector<int> xList, vector<DistH::Pruning>& result, int mod)
+    {
+        // Check trival cases.
+        // Needed to avoid errors.
+        if (xList.size() == 0) return -1;
+        if (xList.size() == 1) return xList[0];
+
+
+        // Since we process hypergraphs, the subgraph has no edges. Therefore,
+        // each pruneing operation is a FalseTwin operation.
+
+        for (size_t i = 1; i < xList.size(); i++)
+        {
+            const int& xId = xList[i - 1];
+            const int& pId = xList[i];
+            const DistH::PruningType ft = DistH::PruningType::FalseTwin;
+
+            result.push_back(DistH::Pruning(xId + mod, ft, pId + mod));
+        }
+
+        return xList.back();
+    }
 }
 
 // Computes a pruning sequence for a given gamma-acyclic hypergraph.
