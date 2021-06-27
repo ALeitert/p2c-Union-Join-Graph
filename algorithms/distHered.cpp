@@ -30,6 +30,52 @@ namespace
         TrueTwin
     };
 
+    // Helper function for checkTwins().
+    // Determines the next neighbour that was not removed.
+    // Returns true if the potential twin was found.
+    bool findNextNeigh
+    (
+        size_t& idx, // The index to start at.
+        size_t& pre, // The index of the pointer to entries.
+        const vector<bool>& ignore, // The removed vertices.
+        const vector<int>& neigh, // The neighbourhood to search through.
+        vector<size_t>& next, // Pointers to next entry.
+        int twinId // The potential true twin to look for.
+    )
+    {
+        bool trueTwins = false;
+
+        for
+        (
+            ;
+            idx < neigh.size();
+            idx = next[idx + 1] /* cur := cur.next */
+        )
+        {
+            int nId = neigh[idx];
+
+            if (nId == twinId)
+            {
+                // Found the other vertex.
+                trueTwins = true;
+
+                // Skip it, but do not delete it.
+                // Hence, we need to update what was the previous node.
+
+                pre = idx + 1; // pre := cur
+                continue;
+            }
+
+            if (!ignore[nId]) break;
+
+            // "Delete" current node.
+            // pre.next = cur.next
+            next[pre] = next[idx + 1];
+        }
+
+        return trueTwins;
+    }
+
     // Determines if two vertices are twins by comparing their neighbourhoods.
     TwinType checkTwins
     (
@@ -70,65 +116,8 @@ namespace
         {
             // --- Skip ignored nodes and "delete" them. ---
 
-            int niId = -1;
-            int njId = -1;
-
-            for
-            (
-                ;
-                i < uNei.size();
-                i = uNext[i + 1] /* cur := cur.next */
-            )
-            {
-                niId = uNei[i];
-
-                if (niId == vId)
-                {
-                    // Found the other vertex.
-                    trueTwins = true;
-
-                    // Skip it, but do not delete it.
-                    // Hence, we need to update what was the previous node.
-
-                    pI = i + 1; // pre := cur
-                    continue;
-                }
-
-                if (!ignore[niId]) break;
-
-                // "Delete" current node.
-                // pre.next = cur.next
-                uNext[pI] = uNext[i + 1];
-            }
-
-            for
-            (
-                ;
-                j < vNei.size();
-                j = vNext[j + 1] // cur := cur.next
-            )
-            {
-                njId = vNei[j];
-
-                if (njId == uId)
-                {
-                    // Found the other vertex.
-                    trueTwins = true;
-
-                    // Skip it, but do not delete it.
-                    // Hence, we need to update what was the previous node.
-
-                    // pre := cur
-                    pJ = j + 1;
-                    continue;
-                }
-
-                if (!ignore[njId]) break;
-
-                // "Delete" current node.
-                // pre.next = cur.next
-                vNext[pJ] = vNext[j + 1]; 
-            }
+            trueTwins |= findNextNeigh(i, pI, ignore, uNei, uNext, vId);
+            findNextNeigh(j, pJ, ignore, vNei, vNext, uId);
 
 
             // --- Compare neighbours. ---
@@ -152,7 +141,7 @@ namespace
             }
 
             // Both neighbours the same?
-            if (niId != njId) return TwinType::None;
+            if (uNei[i] != vNei[j]) return TwinType::None;
         }
     }
 
