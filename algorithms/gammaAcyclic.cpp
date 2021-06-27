@@ -238,6 +238,78 @@ Graph GammaAcyclic::unionJoinGraph(const Hypergraph& hg)
 }
 
 
+// Anonymous namespace with helper functions for prune().
+namespace
+{
+    // Computes distances in the incidence graph of a given hypergraph.
+    pair<vector<size_t>, vector<size_t>> bfs(const Hypergraph& h, int sId, bool onVertex)
+    {
+        const size_t n = h.getVSize();
+        const size_t m = h.getESize();
+
+
+        // --- Initialise search. ---
+
+        vector<int> vQ;
+        vector<int> eQ;
+
+        vector<bool> vInQueue(n, false);
+        vector<bool> eInQueue(m, false);
+
+        pair<vector<size_t>, vector<size_t>> result;
+        vector<size_t>& vDist = result.first;
+        vector<size_t>& eDist = result.second;
+
+        vDist.resize(n, -1);
+        eDist.resize(m, -1);
+
+        // Set start vertex.
+        if (onVertex)
+        {
+            vQ.push_back(sId);
+            vInQueue[sId] = true;
+        }
+        {
+            eQ.push_back(sId);
+            eInQueue[sId] = true;
+        }
+
+
+        // --- Run BFS. ---
+
+        for (size_t dist = 0; ; dist++, onVertex = !onVertex)
+        {
+            vector<int>& currQ = onVertex ? vQ : eQ;
+            vector<int>& nextQ = onVertex ? eQ : vQ;
+
+            vector<bool>& inQueue = onVertex ? eInQueue : vInQueue;
+            vector<size_t>& dList = onVertex ? vDist : eDist;
+
+            // End search if everything processed.
+            if (currQ.size() == 0) break;
+
+            nextQ.clear();
+
+            for (const int& xId : currQ)
+            {
+                dList[xId] = dist;
+
+                const vector<int>& xNeighs = onVertex ? h(xId) : h[xId];
+
+                for (const int& yId : xNeighs)
+                {
+                    if (inQueue[yId]) continue;
+
+                    nextQ.push_back(yId);
+                    inQueue[yId] = true;
+                }
+            }
+        }
+
+        return result;
+    }
+}
+
 // Computes a pruning sequence for a given gamma-acyclic hypergraph.
 // Returns an empty list if the given hypergraph is not gamma-acyclic.
 vector<DistH::Pruning> GammaAcyclic::pruningSequence(const Hypergraph& h)
