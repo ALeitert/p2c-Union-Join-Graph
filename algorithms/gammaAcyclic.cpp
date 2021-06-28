@@ -828,12 +828,18 @@ vector<DistH::Pruning> GammaAcyclic::pruningSequence(const Hypergraph& h)
 
 
 // Computes a (simplified) Bachman diagram for the given gamma-acyclic hypergraph.
-void bachman(const Hypergraph& h)
+void GammaAcyclic::bachman(const Hypergraph& h)
 {
     throw runtime_error("Not implemented.");
 
 
     // --- Algorithm 4 ---
+
+    // -- Notation:
+    //    phi(E)   The node of B which represents E.
+    //    Phi(X)   The set of hyperedges E such that phi(E) = X.
+    //    psi(v)   The node of B which contains v.
+
 
     //  1  Compute a pruning sequence sigma = < x_1, x_2, ..., x_{n + m} >
     //     for I(H).
