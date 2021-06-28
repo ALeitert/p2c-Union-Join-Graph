@@ -666,5 +666,162 @@ namespace
 // Returns an empty list if the given hypergraph is not gamma-acyclic.
 vector<DistH::Pruning> GammaAcyclic::pruningSequence(const Hypergraph& h)
 {
-    throw runtime_error("Not implemented.");
+    // The implementation is based on the algorithm for distance-hereditary
+    // graphs. We were able to simplify various aspects of it since incidence
+    // graphs are bipartite.
+
+    //  2  Compute the distance layout < L_1, ..., L_k > from an arbitrary
+    //     vertex v.
+    //  3  For i := k DownTo 1
+
+    //  8      Sort the vertices of G[L_i] by increasing inner degree.
+
+    // 13      For Each x in L_i taken in increasing inner degree order
+    // 14          Set y := PruneCograph(G[N_{i - 1}(x)], j).
+    // 15          Contract N_{i - 1}(x) into y.
+    // 16          Set j := j + |N_{i - 1}(x)| - 1
+    // 17          Set sigma(j) := x, s_j := (xPy), and j := j + 1.
+
+    // Note on lines 8, 9, and 13: The "inner degree" of a vertex is the number
+    // of neighbours the vertex has in the layer below in the original graph.
+
+
+    const size_t n = h.getVSize();
+    const size_t m = h.getESize();
+
+    // States if a vertex or hyperedge was "removed" by contracting vertices.
+    vector<bool> vIgnore(n, false);
+    vector<bool> eIgnore(m, false);
+
+    // The resulting sequence.
+    vector<DistH::Pruning> result;
+
+
+    // --- Line 2 ---
+
+    bool onV = true;
+    const int startId = 0;
+
+    const listPair id2Layer = bfs(h, startId, true);
+    const vector<size_t>& v2Layer = id2Layer.first;
+    const vector<size_t>& e2Layer = id2Layer.second;
+
+
+    // --- Sort vertices and hyperedges in layers by their inner degree. ---
+
+    // Determine the inner degree of all vertices and hyperedges.
+    const listPair inDegrees = getInnerDegrees(h, id2Layer);
+    const vector<size_t>& vDegrees = inDegrees.first;
+    const vector<size_t>& eDegrees = inDegrees.second;
+
+    vector<vector<int>> layers;
+
+    // Sort by degree into layers.
+    {
+        vector<vector<int>> sortedVLayers = sortByDegree(v2Layer, vDegrees);
+        vector<vector<int>> sortedELayers = sortByDegree(e2Layer, eDegrees);
+
+        vector<vector<int>>& evnLayers = onV ? sortedVLayers : sortedELayers;
+        vector<vector<int>>& oddLayers = onV ? sortedELayers : sortedVLayers;
+
+        layers.resize(oddLayers.size() + evnLayers.size());
+
+        for (size_t l = 0; l < layers.size(); l++)
+        {
+            vector<vector<int>>& lLay = ((l & 1) == 0) ? evnLayers : oddLayers;
+            layers[l] = move(lLay[l >> 1]);
+        }
+    }
+
+    const size_t k = layers.size();
+
+
+    // --- Line 3 ---
+
+    // We skip layer 0 and treat it later as special case.
+    for (size_t i = k - 1; i > 0; i--)
+    {
+        const vector<int>& iLayer = layers[i];
+
+        // Layer is a vertex-layer
+        //     iff (onV and even) || (!onV and !even)
+        //     iff onV == even
+        const bool isVLayer = onV == ((i & 1) == 0);
+
+        vector<bool>& currIgnore = isVLayer ? vIgnore : eIgnore;
+        vector<bool>& downIgnore = isVLayer ? eIgnore : vIgnore;
+
+        const vector<size_t>& downId2Layer  = isVLayer ? e2Layer : v2Layer;
+
+        const int currMod = isVLayer ? 0 : n;
+        const int downMod = isVLayer ? n : 0;
+
+
+        // --- Line 8 ---
+
+        // Vertices in layers are already sorted by degree.
+
+
+        // --- Lines 9 and 13 ---
+
+        for (size_t degIdx = 0; degIdx < iLayer.size(); degIdx++)
+        {
+            int xId = iLayer[degIdx];
+            if (currIgnore[xId]) continue;
+
+
+            // --- Determine downwards neighbourhood. ---
+
+            const vector<int>& xNeighs = isVLayer ? h(xId) : h[xId];
+
+            vector<int> xDownN;
+            for (size_t dIdx = 0; dIdx < xNeighs.size(); dIdx++)
+            {
+                int dId = xNeighs[dIdx];
+                if (downIgnore[dId] || downId2Layer[dId] >= i) continue;
+
+                xDownN.push_back(dId);
+            }
+
+
+            // --- Lines 14 - 16 ---
+
+            int yId = contractSG(xDownN, result, downMod);
+
+            // "Remove" vertices from graph.
+            for (const int& dId : xDownN)
+            {
+                downIgnore[dId] = dId != yId;
+            }
+
+
+            // --- Lines 10, 11, and 17 ---
+
+            result.push_back
+            (
+                DistH::Pruning
+                (
+                    xId + currMod,
+                    DistH::PruningType::Pendant,
+                    yId + downMod
+                )
+            );
+            currIgnore[xId] = true; // No real need for it, but we do it just to be safe.
+        }
+    }
+
+
+    // Layer 0: start vertex of BFS
+    result.push_back
+    (
+        DistH::Pruning
+        (
+            startId + (onV ? 0 : n),
+            DistH::PruningType::Pendant,
+            -1
+        )
+    );
+
+    // Verification of produced sequence
+    return verifySequence(h, result) ? result : vector<DistH::Pruning>();
 }
