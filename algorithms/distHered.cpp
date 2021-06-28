@@ -1157,13 +1157,12 @@ namespace
     // Does not change the given layers and returns a new list of layers instead.
     vector<vector<int>> sortByDegree
     (
-        const Graph& g,
         const vector<size_t>& id2Layer,
         const vector<size_t>& innerDegree,
         const size_t k /* the total number of layers */
     )
     {
-        const size_t n = g.size();
+        const size_t n = id2Layer.size();
 
 
         // --- Counting sort. ---
@@ -1172,7 +1171,7 @@ namespace
         vector<int> byDegree(n);
 
         // Counter for counting sort.
-        vector<size_t> counter(n, 0);
+        vector<size_t> counter(k, 0);
 
 
         // Count.
@@ -1183,7 +1182,7 @@ namespace
         }
 
         // Pre-fix sums.
-        for (size_t i = 1; i < n; i++)
+        for (size_t i = 1; i < k; i++)
         {
             counter[i] += counter[i - 1];
         }
@@ -1253,7 +1252,7 @@ namespace
         return Graph(edgeList, vector<int>(edgeList.size()));
     }
 
-    // Contracts a subgraph defined by the given vertices and add its pruning
+    // Contracts a subgraph defined by the given vertices and adds its pruning
     // sequence to the given list.
     // Return the ID into which the subgraph is contracted.
     int contractSG
@@ -1371,7 +1370,7 @@ namespace
         // Trivally false?
         if (seq.size() != n) return false;
 
-        // States if a vertex was removed from sigma.
+        // States if a vertex was removed from G.
         vector<bool> removed(n, false);
 
         // States for each entry in a neighbourhodd which is the next entry that has
@@ -1545,7 +1544,7 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
     vector<size_t> inDegree = getInnerDegree(g, id2Layer);
 
     // Sort vertices in layers by their number of neighbours below.
-    vector<vector<int>> sortedLayers = sortByDegree(g, id2Layer, inDegree, k);
+    vector<vector<int>> sortedLayers = sortByDegree(id2Layer, inDegree, k);
 
 
     // The resulting sequence.
@@ -1555,7 +1554,7 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
     // --- Line 3 ---
 
     // We skip layer 0 and treat it later as special case.
-    for (size_t i = k - 1, ccIdx; i > 0; i--)
+    for (size_t i = k - 1; i > 0; i--)
     {
         const vector<int>& iLayer = layers[i];
 
@@ -1633,7 +1632,7 @@ vector<DistH::Pruning> DistH::pruneDistHered(const Graph& g)
             const vector<int>& vNeighs = g[vId];
 
             vector<int> vDownN;
-            for (size_t uIdx = 0, id = 0; uIdx < vNeighs.size(); uIdx++)
+            for (size_t uIdx = 0; uIdx < vNeighs.size(); uIdx++)
             {
                 int uId = vNeighs[uIdx];
                 if (ignore[uId] || id2Layer[uId] >= i) continue;

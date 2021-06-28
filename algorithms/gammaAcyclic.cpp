@@ -271,6 +271,7 @@ namespace
             vQ.push_back(sId);
             vInQueue[sId] = true;
         }
+        else
         {
             eQ.push_back(sId);
             eInQueue[sId] = true;
@@ -345,7 +346,7 @@ namespace
         }
 
         // Degrees of hyperedges.
-        for (int eId = 0; eId < n; eId++)
+        for (int eId = 0; eId < m; eId++)
         {
             size_t eLayer = e2Layer[eId];
             size_t& eCount = eDegrees[eId];
@@ -383,7 +384,7 @@ namespace
         // Count.
         for (int xId = 0; xId < k; xId++)
         {
-            size_t key = innerDegree[xId] >> 1;
+            size_t key = innerDegree[xId];
             if (key >= counter.size()) counter.resize(key + 1);
             counter[key]++;
         }
@@ -397,7 +398,7 @@ namespace
         // Sort.
         for (int xId = k - 1; xId >= 0; xId--)
         {
-            size_t key = innerDegree[xId] >> 1;
+            size_t key = innerDegree[xId];
 
             counter[key]--;
             size_t idx = counter[key];
@@ -408,13 +409,15 @@ namespace
 
         // -- Rebuild layers. --
 
-        vector<vector<int>> layers(counter.size());
+        vector<vector<int>> layers;
 
         // Add vertices into layers again.
         for (size_t idx = 0; idx < k; idx++)
         {
             int xId = byDegree[idx];
             size_t xLayer = id2Layer[xId] >> 1;
+
+            if (xLayer >= layers.size()) layers.resize(xLayer + 1);
             layers[xLayer].push_back(xId);
         }
 
