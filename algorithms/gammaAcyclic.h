@@ -20,6 +20,10 @@ namespace GammaAcyclic
     // Computes a pruning sequence for a given gamma-acyclic hypergraph.
     // Returns an empty list if the given hypergraph is not gamma-acyclic.
     vector<DistH::Pruning> pruningSequence(const Hypergraph& h);
+
+
+    // Computes a (simplified) Bachman diagram for the given gamma-acyclic hypergraph.
+    void bachman(const Hypergraph& h);
 }
 
 #endif

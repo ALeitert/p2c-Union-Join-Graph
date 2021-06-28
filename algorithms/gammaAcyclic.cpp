@@ -825,3 +825,10 @@ vector<DistH::Pruning> GammaAcyclic::pruningSequence(const Hypergraph& h)
     // Verification of produced sequence
     return verifySequence(h, result) ? result : vector<DistH::Pruning>();
 }
+
+
+// Computes a (simplified) Bachman diagram for the given gamma-acyclic hypergraph.
+void bachman(const Hypergraph& h)
+{
+    throw runtime_error("Not implemented.");
+}
