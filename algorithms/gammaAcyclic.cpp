@@ -449,6 +449,94 @@ namespace
 
         return xList.back();
     }
+
+    // Helper function for checkTwins().
+    // Determines the next neighbour that was not removed.
+    // Returns true if the potential twin was found.
+    void findNextNeigh
+    (
+        size_t& idx, // The index to start at.
+        size_t& pre, // The index of the pointer to entries.
+        const vector<bool>& ignore, // The removed vertices.
+        const vector<int>& neigh, // The neighbourhood to search through.
+        vector<size_t>& next // Pointers to next entry.
+    )
+    {
+        for
+        (
+            ;
+            idx < neigh.size();
+            idx = next[idx + 1] /* cur := cur.next */
+        )
+        {
+            int nId = neigh[idx];
+
+            if (!ignore[nId]) break;
+
+            // "Delete" current node.
+            // pre.next = cur.next
+            next[pre] = next[idx + 1];
+        }
+    }
+
+    // Determines if two vertices are twins by comparing their neighbourhoods.
+    bool checkTwins
+    (
+        const vector<int>& uNei,
+        const vector<int>& vNei,
+        vector<size_t>& uNext,
+        vector<size_t>& vNext,
+        const vector<bool>& ignore
+    )
+    {
+        for
+        (
+            size_t
+
+            // Pointer to (pointer to) nodes.
+            pI = 0, pJ = 0,
+
+            // First nodes.
+            // cur := pre.next
+            i = uNext[pI], j = vNext[pJ];
+
+            /* no break condition */;
+
+            // pre := cur
+            pI = i + 1, pJ = j + 1,
+
+            // cur := cur.next
+            i = uNext[i + 1],
+            j = vNext[j + 1]
+        )
+        {
+            // --- Skip ignored nodes and "delete" them. ---
+
+            findNextNeigh(i, pI, ignore, uNei, uNext);
+            findNextNeigh(j, pJ, ignore, vNei, vNext);
+
+
+            // --- Compare neighbours. ---
+
+            // Now, i and j either refer to a neighbour still in G or to
+            // the end of their respective neighbourhoods.
+
+
+            bool iInRange = i < uNei.size();
+            bool jInRange = j < vNei.size();
+
+
+            // If one neighbourhood still contains vertices while the other is
+            // completed: not twins.
+            if (iInRange != jInRange) return false;
+
+            // Both neighbourhoods completed?
+            if (!iInRange) return true;
+
+            // Both neighbours the same?
+            if (uNei[i] != vNei[j]) return false;
+        }
+    }
 }
 
 // Computes a pruning sequence for a given gamma-acyclic hypergraph.
