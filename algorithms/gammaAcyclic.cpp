@@ -880,4 +880,39 @@ void GammaAcyclic::bachman(const Hypergraph& h)
     // 22              Create a new set Y = { v }, add it as node into B, set
     //                 X := X \ { v }, set psi(v) := Y and phi(E) := Y, and add
     //                 the edge (X, Y) into B.
+
+
+    const size_t n = h.getVSize();
+    const size_t m = h.getESize();
+
+
+    // --- Line 1 ---
+
+    vector<DistH::Pruning> sigma = pruningSequence(h);
+
+    // Is H gamma-acyclic?
+    if (sigma.size() == 0) return;
+
+    // Note: pruningSequence() returns an elimination order. Algorithm 4 above
+    //       asume a constructing order. We therefore process sigma backwards.
+
+
+    // --- Line 2 ---
+
+    // Adjacency list of the Bachman diagram.
+    vector<vector<int>> B;
+
+    // Stores the hyperedges E with phi(E) = X for each X of B.
+    vector<vector<int>> Phi;
+    Phi.reserve(m);
+
+    // Stores the vertices (of H) in X for each X of B.
+    vector<vector<int>> Psi;
+    Psi.reserve(m);
+
+    // The functions phi and psi.
+    // Stores the node X they map on (first) and where the hyperedge or vertex
+    // is stored in Psi or Phi of X, respectively.
+    vector<intPair> phi(m, intPair(-1, -1));
+    vector<intPair> psi(n, intPair(-1, -1));
 }
