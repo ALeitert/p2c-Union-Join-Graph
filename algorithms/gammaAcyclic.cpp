@@ -537,6 +537,129 @@ namespace
             if (uNei[i] != vNei[j]) return false;
         }
     }
+
+    // Verifies if a given pruning sequence fits the given graph.
+    bool verifySequence(const Hypergraph& h, const vector<DistH::Pruning>& seq)
+    {
+        // --- Algorithm 4 from [1] ---
+
+        //  1  For j := n - 1 DownTo 1
+        //  2      Let xQy = S_j.
+        //  3      If Q = P Then
+        //  4          If |N(x)| != 1 or xy not in E, Return False.
+        //  5      Else
+        //  6          If N(x) \cap { x1, ..., x_{j - 1} } !=
+        //             N(y) \cap { x1, ..., x_{j - 1} }, Return False.
+        //  7  Return True.
+
+        // The approach above verifies the sequence as constructing sequence.
+        // We do it the other was as eliminating sequence.
+
+
+        const size_t n = h.getVSize();
+        const size_t m = h.getESize();
+
+
+        // --- Preprocessing ---
+
+        // Trivally false?
+        if (seq.size() != n + m) return false;
+
+        // States if a vertex was removed from H.
+        vector<bool> vRemoved(n, false);
+        vector<bool> eRemoved(m, false);
+
+        // States for each entry in a neighbourhodd which is the next entry that has
+        // not been removed. Allows to efficiently skip these vertices.
+        // The first entry in the list states the index of the starting neighbour.
+        vector<vector<size_t>> nextLst(n + m);
+        for (int xId = 0; xId < n + m; xId++)
+        {
+            const vector<int>& xNeigh = xId < n ? h(xId) : h[xId - n];
+
+            vector<size_t>& xList = nextLst[xId];
+            xList.resize(xNeigh.size() + 1, 0);
+
+            for (size_t idx = 0; idx < xList.size(); idx++)
+            {
+                xList[idx] = idx;
+            }
+        }
+
+
+        // --- Verify sequence. ---
+
+        for (size_t i = 0; i < n + m - 1 /* ignore last */; i++)
+        {
+            // --- Line 2 ---
+
+            const DistH::Pruning prun = seq[i];
+
+            const int xId = prun.vertex;
+            const int yId = prun.parent;
+            const DistH::PruningType Q = prun.type;
+
+            const bool xIsVer = xId < n;
+            const vector<int>& xNeigh = xIsVer ? h(xId) : h[xId - n];
+            vector<size_t>& xNext = nextLst[xId];
+
+            vector<bool>& nRemoved = xIsVer ? eRemoved : vRemoved;
+            vector<bool>& xRemoved = xIsVer ? vRemoved : eRemoved;
+
+            const int nMod = xIsVer ? n : 0;
+
+            // --- Line 3 ---
+
+            if (Q == DistH::PruningType::Pendant)
+            {
+                // --- Line 4 ---
+
+                // Check if x has only y as neighbour.
+
+                bool adjToY = false;
+                size_t nCount = 0;
+
+                for
+                (
+                    size_t idx = xNext[0]; // cur := first
+                    idx < xNeigh.size();
+                    idx = xNext[idx + 1] // cur := cur.next
+                )
+                {
+                    int nId = xNeigh[idx];
+                    if (nRemoved[nId]) continue;
+
+                    // Neighbour found.
+                    nCount++;
+                    adjToY |= nId + nMod == yId;
+                }
+
+                if (nCount != 1 || !adjToY) return false;
+            }
+            else
+            {
+                // --- Line 6 ---
+
+                bool twinsInH = checkTwins
+                (
+                    xNeigh,
+                    xIsVer ? h(yId) : h[yId - n],
+                    xNext,
+                    nextLst[yId],
+                    nRemoved
+                );
+                bool twinsInS = Q == DistH::PruningType::FalseTwin;
+
+                if (!twinsInH || !twinsInS) return false;
+            }
+
+            // xQy is correct. Remove x from graph.
+            xRemoved[xId - (xIsVer ? 0 : n)] = true;
+        }
+
+        // All operations in sequence correct.
+        return true;
+    }
 }
 
 // Computes a pruning sequence for a given gamma-acyclic hypergraph.
