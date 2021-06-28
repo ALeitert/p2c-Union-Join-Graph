@@ -831,4 +831,47 @@ vector<DistH::Pruning> GammaAcyclic::pruningSequence(const Hypergraph& h)
 void bachman(const Hypergraph& h)
 {
     throw runtime_error("Not implemented.");
+
+
+    // --- Algorithm 4 ---
+
+    //  1  Compute a pruning sequence sigma = < x_1, x_2, ..., x_{n + m} >
+    //     for I(H).
+
+    //  2  Create a new empty graph B.
+
+    //  3  Let x_1 and x_2 represent the vertex v and hyperedge E of H. Create a
+    //     new set X = { v }, add it as node to B, and set phi(E) := X and
+    //     psi(v) := X.
+
+    //  4  For i := 3 To n + m
+
+    //  5      If x_i represents a vertex v and is a false twin Then
+    //  6          Let u be the vertex represented by a twin of x_i and
+    //             let X = \psi(u).
+    //  7          Add v into X, i.e., set psi(v) := X and X := X \cup { v }.
+
+    //  8      If x_i represents a hyperedge E and is a false twin Then
+    //  9          Let E' be the hyperedge represented by a twin of x_i.
+    // 10          Set phi(E) := phi(E').
+
+    // 11      If x_i represents a vertex v and is pendant Then
+    // 12          Let E be the hyperedge represented by the neighbour of~x_i
+    //             and let X = phi(E).
+    // 13          If |Phi(X)| = 1 and X has no incoming edges in B Then
+    // 14              Add v into X, i.e., set psi(v) := X and X := X \cup { v }.
+    // 15          Else
+    // 16              Create a new set Y = { v }, add it as node to B, set
+    //                 psi(v) := Y and phi(E) := Y, and add the edges (Y, X)
+    //                 into B.
+
+    // 17      If x_i represents a hyperedge E and is pendant Then
+    // 18          Let v be the vertex represented by the neighbour of x_i and
+    //             let X = psi(v).
+    // 19          If |X| = 1 and X has no outgoing edges in B Then
+    // 20              Set phi(E) := X.
+    // 21          Else
+    // 22              Create a new set Y = { v }, add it as node into B, set
+    //                 X := X \ { v }, set psi(v) := Y and phi(E) := Y, and add
+    //                 the edge (X, Y) into B.
 }
