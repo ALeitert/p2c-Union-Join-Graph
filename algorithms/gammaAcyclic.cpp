@@ -827,6 +827,105 @@ vector<DistH::Pruning> GammaAcyclic::pruningSequence(const Hypergraph& h)
 }
 
 
+// Anonymous namespace with helper functions for bachman().
+namespace
+{
+    class Bachman
+    {
+    public:
+
+        // Default constructor.
+        // Creates an empty data structure.
+        Bachman() = default;
+
+        // Constructor.
+        // Creates an "empty" diagram for a hypergraph with m hyperedges and n vertices.
+        Bachman(size_t m, size_t n) :
+            phi(vector<intPair>(m, intPair(-1, -1))),
+            psi(vector<intPair>(n, intPair(-1, -1)))
+        {
+            Phi.reserve(m);
+            Psi.reserve(m);
+        }
+
+
+        // Crates a new node in the diagram and returns its ID.
+        int createNode()
+        {
+            int id = adjIn.size();
+
+            adjIn.push_back(vector<int>());
+            adjOut.push_back(vector<int>());
+            Phi.push_back(vector<int>());
+            Psi.push_back(vector<int>());
+
+            return id;
+        }
+
+        // Updates for a give hyperedge to which node it belongs.
+        void setPhi(int eId, int xId)
+        {
+            setAssignment(eId, xId, phi, Phi);
+        }
+
+        // Updates for a give vertex to which node it belongs.
+        void setPsi(int vId, int xId)
+        {
+            setAssignment(vId, xId, psi, Psi);
+        }
+
+
+    private:
+
+        // Genralised function to updes the assignment of a hyperedge or vertex to a node.
+        void setAssignment(int id, int xId, vector<intPair>& f, vector<vector<int>>& F)
+        {
+            intPair& info = f[id];
+
+            // Element assigned to a node?
+            if (info.first >= 0)
+            {
+                vector<int>& node = F[info.first];
+
+                // "Swap" with last in node.
+                int last = node.back();
+                node[info.second] = last;
+                f[last].second = info.second;
+
+                // Remove from node.
+                node.pop_back();
+                info.first = -1;
+                info.second = -1;
+            }
+
+            // -- Add to "new" node. --
+
+            vector<int>& X = F[xId];
+
+            info.first = xId;
+            info.second = X.size();
+
+            X.push_back(id);
+        }
+
+        // Adjacency list of the Bachman diagram.
+        vector<vector<int>> adjIn;  // Incoming edges.
+        vector<vector<int>> adjOut; // Outgoing edges.
+
+        // Stores the hyperedges E with phi(E) = X for each X of B.
+        vector<vector<int>> Phi;
+
+        // Stores the vertices (of H) in X for each X of B.
+        vector<vector<int>> Psi;
+
+        // The functions phi and psi.
+        // Stores the node X they map on (first) and where the hyperedge or vertex
+        // is stored in Psi or Phi of X, respectively.
+        vector<intPair> phi;
+        vector<intPair> psi;
+    };
+}
+
 // Computes a (simplified) Bachman diagram for the given gamma-acyclic hypergraph.
 void GammaAcyclic::bachman(const Hypergraph& h)
 {
