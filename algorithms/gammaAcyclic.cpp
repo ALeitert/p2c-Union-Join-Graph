@@ -999,19 +999,5 @@ void GammaAcyclic::bachman(const Hypergraph& h)
     // --- Line 2 ---
 
     // Adjacency list of the Bachman diagram.
-    vector<vector<int>> B;
-
-    // Stores the hyperedges E with phi(E) = X for each X of B.
-    vector<vector<int>> Phi;
-    Phi.reserve(m);
-
-    // Stores the vertices (of H) in X for each X of B.
-    vector<vector<int>> Psi;
-    Psi.reserve(m);
-
-    // The functions phi and psi.
-    // Stores the node X they map on (first) and where the hyperedge or vertex
-    // is stored in Psi or Phi of X, respectively.
-    vector<intPair> phi(m, intPair(-1, -1));
-    vector<intPair> psi(n, intPair(-1, -1));
+    Bachman B(m, n);
 }
