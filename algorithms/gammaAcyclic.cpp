@@ -1022,4 +1022,18 @@ void GammaAcyclic::bachman(const Hypergraph& h)
         B.setPhi(eId, X);
         B.setPsi(vId, X);
     }
+
+
+    // --- Line 4 ---
+
+    for (; sigma.size() > 0; sigma.pop_back())
+    {
+        DistH::Pruning prun = sigma.back();
+
+        int xI = prun.vertex;
+        int pI = prun.parent;
+
+        bool xIsV = xI < n;
+        bool isTwin = prun.type == DistH::PruningType::FalseTwin;
+    }
 }
