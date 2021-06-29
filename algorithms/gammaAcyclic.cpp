@@ -1000,4 +1000,26 @@ void GammaAcyclic::bachman(const Hypergraph& h)
 
     // Adjacency list of the Bachman diagram.
     Bachman B(m, n);
+
+
+    // --- Line 3 ---
+
+    {
+        // Ignore "first" entry.
+        sigma.pop_back();
+
+        DistH::Pruning prun = sigma.back();
+        sigma.pop_back();
+
+        int x1 = prun.parent;
+        int x2 = prun.vertex;
+
+        int vId = x1 < n ? x1 : x2;
+        int eId = (x1 < n ? x2 : x1) - n;
+
+        // Create new node X.
+        int X = B.createNode();
+        B.setPhi(eId, X);
+        B.setPsi(vId, X);
+    }
 }
