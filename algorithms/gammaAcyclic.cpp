@@ -1048,5 +1048,29 @@ void GammaAcyclic::bachman(const Hypergraph& h)
 
         bool xIsV = xI < n;
         bool isTwin = prun.type == DistH::PruningType::FalseTwin;
+
+
+        // --- Lines 5 - 7 ---
+
+        if (xIsV && isTwin)
+        {
+            int vId = xI;
+            int uId = pI;
+
+            int X = B(uId);
+            B.setPsi(vId, X);
+        }
+
+
+        // --- Lines 8 - 10 ---
+
+        else if (!xIsV && isTwin)
+        {
+            int eId = xI - n;
+            int fId = pI - n; // E'
+
+            int X = B[fId];
+            B.setPhi(eId, X);
+        }
     }
 }
