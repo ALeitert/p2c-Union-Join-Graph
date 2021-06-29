@@ -862,6 +862,19 @@ namespace
             return id;
         }
 
+
+        // Determines the node accociated with a given hyperedge.
+        int operator[](int eId) const
+        {
+            return phi[eId].first;
+        }
+
+        // Determines the node accociated with a given vertex.
+        int operator()(int vId) const
+        {
+            return psi[vId].first;
+        }
+
         // Updates for a give hyperedge to which node it belongs.
         void setPhi(int eId, int xId)
         {
