@@ -972,11 +972,8 @@ namespace
 }
 
 // Computes a (simplified) Bachman diagram for the given gamma-acyclic hypergraph.
-void GammaAcyclic::bachman(const Hypergraph& h)
+Bachman bachman(const Hypergraph& h)
 {
-    throw runtime_error("Not implemented.");
-
-
     // --- Algorithm 4 ---
 
     // -- Notation:
@@ -1032,10 +1029,10 @@ void GammaAcyclic::bachman(const Hypergraph& h)
 
     // --- Line 1 ---
 
-    vector<DistH::Pruning> sigma = pruningSequence(h);
+    vector<DistH::Pruning> sigma = GammaAcyclic::pruningSequence(h);
 
     // Is H gamma-acyclic?
-    if (sigma.size() == 0) return;
+    if (sigma.size() == 0) return Bachman();
 
     // Note: pruningSequence() returns an elimination order. Algorithm 4 above
     //       asume a constructing order. We therefore process sigma backwards.
@@ -1149,4 +1146,6 @@ void GammaAcyclic::bachman(const Hypergraph& h)
             }
         }
     }
+
+    return B;
 }
