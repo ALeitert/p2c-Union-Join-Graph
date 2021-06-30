@@ -1104,5 +1104,49 @@ void GammaAcyclic::bachman(const Hypergraph& h)
             int X = B[fId];
             B.setPhi(eId, X);
         }
+
+
+        // --- Lines 11 - 16 ---
+
+        else if (xIsV && !isTwin)
+        {
+            int vId = xI;
+            int eId = pI - n;
+            int X = B[eId];
+
+            if (B.PhiSize(X) == 1 && B.inDegree(X) == 0)
+            {
+                B.setPsi(vId, X);
+            }
+            else
+            {
+                int Y = B.createNode();
+                B.setPsi(vId, Y);
+                B.setPhi(eId, Y);
+                B.addEdge(Y, X);
+            }
+        }
+
+
+        // --- Lines 17 - 22 ---
+
+        else if (!xIsV && !isTwin)
+        {
+            int eId = xI - n;
+            int vId = pI;
+            int X = B(vId);
+
+            if (B.PsiSize(X) == 1 && B.outDegree(X) == 0)
+            {
+                B.setPhi(eId, X);
+            }
+            else
+            {
+                int Y = B.createNode();
+                B.setPsi(vId, Y);
+                B.setPhi(eId, Y);
+                B.addEdge(X, Y);
+            }
+        }
     }
 }
