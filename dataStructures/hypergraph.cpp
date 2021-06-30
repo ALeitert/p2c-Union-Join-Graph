@@ -75,7 +75,7 @@ Hypergraph::Hypergraph(Hypergraph&& other)
 // Destructor.
 Hypergraph::~Hypergraph()
 {
-    destruct();
+    if (!isDual) destruct();
 }
 
 
@@ -99,6 +99,7 @@ void Hypergraph::destruct()
 {
     delete[] vertices;
     delete[] hyperedges;
+    if (dual != nullptr && !isDual) delete dual;
 }
 
 
@@ -249,4 +250,28 @@ Graph Hypergraph::getLinegraph() const
     }
 
     return Graph(pairList, weigList);
+}
+
+// Return the dual hypergraph.
+const Hypergraph& Hypergraph::getDual() const
+{
+    if (dual == nullptr)
+    {
+        dual = new Hypergraph(this);
+    }
+
+    return *dual;
+}
+
+// Constructor.
+// Initialises a hypergraph that is the dual of the given hypergraph.
+Hypergraph::Hypergraph(const Hypergraph* hg)
+{
+    vSize = hg->eSize;
+    eSize = hg->vSize;
+    tSize = hg->tSize;
+    vertices = hg->hyperedges;
+    hyperedges = hg->vertices;
+    dual = hg;
+    isDual = true;
 }

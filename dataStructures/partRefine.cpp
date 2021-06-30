@@ -38,7 +38,8 @@ PartRefinement::PartRefinement(size_t k)
 }
 
 // Refines the current groups based on the given list of IDs.
-void PartRefinement::refine(const vector<int>& idList)
+// Returns the indices of the newly created groups.
+vector<size_t> PartRefinement::refine(const vector<int>& idList)
 {
     vector<size_t> modifiedGrps;
 
@@ -68,6 +69,8 @@ void PartRefinement::refine(const vector<int>& idList)
 
     // --- Split modified groups. ---
 
+    vector<size_t> newGroups;
+
     for (const size_t& grpIdx : modifiedGrps)
     {
         Group& grp = groups[grpIdx];
@@ -81,8 +84,11 @@ void PartRefinement::refine(const vector<int>& idList)
         }
 
         size_t newGrpIdx = groups.size();
+        newGroups.push_back(newGrpIdx);
+
         groups.push_back(Group());
         Group& newGrp = groups.back();
+
         grpCount++;
 
         newGrp.end = grp.end;
@@ -111,6 +117,8 @@ void PartRefinement::refine(const vector<int>& idList)
             id2Grp[vId] = newGrpIdx;
         }
     }
+
+    return newGroups;
 }
 
 // Refines the the first and last group that contain any of the given IDs.
@@ -296,6 +304,7 @@ void PartRefinement::flRefine(const vector<int>& idList)
         }
     }
 }
+
 
 // The current number of non-empty groups.
 size_t PartRefinement::size() const
