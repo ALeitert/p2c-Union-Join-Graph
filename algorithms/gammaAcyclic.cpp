@@ -862,6 +862,13 @@ namespace
             return id;
         }
 
+        // Adds a new edge from X to Y into the diagram.
+        void addEdge(int xId, int yId)
+        {
+            adjOut[xId].push_back(yId);
+            adjIn[yId].push_back(xId);
+        }
+
 
         // Determines the node accociated with a given hyperedge.
         int operator[](int eId) const
