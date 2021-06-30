@@ -1187,3 +1187,26 @@ Bachman bachman(const Hypergraph& h)
 
     return B;
 }
+
+// Computes the edges of the subset graph of the given gamma-acyclic hypergraph.
+// A pair (x, y) states that y is subset of x.
+vector<intPair> GammaAcyclic::subsetGraph(const Hypergraph& h)
+{
+    // --- Algorithm 5 ---
+
+    Bachman B = bachman(h);
+    vector<intPair> result;
+
+    for (int eId = 0; eId < h.getESize(); eId++)
+    {
+        vector<int> superSets = B.canReach(eId);
+
+        for (const int& sId : superSets)
+        {
+            result.push_back(intPair(sId, eId));
+        }
+    }
+
+    Sorting::radixSort(result);
+    return result;
+}
