@@ -920,6 +920,44 @@ namespace
         }
 
 
+        // Determines all hyperedges which can reach the given hyperedge.
+        vector<int> canReach(int eId) const
+        {
+            // Implements line 4 of Algorithm 5.
+
+            int xId = phi[eId].first;
+
+
+            // --- BFS: Determine nodes Y that can reach X. ---
+
+            vector<int> yList = { xId };
+            for (size_t qIdx = 0; qIdx < yList.size(); qIdx++)
+            {
+                int yId = yList[qIdx];
+
+                for (int zId : adjIn[yId])
+                {
+                    yList.push_back(zId);
+                }
+            }
+
+
+            // --- Determine hyperedges associated with the Y-nodes. ---
+
+            vector<int> result;
+            for (int yId : yList)
+            {
+                for (int epId : Phi[yId])
+                {
+                    if (epId == eId) continue;
+                    result.push_back(epId);
+                }
+            }
+
+            return result;
+        }
+
+
     private:
 
         // Genralised function to updes the assignment of a hyperedge or vertex to a node.
