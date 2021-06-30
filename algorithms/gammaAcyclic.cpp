@@ -888,6 +888,31 @@ namespace
         }
 
 
+        // Returns the number of hyperedges accociated with the given node.
+        size_t PhiSize(int xId) const
+        {
+            return Phi[xId].size();
+        }
+
+        // Returns the number of vertices accociated with the given node.
+        size_t PsiSize(int xId) const
+        {
+            return Psi[xId].size();
+        }
+
+        // Returns the number of incoming edges for the given node.
+        size_t inDegree(int xId) const
+        {
+            return adjIn[xId].size();
+        }
+
+        // Returns the number of outgoing edges for the given node.
+        size_t outDegree(int xId) const
+        {
+            return adjOut[xId].size();
+        }
+
+
     private:
 
         // Genralised function to updes the assignment of a hyperedge or vertex to a node.
