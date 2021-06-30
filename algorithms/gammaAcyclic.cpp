@@ -825,3 +825,365 @@ vector<DistH::Pruning> GammaAcyclic::pruningSequence(const Hypergraph& h)
     // Verification of produced sequence
     return verifySequence(h, result) ? result : vector<DistH::Pruning>();
 }
+
+
+// Anonymous namespace with helper functions for bachman().
+namespace
+{
+    class Bachman
+    {
+    public:
+
+        // Default constructor.
+        // Creates an empty data structure.
+        Bachman() = default;
+
+        // Constructor.
+        // Creates an "empty" diagram for a hypergraph with m hyperedges and n vertices.
+        Bachman(size_t m, size_t n) :
+            phi(vector<intPair>(m, intPair(-1, -1))),
+            psi(vector<intPair>(n, intPair(-1, -1)))
+        {
+            Phi.reserve(m);
+            Psi.reserve(m);
+        }
+
+
+        // Crates a new node in the diagram and returns its ID.
+        int createNode()
+        {
+            int id = adjIn.size();
+
+            adjIn.push_back(vector<int>());
+            adjOut.push_back(vector<int>());
+            Phi.push_back(vector<int>());
+            Psi.push_back(vector<int>());
+
+            return id;
+        }
+
+        // Adds a new edge from X to Y into the diagram.
+        void addEdge(int xId, int yId)
+        {
+            adjOut[xId].push_back(yId);
+            adjIn[yId].push_back(xId);
+        }
+
+
+        // Determines the node accociated with a given hyperedge.
+        int operator[](int eId) const
+        {
+            return phi[eId].first;
+        }
+
+        // Determines the node accociated with a given vertex.
+        int operator()(int vId) const
+        {
+            return psi[vId].first;
+        }
+
+        // Updates for a give hyperedge to which node it belongs.
+        void setPhi(int eId, int xId)
+        {
+            setAssignment(eId, xId, phi, Phi);
+        }
+
+        // Updates for a give vertex to which node it belongs.
+        void setPsi(int vId, int xId)
+        {
+            setAssignment(vId, xId, psi, Psi);
+        }
+
+
+        // Returns the number of hyperedges accociated with the given node.
+        size_t PhiSize(int xId) const
+        {
+            return Phi[xId].size();
+        }
+
+        // Returns the number of vertices accociated with the given node.
+        size_t PsiSize(int xId) const
+        {
+            return Psi[xId].size();
+        }
+
+        // Returns the number of incoming edges for the given node.
+        size_t inDegree(int xId) const
+        {
+            return adjIn[xId].size();
+        }
+
+        // Returns the number of outgoing edges for the given node.
+        size_t outDegree(int xId) const
+        {
+            return adjOut[xId].size();
+        }
+
+
+        // Determines all hyperedges which can reach the given hyperedge.
+        vector<int> canReach(int eId) const
+        {
+            // Implements line 4 of Algorithm 5.
+
+            int xId = phi[eId].first;
+
+
+            // --- BFS: Determine nodes Y that can reach X. ---
+
+            vector<int> yList = { xId };
+            for (size_t qIdx = 0; qIdx < yList.size(); qIdx++)
+            {
+                int yId = yList[qIdx];
+
+                for (int zId : adjIn[yId])
+                {
+                    yList.push_back(zId);
+                }
+            }
+
+
+            // --- Determine hyperedges associated with the Y-nodes. ---
+
+            vector<int> result;
+            for (int yId : yList)
+            {
+                for (int epId : Phi[yId])
+                {
+                    if (epId == eId) continue;
+                    result.push_back(epId);
+                }
+            }
+
+            return result;
+        }
+
+
+    private:
+
+        // Genralised function to updes the assignment of a hyperedge or vertex to a node.
+        void setAssignment(int id, int xId, vector<intPair>& f, vector<vector<int>>& F)
+        {
+            intPair& info = f[id];
+
+            // Element assigned to a node?
+            if (info.first >= 0)
+            {
+                vector<int>& node = F[info.first];
+
+                // "Swap" with last in node.
+                int last = node.back();
+                node[info.second] = last;
+                f[last].second = info.second;
+
+                // Remove from node.
+                node.pop_back();
+                info.first = -1;
+                info.second = -1;
+            }
+
+            // -- Add to "new" node. --
+
+            vector<int>& X = F[xId];
+
+            info.first = xId;
+            info.second = X.size();
+
+            X.push_back(id);
+        }
+
+        // Adjacency list of the Bachman diagram.
+        vector<vector<int>> adjIn;  // Incoming edges.
+        vector<vector<int>> adjOut; // Outgoing edges.
+
+        // Stores the hyperedges E with phi(E) = X for each X of B.
+        vector<vector<int>> Phi;
+
+        // Stores the vertices (of H) in X for each X of B.
+        vector<vector<int>> Psi;
+
+        // The functions phi and psi.
+        // Stores the node X they map on (first) and where the hyperedge or vertex
+        // is stored in Psi or Phi of X, respectively.
+        vector<intPair> phi;
+        vector<intPair> psi;
+    };
+}
+
+// Computes a (simplified) Bachman diagram for the given gamma-acyclic hypergraph.
+Bachman bachman(const Hypergraph& h)
+{
+    // --- Algorithm 4 ---
+
+    // -- Notation:
+    //    phi(E)   The node of B which represents E.
+    //    Phi(X)   The set of hyperedges E such that phi(E) = X.
+    //    psi(v)   The node of B which contains v.
+
+
+    //  1  Compute a pruning sequence sigma = < x_1, x_2, ..., x_{n + m} >
+    //     for I(H).
+
+    //  2  Create a new empty graph B.
+
+    //  3  Let x_1 and x_2 represent the vertex v and hyperedge E of H. Create a
+    //     new set X = { v }, add it as node to B, and set phi(E) := X and
+    //     psi(v) := X.
+
+    //  4  For i := 3 To n + m
+
+    //  5      If x_i represents a vertex v and is a false twin Then
+    //  6          Let u be the vertex represented by a twin of x_i and
+    //             let X = \psi(u).
+    //  7          Add v into X, i.e., set psi(v) := X and X := X \cup { v }.
+
+    //  8      If x_i represents a hyperedge E and is a false twin Then
+    //  9          Let E' be the hyperedge represented by a twin of x_i.
+    // 10          Set phi(E) := phi(E').
+
+    // 11      If x_i represents a vertex v and is pendant Then
+    // 12          Let E be the hyperedge represented by the neighbour of~x_i
+    //             and let X = phi(E).
+    // 13          If |Phi(X)| = 1 and X has no incoming edges in B Then
+    // 14              Add v into X, i.e., set psi(v) := X and X := X \cup { v }.
+    // 15          Else
+    // 16              Create a new set Y = { v }, add it as node to B, set
+    //                 psi(v) := Y and phi(E) := Y, and add the edges (Y, X)
+    //                 into B.
+
+    // 17      If x_i represents a hyperedge E and is pendant Then
+    // 18          Let v be the vertex represented by the neighbour of x_i and
+    //             let X = psi(v).
+    // 19          If |X| = 1 and X has no outgoing edges in B Then
+    // 20              Set phi(E) := X.
+    // 21          Else
+    // 22              Create a new set Y = { v }, add it as node into B, set
+    //                 X := X \ { v }, set psi(v) := Y and phi(E) := Y, and add
+    //                 the edge (X, Y) into B.
+
+
+    const size_t n = h.getVSize();
+    const size_t m = h.getESize();
+
+
+    // --- Line 1 ---
+
+    vector<DistH::Pruning> sigma = GammaAcyclic::pruningSequence(h);
+
+    // Is H gamma-acyclic?
+    if (sigma.size() == 0) return Bachman();
+
+    // Note: pruningSequence() returns an elimination order. Algorithm 4 above
+    //       asume a constructing order. We therefore process sigma backwards.
+
+
+    // --- Line 2 ---
+
+    // Adjacency list of the Bachman diagram.
+    Bachman B(m, n);
+
+
+    // --- Line 3 ---
+
+    {
+        // Ignore "first" entry.
+        sigma.pop_back();
+
+        DistH::Pruning prun = sigma.back();
+        sigma.pop_back();
+
+        int x1 = prun.parent;
+        int x2 = prun.vertex;
+
+        int vId = x1 < n ? x1 : x2;
+        int eId = (x1 < n ? x2 : x1) - n;
+
+        // Create new node X.
+        int X = B.createNode();
+        B.setPhi(eId, X);
+        B.setPsi(vId, X);
+    }
+
+
+    // --- Line 4 ---
+
+    for (; sigma.size() > 0; sigma.pop_back())
+    {
+        DistH::Pruning prun = sigma.back();
+
+        int xI = prun.vertex;
+        int pI = prun.parent;
+
+        bool xIsV = xI < n;
+        bool isTwin = prun.type == DistH::PruningType::FalseTwin;
+
+
+        // --- Lines 5 - 7 ---
+
+        if (xIsV && isTwin)
+        {
+            int vId = xI;
+            int uId = pI;
+
+            int X = B(uId);
+            B.setPsi(vId, X);
+        }
+
+
+        // --- Lines 8 - 10 ---
+
+        else if (!xIsV && isTwin)
+        {
+            int eId = xI - n;
+            int fId = pI - n; // E'
+
+            int X = B[fId];
+            B.setPhi(eId, X);
+        }
+
+
+        // --- Lines 11 - 16 ---
+
+        else if (xIsV && !isTwin)
+        {
+            int vId = xI;
+            int eId = pI - n;
+            int X = B[eId];
+
+            if (B.PhiSize(X) == 1 && B.inDegree(X) == 0)
+            {
+                B.setPsi(vId, X);
+            }
+            else
+            {
+                int Y = B.createNode();
+                B.setPsi(vId, Y);
+                B.setPhi(eId, Y);
+                B.addEdge(Y, X);
+            }
+        }
+
+
+        // --- Lines 17 - 22 ---
+
+        else if (!xIsV && !isTwin)
+        {
+            int eId = xI - n;
+            int vId = pI;
+            int X = B(vId);
+
+            if (B.PsiSize(X) == 1 && B.outDegree(X) == 0)
+            {
+                B.setPhi(eId, X);
+            }
+            else
+            {
+                int Y = B.createNode();
+                B.setPsi(vId, Y);
+                B.setPhi(eId, Y);
+                B.addEdge(X, Y);
+            }
+        }
+    }
+
+    return B;
+}
