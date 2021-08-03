@@ -147,7 +147,7 @@ void DijkstraHeap::heapify(size_t index)
         }
 
         swapKeys(smlIdx, index);
-        heapify(smlIdx);
+        index = smlIdx;
     }
 }
 
